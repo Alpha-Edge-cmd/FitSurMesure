@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Codes promo / parrainage | FitSurMesure</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0f1115; color: #e6e8ec; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;
+  }
+  header h1 { font-size: 1.4rem; margin: 0; }
+  header a { color: #9aa1af; font-size: 0.85rem; text-decoration: none; }
+  header a:hover { color: #fff; }
+
+  .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .totals .card {
+    background: #181b22; border: 1px solid #262b36; border-radius: 10px; padding: 1rem 1.2rem;
+  }
+  .totals .card .num { font-size: 1.5rem; font-weight: 700; color: #f5c344; }
+  .totals .card .label { font-size: 0.78rem; color: #9aa1af; margin-top: 0.2rem; }
+
+  .msg { padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .msg.ok { background: #17301f; color: #7be2a0; }
+  .msg.error { background: #3a1c1c; color: #ff8a8a; }
+
+  .panel {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 1.1rem; }
+  .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .form-grid .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 0.78rem; color: #9aa1af; margin-bottom: 0.35rem; }
+  input[type="text"], input[type="email"], input[type="number"], textarea {
+    width: 100%; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid #2c313d;
+    background: #10131a; color: #fff; font-size: 0.9rem; font-family: inherit;
+  }
+  .form-actions { margin-top: 1.2rem; }
+  button, .btn {
+    padding: 0.55rem 1.1rem; border: none; border-radius: 8px; font-weight: 700;
+    font-size: 0.85rem; cursor: pointer; background: #f5c344; color: #10131a;
+  }
+  button:hover, .btn:hover { background: #f7cf66; }
+  .btn-ghost {
+    background: transparent; border: 1px solid #2c313d; color: #cbd1db; font-weight: 500;
+  }
+  .btn-ghost:hover { background: #20242e; }
+  .btn-danger { background: transparent; border: 1px solid #5c2626; color: #ff8a8a; font-weight: 500; }
+  .btn-danger:hover { background: #2a1616; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid #21252f; vertical-align: top; }
+  th { color: #9aa1af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  .code-tag {
+    font-family: 'SFMono-Regular', Menlo, monospace; background: #10131a; padding: 0.2rem 0.5rem;
+    border-radius: 5px; color: #f5c344; font-size: 0.85rem;
+  }
+  .badge-active { color: #7be2a0; font-size: 0.75rem; }
+  .badge-inactive { color: #ff8a8a; font-size: 0.75rem; }
+  .row-actions { display: flex; gap: 0.5rem; }
+  .row-actions form { display: inline; }
+  .muted { color: #6b7280; font-size: 0.78rem; }
+  details summary { cursor: pointer; color: #9aa1af; font-size: 0.78rem; }
+  details ul { margin: 0.5rem 0 0; padding-left: 1.1rem; }
+  details li { font-size: 0.78rem; color: #cbd1db; margin-bottom: 0.2rem; }
+  .empty { color: #6b7280; font-size: 0.85rem; padding: 1rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Codes promo / parrainage</h1>
+    <a href="/admin/logout">Se déconnecter</a>
+  </header>
+
+  {% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
+  {% if error %}<div class="msg error">{{ error }}</div>{% endif %}
+
+  <div class="totals">
+    <div class="card"><div class="num">{{ totals.nb_codes }}</div><div class="label">Codes créés</div></div>
+    <div class="card"><div class="num">{{ totals.nb_uses }}</div><div class="label">Programmes générés (essais gratuits + parrainages)</div></div>
+    <div class="card"><div class="num">{{ totals.nb_referrals }}</div><div class="label">Parrainages payants</div></div>
+    <div class="card"><div class="num">{{ "%.2f"|format(totals.ca_total) }}€</div><div class="label">CA généré (indicatif, après réduction)</div></div>
+    <div class="card"><div class="num">{{ "%.2f"|format(totals.commission_due) }}€</div><div class="label">Commission due (indicatif)</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Créer un nouveau code</h2>
+    <p class="muted" style="margin: -0.4rem 0 1.1rem;">
+      Le 1er programme généré avec ce code est gratuit (essai pour le bénéficiaire).
+      Ensuite, chaque personne parrainée obtient la réduction ci-dessous, et le
+      bénéficiaire touche la commission indiquée sur le montant réellement payé.
+    </p>
+    <form method="POST">
+      <input type="hidden" name="action" value="create">
+      <div class="form-grid">
+        <div>
+          <label for="owner_name">Nom (ami / influenceur) *</label>
+          <input type="text" id="owner_name" name="owner_name" required placeholder="Ex : Karim">
+        </div>
+        <div>
+          <label for="owner_email">Email (facultatif)</label>
+          <input type="email" id="owner_email" name="owner_email" placeholder="karim@exemple.com">
+        </div>
+        <div>
+          <label for="code">Code (laisser vide pour générer automatiquement)</label>
+          <input type="text" id="code" name="code" placeholder="Ex : KARIM-7F3B">
+        </div>
+        <div></div>
+        <div>
+          <label for="discount_pct">Réduction pour la personne parrainée (%)</label>
+          <input type="number" id="discount_pct" name="discount_pct" value="{{ default_discount }}" min="0" max="100" step="0.5">
+        </div>
+        <div>
+          <label for="commission_pct">Commission pour le bénéficiaire (%)</label>
+          <input type="number" id="commission_pct" name="commission_pct" value="{{ default_commission }}" min="0" max="100" step="0.5">
+        </div>
+        <div class="full">
+          <label for="notes">Notes (facultatif)</label>
+          <textarea id="notes" name="notes" rows="2" placeholder="Ex : compte Instagram @karim_fit"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Créer le code</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>Codes existants</h2>
+    {% if codes %}
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Bénéficiaire</th>
+          <th>Conditions</th>
+          <th>Statut</th>
+          <th>Essai gratuit</th>
+          <th>Utilisations</th>
+          <th>CA</th>
+          <th>Commission due</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in codes %}
+        <tr>
+          <td><span class="code-tag">{{ c.code }}</span><br><span class="muted">{{ c.created_at[:10] }}</span></td>
+          <td>
+            {{ c.owner_name }}<br>
+            <span class="muted">{{ c.owner_email }}</span>
+            {% if c.notes %}<br><span class="muted">{{ c.notes }}</span>{% endif %}
+          </td>
+          <td>-{{ c.discount_pct }}% client<br>{{ c.commission_pct }}% commission</td>
+          <td>
+            {% if c.active %}<span class="badge-active">● Actif</span>{% else %}<span class="badge-inactive">● Désactivé</span>{% endif %}
+          </td>
+          <td>
+            {% if c.free_claimed %}<span class="badge-inactive">Déjà consommé</span>{% else %}<span class="badge-active">Disponible</span>{% endif %}
+          </td>
+          <td>
+            {{ c.nb_uses }} au total ({{ c.nb_referrals }} parrainage{{ "s" if c.nb_referrals != 1 else "" }})
+            {% if c.uses %}
+            <details>
+              <summary>détail</summary>
+              <ul>
+                {% for u in c.uses %}
+                <li>
+                  {{ u.date[:10] }} — {{ u.prenom or "?" }} — {{ u.formule }} —
+                  {% if u.free %}gratuit (essai){% else %}payé {{ "%.2f"|format(u.montant_paye) }}€ (-{{ u.discount_pct }}%), commission {{ "%.2f"|format(u.commission) }}€{% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+          </td>
+          <td>{{ "%.2f"|format(c.ca_total) }}€</td>
+          <td>{{ "%.2f"|format(c.commission_due) }}€</td>
+          <td>
+            <div class="row-actions">
+              <form method="POST">
+                <input type="hidden" name="action" value="toggle">
+                <input type="hidden" name="code" value="{{ c.code }}">
+                <button type="submit" class="btn-ghost">{{ "Désactiver" if c.active else "Activer" }}</button>
+              </form>
+              {% if c.free_claimed %}
+              <form method="POST">
+                <input type="hidden" name="action" value="reset_free">
+                <input type="hidden" name="code" value="{{ c.code }}">
+                <button type="submit" class="btn-ghost">Réinitialiser l'essai gratuit</button>
+              </form>
+              {% endif %}
+              <form method="POST" onsubmit="return confirm('Supprimer le code {{ c.code }} ? Cette action est définitive.');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="code" value="{{ c.code }}">
+                <button type="submit" class="btn-danger">Supprimer</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Aucun code créé pour le moment.</div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

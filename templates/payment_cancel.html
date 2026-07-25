@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Paiement non finalisé | FitSurMesure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+<style>
+  .cancel-wrap { max-width: 620px; margin: 4rem auto 5rem; padding: 0 1.25rem; text-align: center; }
+  .cancel-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 2.4rem; box-shadow: 0 10px 30px rgba(11,15,25,0.06);
+  }
+  .cancel-card h1 { font-family: var(--font-display); font-weight: 400; color: var(--navy); font-size: 1.8rem; margin: 0.6rem 0 0.8rem; }
+  .cancel-card p { color: var(--grey); margin: 0 0 1.6rem; }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <a href="/" class="brand">FitSurMesure</a>
+  </div>
+</nav>
+
+<div class="cancel-wrap">
+  <div class="cancel-card">
+    <span class="eyebrow eyebrow-light" style="color: var(--accent); background: var(--accent-light);">Paiement non finalisé</span>
+    <h1>{{ message or "Le paiement n'a pas pu être confirmé." }}</h1>
+    <p>Tes réponses n'ont pas été perdues, tu peux reprendre le questionnaire quand tu veux.</p>
+    <a href="/questionnaire" class="cta-primary">Retourner au questionnaire →</a>
+  </div>
+</div>
+
+</body>
+</html>

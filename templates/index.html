@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ton programme personnalisé — questionnaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-home">&larr; Retour à l'accueil</a>
+    <div class="brand-mark">FitSurMesure</div>
+    <h1>Ton programme personnalisé</h1>
+    <p class="subtitle">Alimentation • Musculation • Cardio • Conseils, en PDF</p>
+
+    <div class="progress" id="progress"></div>
+    <div id="steps"></div>
+
+    <div id="messageBox"></div>
+
+    <div class="nav-buttons">
+      <button id="backBtn">Précédent</button>
+      <button id="nextBtn" class="primary">Suivant</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

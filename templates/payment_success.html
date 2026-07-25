@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Ton programme est prêt | FitSurMesure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  .success-wrap { max-width: 720px; margin: 3rem auto 5rem; padding: 0 1.25rem; }
+  .success-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    padding: 2.2rem; box-shadow: 0 10px 30px rgba(11,15,25,0.06); text-align: center;
+  }
+  .success-card h1 { font-family: var(--font-display); font-weight: 400; color: var(--navy); font-size: 2rem; margin: 0.6rem 0 0.8rem; }
+  .success-card p.lead { color: var(--grey); margin: 0 0 1.6rem; }
+  #downloadAgainBtn { margin-top: 1rem; }
+  .modify-section {
+    margin-top: 2.5rem; text-align: left; border-top: 1px solid var(--border); padding-top: 2rem;
+  }
+  .modify-section > p { color: var(--grey); font-size: 14.5px; }
+  #reviewToggleBtn { margin-top: 0.5rem; }
+  #reviewArea { margin-top: 1.5rem; display: none; }
+  #reviewArea.open { display: block; }
+  .modify-actions { margin-top: 1.2rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <a href="/" class="brand">FitSurMesure</a>
+  </div>
+</nav>
+
+<div class="success-wrap">
+  <div class="success-card">
+    <span class="eyebrow">Paiement confirmé</span>
+    <h1>Ton programme est prêt 🎉</h1>
+    <p class="lead">
+      Le téléchargement de ton PDF a démarré automatiquement. S'il ne s'est pas
+      lancé, clique ci-dessous.
+    </p>
+    <a href="/download/{{ order_id }}" class="cta-primary" id="downloadAgainBtn">Télécharger mon PDF →</a>
+
+    <div class="modify-section">
+      <h3>Un exercice ou une séance ne te convient pas ?</h3>
+      <p>
+        Tu peux signaler ce qui ne te plaît pas (et pourquoi) et régénérer ton PDF
+        avec un programme ajusté — gratuitement, tu as déjà payé.
+      </p>
+      <button type="button" id="reviewToggleBtn" class="review-again-btn">
+        Modifier mon programme →
+      </button>
+
+      <div id="reviewArea">
+        <p class="review-intro">Chargement de ton programme...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='review_common.js') }}"></script>
+<script>
+  const ORDER_ID = {{ order_id | tojson }};
+
+  // Déclenche le téléchargement automatiquement à l'arrivée sur la page.
+  window.addEventListener("load", () => {
+    window.location.href = "/download/" + ORDER_ID;
+  });
+
+  const reviewToggleBtn = document.getElementById("reviewToggleBtn");
+  const reviewArea = document.getElementById("reviewArea");
+  let loaded = false;
+
+  reviewToggleBtn.addEventListener("click", async () => {
+    reviewArea.classList.toggle("open");
+    if (!reviewArea.classList.contains("open") || loaded) return;
+
+    try {
+      const res = await fetch("/order-preview/" + ORDER_ID);
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data) {
+        reviewArea.innerHTML = `<p class="review-intro">Impossible de charger ton programme pour le moment.</p>`;
+        return;
+      }
+
+      if (data.blocked) {
+        reviewArea.innerHTML = `<p class="review-intro">Ton programme ne contient pas de séances modifiables (voir les recommandations de sécurité dans le PDF).</p>`;
+        return;
+      }
+
+      reviewArea.innerHTML = renderReviewListHtml(data) + `
+        <div class="modify-actions">
+          <button type="button" id="regenerateBtn" class="cta-primary" style="border:none; cursor:pointer;">
+            Régénérer mon PDF avec ces changements →
+          </button>
+        </div>
+      `;
+      attachReviewCheckboxHandlers(reviewArea);
+      loaded = true;
+
+      document.getElementById("regenerateBtn").addEventListener("click", async (e) => {
+        const btn = e.target;
+        btn.disabled = true;
+        btn.textContent = "Génération...";
+
+        const { exercicesRejetes, cardioRejets } = collectReviewRejectionsFromContainer(reviewArea);
+
+        try {
+          const res2 = await fetch("/download/" + ORDER_ID, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ exercices_rejetes: exercicesRejetes, cardio_rejets: cardioRejets }),
+          });
+          if (!res2.ok) {
+            btn.disabled = false;
+            btn.textContent = "Régénérer mon PDF avec ces changements →";
+            return;
+          }
+          const blob = await res2.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "programme_personnalise.pdf";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } catch (err) {
+          // silencieux, l'utilisateur peut réessayer
+        }
+
+        btn.disabled = false;
+        btn.textContent = "Régénérer mon PDF avec ces changements →";
+      });
+    } catch (e) {
+      reviewArea.innerHTML = `<p class="review-intro">Impossible de contacter le serveur.</p>`;
+    }
+  });
+</script>
+
+</body>
+</html>

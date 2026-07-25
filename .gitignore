@@ -1,0 +1,12 @@
+# Données locales (codes promo, commandes) : ne doivent jamais être poussées sur
+# GitHub — en production, elles vivent sur le disque persistant de l'hébergeur.
+data/
+
+__pycache__/
+*.pyc
+.DS_Store
+
+# Fichiers d'environnement locaux (clés Stripe, mots de passe...), si tu en crées un
+.env
+.venv/
+venv/

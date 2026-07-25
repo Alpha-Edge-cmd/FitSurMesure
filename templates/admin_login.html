@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Connexion admin | FitSurMesure</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #0f1115; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .login-box {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px;
+    padding: 2.5rem; width: 100%; max-width: 360px;
+  }
+  .login-box h1 {
+    color: #fff; font-size: 1.3rem; margin: 0 0 1.5rem;
+  }
+  label { color: #9aa1af; font-size: 0.85rem; display: block; margin-bottom: 0.4rem; }
+  input[type="password"] {
+    width: 100%; padding: 0.7rem 0.9rem; border-radius: 8px; border: 1px solid #2c313d;
+    background: #10131a; color: #fff; font-size: 0.95rem; margin-bottom: 1.2rem;
+  }
+  button {
+    width: 100%; padding: 0.75rem; border: none; border-radius: 8px;
+    background: #f5c344; color: #10131a; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+  }
+  button:hover { background: #f7cf66; }
+  .error {
+    background: #3a1c1c; color: #ff8a8a; padding: 0.6rem 0.9rem; border-radius: 8px;
+    font-size: 0.85rem; margin-bottom: 1.2rem;
+  }
+  a.back { display: block; text-align: center; margin-top: 1.2rem; color: #6b7280; font-size: 0.8rem; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>Dashboard admin — FitSurMesure</h1>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <form method="POST">
+      <input type="hidden" name="next" value="{{ next }}">
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" name="password" autofocus required>
+      <button type="submit">Se connecter</button>
+    </form>
+    <a class="back" href="/">← Retour au site</a>
+  </div>
+</body>
+</html>

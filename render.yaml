@@ -1,0 +1,28 @@
+# Fichier optionnel pour Render ("Blueprint") : permet de créer le service et le
+# disque persistant en une fois via "New > Blueprint" dans le dashboard Render, au
+# lieu de tout configurer à la main. Pas obligatoire — voir DEPLOIEMENT.md pour la
+# méthode pas à pas via l'interface, recommandée pour un premier déploiement.
+services:
+  - type: web
+    name: fitsurmesure
+    runtime: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    disk:
+      name: fitsurmesure-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: OWNER_ACCESS_CODE
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
