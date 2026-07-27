@@ -113,6 +113,10 @@ def serialize_program(program):
                 # Additif (prompt hors 24 phases, conseils d'exécution) :
                 # clé en plus, ne modifie pas le contrat existant.
                 "conseil_execution": pe.conseil_execution,
+                # Additif (prompt hors 24 phases, portion musculaire à côté
+                # du nom, retour Samy) : même donnée que celle déjà propagée
+                # au PDF payant (cf. pdf_program_adapter.py).
+                "portion_anatomique": getattr(pe.exercise, "portion_anatomique", None) if pe.exercise else None,
             })
         sessions.append({"name": session.nom_seance, "exercises": exercises})
 

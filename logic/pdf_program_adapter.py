@@ -58,6 +58,11 @@ def _regrouper_par_muscle(program_exercises):
             # Additif (prompt hors 24 phases, conseils d'exécution) : clé en
             # plus, lue par pdf_generator.py si présente (sinon ignorée).
             "conseil_execution": getattr(pe, "conseil_execution", None),
+            # Additif (prompt hors 24 phases, retour Samy : "je veux que la
+            # portion du muscle travaillé soit indiquée à côté du nom") :
+            # Exercise.portion_anatomique existe déjà au catalogue (#118),
+            # simplement jamais propagé jusqu'ici jusqu'au PDF.
+            "portion": getattr(exercise, "portion_anatomique", None),
         })
 
     return [{"muscle": _label_muscle(m), "exercices": par_muscle[m]} for m in ordre_muscles]
@@ -133,6 +138,10 @@ def _regrouper_exercices_par_muscle_v2(exercices_seance, exercises_by_id):
             "series": exo.get("series"),
             "reps": exo.get("repetitions"),
             "conseil_execution": exo.get("conseil_execution"),
+            # Additif (prompt hors 24 phases, portion musculaire affichée à
+            # côté du nom) : même logique que `_regrouper_par_muscle`
+            # ci-dessus, pour la route ephémère (/generate-preview, /download).
+            "portion": getattr(exercise, "portion_anatomique", None),
         })
 
     return [{"muscle": _label_muscle(m), "exercices": par_muscle[m]} for m in ordre_muscles]

@@ -216,17 +216,23 @@ CONSEIL_EXECUTION_STYLE = ParagraphStyle("ConseilExecution", parent=cell_style, 
                                           leading=10, textColor=colors.HexColor("#555555"))
 
 
-def _nom_avec_conseil(nom, conseil):
-    """Cellule "Exercice" : nom + (optionnel) conseil d'exécution en
-    sous-ligne plus petite/grisée, dans le MÊME Paragraph que le nom (pas de
-    colonne/ligne supplémentaire dans le tableau) — pour ne pas retoucher la
-    structure de `_exo_table` (déjà corrigée pour des bugs de chevauchement
-    de texte, cf. historique du projet). Additif (prompt hors 24 phases,
-    conseils d'exécution) : absent -> comportement strictement inchangé."""
-    if not conseil:
+def _nom_avec_conseil(nom, conseil, portion=None):
+    """Cellule "Exercice" : nom + (optionnel) portion anatomique ciblée juste
+    à côté du nom + (optionnel) conseil d'exécution en sous-ligne plus
+    petite/grisée, dans le MÊME Paragraph que le nom (pas de colonne/ligne
+    supplémentaire dans le tableau) — pour ne pas retoucher la structure de
+    `_exo_table` (déjà corrigée pour des bugs de chevauchement de texte, cf.
+    historique du projet). Additif (prompt hors 24 phases, conseils
+    d'exécution puis portion musculaire, retour Samy) : absents -> comportement
+    strictement inchangé."""
+    if not conseil and not portion:
         return _cell(nom)
     from xml.sax.saxutils import escape
-    texte = f"<b>{escape(str(nom))}</b><br/><font size=8 color='#555555'><i>{escape(str(conseil))}</i></font>"
+    texte = f"<b>{escape(str(nom))}</b>"
+    if portion:
+        texte += f" <font size=8 color='#2e5aac'>({escape(str(portion))})</font>"
+    if conseil:
+        texte += f"<br/><font size=8 color='#555555'><i>{escape(str(conseil))}</i></font>"
     return Paragraph(texte, cell_style)
 
 
@@ -612,7 +618,7 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
                 story.append(_p(pourquoi_seance, note_style))
             for bloc in jour["muscles"]:
                 rows = [
-                    [_nom_avec_conseil(e["nom"], e.get("conseil_execution")), f"{e['series']} x {e['reps']}"]
+                    [_nom_avec_conseil(e["nom"], e.get("conseil_execution"), e.get("portion")), f"{e['series']} x {e['reps']}"]
                     for e in bloc["exercices"]
                 ]
                 story.append(KeepTogether([_p(bloc["muscle"], h3_style), _exo_table(rows)]))

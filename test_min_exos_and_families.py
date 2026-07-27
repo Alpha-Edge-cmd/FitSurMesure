@@ -2,7 +2,20 @@
 """Vérifie le plancher d'exercices par séance (9 pour 1h-1h30, 10 pour 1h30+)
 et l'absence de 2 exercices de la même "famille" de mouvement pour un même muscle
 tant que d'autres familles sont disponibles (ex: 2x développé couché sous des
-angles différents)."""
+angles différents).
+
+Prompt hors 24 phases (retour Samy, test en conditions réelles : "1x3-6 c'est
+complètement incohérent") : `prescription._retirer_exercices_si_besoin` peut
+désormais retirer des exercices entiers d'une séance, y compris sous le
+plancher SESSION_MIN_EXOS, quand même 2 séries (dose minimale réaliste,
+cf. MIN_SETS_FLOOR) par exercice dépasserait le budget de fatigue du profil.
+C'est un changement de priorité assumé et documenté : mieux vaut une séance
+plus courte mais correctement dosée qu'un volume dilué à 1 série/exercice
+pour tenir coûte que coûte un plancher de variété. Une séance sous le
+plancher n'est donc un problème QUE si le PDF n'explique pas pourquoi (ni
+"Impossible d'atteindre" — plancher hors de portée par manque de candidats,
+déjà toléré avant ce prompt — ni le nouveau message de retrait budgétaire de
+prescription.py)."""
 import io
 import json
 import random
@@ -15,6 +28,8 @@ sys.path.insert(0, ".")
 from app import app
 from logic.program_builder import FAMILY_MAP, NAME_TO_PATTERN, MIN_EXOS_PAR_SEANCE
 from logic.exercises_db import MUSCLE_LABELS
+from logic.recommendation.prescription import MESSAGE_EXERCICE_RETIRE_BUDGET
+from logic.recommendation.workout_generator import MESSAGE_PLANCHER_SEANCE_INATTEIGNABLE
 from test_helpers import ensure_test_promo_code, generate_via_payment
 
 MUSCLE_HEADERS = set(MUSCLE_LABELS.values())
@@ -73,6 +88,22 @@ for i in range(N):
 
     min_required = MIN_EXOS_PAR_SEANCE.get(duree, 0)
 
+    # Prompt hors 24 phases (retrait budgétaire d'exercices, cf. docstring en
+    # tête de fichier) : une séance sous le plancher reste acceptable si le
+    # PDF explique pourquoi (préfixe stable de l'un ou l'autre message, les
+    # deux templates ayant des placeholders qui varient d'un profil à l'autre).
+    # Les deux messages sont de longs paragraphes reportlab qui RETOURNENT À
+    # LA LIGNE dans le PDF (largeur de page) : pdfplumber extrait alors ce
+    # texte réparti sur plusieurs lignes, cassant une recherche de
+    # sous-chaîne littérale -> on aplatit tous les espaces/retours à la
+    # ligne du texte extrait en un seul espace avant de chercher.
+    texte_aplati = re.sub(r"\s+", " ", text)
+    prefixe_plancher_inatteignable = MESSAGE_PLANCHER_SEANCE_INATTEIGNABLE.split("{")[0].strip()
+    message_retrait_aplati = re.sub(r"\s+", " ", MESSAGE_EXERCICE_RETIRE_BUDGET).strip()
+    a_une_explication = (
+        prefixe_plancher_inatteignable in texte_aplati or message_retrait_aplati in texte_aplati
+    )
+
     lines = text.split("\n")
     current_session = None
     current_muscle = None
@@ -81,7 +112,7 @@ for i in range(N):
     in_table = False
 
     def flush_session_check():
-        if current_session is not None and min_required and session_total < min_required:
+        if current_session is not None and min_required and session_total < min_required and not a_une_explication:
             below_floor.append((i, current_session, session_total, min_required, equip, duree))
 
     for line in lines:

@@ -179,6 +179,16 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
         exercices_seance = []
         exercices_detail_seance = []
         for w_ex in workout["exercises"]:
+            # Retour Samy (prompt hors 24 phases, "1x3-6 incohérent") :
+            # `generate_prescription` peut désormais retirer un exercice
+            # entier plutôt que de le vider à 1 série (cf. prescription.py,
+            # `_retirer_exercices_si_besoin`) -> absent de
+            # `prescriptions_par_id`. Avant, `.get(..., {})` retombait sur un
+            # dict vide et l'exercice restait affiché dans le PDF SANS
+            # séries/reps (ligne cassée) ; on l'ignore maintenant totalement,
+            # cohérent avec le retrait décidé en amont.
+            if w_ex["exercise_id"] not in prescriptions_par_id:
+                continue
             presc = prescriptions_par_id.get(w_ex["exercise_id"], {})
             exo_obj = exercises_by_id.get(w_ex["exercise_id"])
 
@@ -233,9 +243,24 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
         })
         seances_detail.append({"nom": jour["nom"], "exercices": exercices_detail_seance})
         warnings.extend(workout["warnings"])
+        # Additif (prompt hors 24 phases) : avertissement de
+        # `generate_prescription` (exercices retirés faute de budget de
+        # fatigue suffisant même au plancher de séries), distinct de ceux de
+        # `generate_workout` ci-dessus mais agrégé de la même façon (dédupliqué
+        # plus bas avec le reste).
+        warnings.extend(prescription.get("warnings", []))
 
     if total_exercices == 0:
         warnings.append(MESSAGE_PROGRAMME_VIDE)
+
+    # Retour Samy (prompt hors 24 phases, test en conditions réelles) : un
+    # même avertissement générique (ex: "budget de fatigue dépassé même au
+    # volume plancher") revenait identique une fois PAR SÉANCE dans la
+    # section "Pourquoi CE programme" du PDF dès que plusieurs séances de la
+    # semaine se ressemblent (ex: Full Body x3/semaine) -> déduplique en
+    # conservant l'ordre d'apparition, jamais l'information elle-même
+    # (un avertissement réellement différent reste affiché).
+    warnings = list(dict.fromkeys(warnings))
 
     # Phase 20/24 : generate_program_explanation() — reformule en phrases
     # lisibles ce qui a déjà été calculé ci-dessus (raison de sélection,

@@ -1,6 +1,6 @@
 # PRODUCTION_READY.md
 
-Audit généré le 2026-07-27 22:38 par `scripts/production_check.py` (Phase 24/24).
+Audit généré le 2026-07-27 23:48 par `scripts/production_check.py` (Phase 24/24).
 
 ## Verdict : 🔴 BLOQUÉ — au moins un BLOCKER à corriger avant lancement
 
@@ -33,7 +33,7 @@ render.yaml déclare un disque persistant
 
 **✅ OK — Installation vierge**
 
-9 tables créées ; données utilisateur toutes vides, catalogue d'exercices pré-chargé (365 exercices) — dossier isolé /sessions/epic-affectionate-shannon/tmp/fitsurmesure_audit_a828va4p
+9 tables créées ; données utilisateur toutes vides, catalogue d'exercices pré-chargé (365 exercices) — dossier isolé /sessions/epic-affectionate-shannon/tmp/fitsurmesure_audit_fg2gl7ic
 
 **✅ OK — Migration douce**
 
@@ -91,22 +91,22 @@ UserAccessToken.token_hash indexé/unique (recherche de jeton en O(1))
 
 **✅ OK — Temps d'exécution — import_catalogue**
 
-0.17s (sous le seuil indicatif 5.0s)
+0.11s (sous le seuil indicatif 5.0s)
 
 **✅ OK — Temps d'exécution — generation_programme**
 
-0.12s (sous le seuil indicatif 2.0s)
+0.07s (sous le seuil indicatif 2.0s)
 
 **✅ OK — Temps d'exécution — generation_pdf**
 
-0.08s (sous le seuil indicatif 3.0s)
+0.04s (sous le seuil indicatif 3.0s)
 
 
 ## Paiement
 
 **✅ OK — Commande simulée**
 
-Commande ae9c68c95e744d63849dc809715d8a56 créée et marquée payée
+Commande fdd87f92a6274085af7f41d06871863a créée et marquée payée
 
 **✅ OK — Indépendance paiement/programme**
 
@@ -133,7 +133,7 @@ signature invalide correctement rejetée (400)
 
 **✅ OK — Import du catalogue**
 
-365 exercices importés (créés=0, maj=365, invalides ignorés=0) en 0.17s
+365 exercices importés (créés=0, maj=365, invalides ignorés=0) en 0.11s
 
 **✅ OK — Exercices approuvés**
 
@@ -152,7 +152,7 @@ aucun
 
 **✅ OK — Génération de programme**
 
-Program #1 : 3 séance(s), 27 exercice(s) en 0.12s
+Program #1 : 3 séance(s), 16 exercice(s) en 0.07s
 
 **✅ OK — Exclusion des exercices rejetés**
 
@@ -171,7 +171,7 @@ paiement -> jeton -> connexion -> /my-program -> action -> /mon-compte -> décon
 
 **✅ OK — Génération PDF**
 
-PDF valide généré (20761 octets) en 0.08s
+PDF valide généré (19121 octets) en 0.04s
 
 
 ## Questionnaire

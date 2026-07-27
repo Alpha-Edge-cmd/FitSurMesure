@@ -243,10 +243,12 @@ def run():
             assert set(bloc.keys()) == {"muscle", "exercices"}
             if bloc["exercices"]:
                 # "conseil_execution" (prompt hors 24 phases, conseils d'exécution
-                # tempo/effort) : clé additive apparue depuis, ne remplace ni ne
-                # retire "nom"/"series"/"reps" (toujours lues telles quelles par
+                # tempo/effort) puis "portion" (prompt hors 24 phases suivant,
+                # retour Samy : portion anatomique affichée à côté du nom) :
+                # clés additives apparues depuis, ne remplacent ni ne retirent
+                # "nom"/"series"/"reps" (toujours lues telles quelles par
                 # pdf_generator.py, cf. sa docstring).
-                assert set(bloc["exercices"][0].keys()) == {"nom", "series", "reps", "conseil_execution"}
+                assert set(bloc["exercices"][0].keys()) == {"nom", "series", "reps", "conseil_execution", "portion"}
 
         # Preuve d'intégration réelle : le générateur PDF existant doit fonctionner
         # tel quel avec les données adaptées, aux côtés d'un profil/nutrition/
