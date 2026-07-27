@@ -5,11 +5,18 @@ sécurisé V2 (logic/program_service.py + recommendation/catalog_provider.py),
 logic/program_validation.py, logic/catalog_monitoring.py.
 
 Prompt final (hors 24 phases) : data/exercise_enrichment.json contient
-désormais le nouveau catalogue professionnel (486 exercices) — les comptes et
-exercise_id de ce fichier sont mis à jour en conséquence. Le repli legacy
-(catalogue_fallback, ligne ~60) reste volontairement à 111 : il reconstruit
-l'ANCIEN catalogue depuis logic/exercises_db.py, indépendamment de ce fichier
-JSON (cf. logic/recommendation/catalog_provider.py, jamais modifié)."""
+désormais le catalogue v3 (365 exercices, liste exacte fournie par Samy, cf.
+scripts/build_catalog_v3_samy.py) — les comptes et exercise_id de ce fichier
+sont mis à jour en conséquence. Le repli legacy (catalogue_fallback, ligne
+~82) reste volontairement à 111 : il reconstruit l'ANCIEN catalogue depuis
+logic/exercises_db.py, indépendamment de ce fichier JSON (cf. logic/
+recommendation/catalog_provider.py, jamais modifié).
+
+Depuis le correctif "catalogue jamais chargé en prod" (logic/db.init_db
+importe et auto-approuve désormais le catalogue à chaque démarrage de
+l'app), la table Exercise n'est plus vide après un simple `import app` :
+ce test la vide explicitement au départ pour retrouver le scénario "zéro
+approuvé" qu'il vérifie en premier."""
 import io
 
 import app as appmod
@@ -53,9 +60,15 @@ def _ids_utilises(program):
 
 def run():
     with appmod.app.app_context():
+        # `import app` (logic.db.init_db) a déjà importé/auto-approuvé le
+        # catalogue (correctif "catalogue jamais chargé en prod") : on
+        # repart d'une table vide pour tester le scénario "zéro approuvé".
+        Exercise.query.delete()
+        db.session.commit()
+
         resultat_import = import_enriched_catalog()
         assert resultat_import["errors"] == []
-        assert Exercise.query.count() == 486
+        assert Exercise.query.count() == 365
 
         # --------------------------------------------------------------
         # 2) Catalogue V2 vide (aucun approuvé) -> fallback legacy
@@ -66,7 +79,7 @@ def run():
         # exercice_ids (reconstruits à la volée depuis logic/exercises_db.py,
         # cf. catalog_provider.py, jamais modifié). MAIS la table Exercise ne
         # contient plus ces anciens exercise_id depuis le remplacement du
-        # catalogue (486 exercices, nouveaux exercise_id) : validate_generated_
+        # catalogue (365 exercices, nouveaux exercise_id) : validate_generated_
         # program() (phase 16, "protège la contrainte FK avant écriture") rejette
         # donc désormais correctement tout programme basé sur ce repli, faute
         # d'exercice existant en base. C'est le comportement voulu : le moteur
@@ -148,8 +161,8 @@ def run():
         # --------------------------------------------------------------
         # 4) Programme généré avec blessure critique -> aucun exercice interdit
         # --------------------------------------------------------------
-        approve_exercise("developpe_militaire_barre_epaules", reviewer="qa")  # dangereux (joint_stress epaule=2)
-        approve_exercise("elevation_laterale_halteres_epaules", reviewer="qa")  # sûr (aucun joint_stress)
+        approve_exercise("developpe_epaules_assis_aux_halteres_epaules", reviewer="qa")  # dangereux (joint_stress epaule=2)
+        approve_exercise("elevations_frontales_aux_halteres_alternees_simultanees_epaules", reviewer="qa")  # sûr (aucun joint_stress)
 
         email4 = "final-blessure-critique@example.com"
         data4 = questionnaire_complet(
@@ -157,7 +170,7 @@ def run():
         )
         program4 = program_service.generate_user_program(email4, data4)
         ids4 = _ids_utilises(program4)
-        assert "developpe_militaire_barre_epaules" not in ids4, "un exercice dangereux pour l'épaule a été sauvegardé"
+        assert "developpe_epaules_assis_aux_halteres_epaules" not in ids4, "un exercice dangereux pour l'épaule a été sauvegardé"
         print(f"OK 4 — profil blessure critique : Program #{program4.id} ({len(ids4)} exercices), aucun exercice interdit")
 
         # --------------------------------------------------------------
@@ -209,7 +222,7 @@ def run():
         # 6) Rapport monitoring : compteurs cohérents
         # --------------------------------------------------------------
         rapport6 = catalog_health_report()
-        assert rapport6["total"] == 486
+        assert rapport6["total"] == 365
         assert rapport6["approved"] == Exercise.query.filter_by(review_status="approved").count()
         assert rapport6["pending"] == Exercise.query.filter_by(review_status="pending").count()
         assert rapport6["rejected"] == Exercise.query.filter_by(review_status="rejected").count() == 1

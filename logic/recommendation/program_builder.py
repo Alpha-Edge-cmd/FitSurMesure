@@ -204,6 +204,10 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
                 "rest_time": rest_time,
                 "intensity": intensity,
                 "notes": notes,
+                # Additif (prompt hors 24 phases) : conseil d'exécution
+                # (tempo/effort), distinct de "notes" -> propagé tel quel
+                # depuis prescription.py, aucune règle recalculée ici.
+                "conseil_execution": presc.get("conseil_execution"),
             })
 
             tier = exercise_order.classify_exercise(exo_obj) if exo_obj is not None else None
@@ -236,7 +240,10 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
     # Phase 20/24 : generate_program_explanation() — reformule en phrases
     # lisibles ce qui a déjà été calculé ci-dessus (raison de sélection,
     # palier, séries, intensité), ne recalcule rien.
-    explanation = generate_program_explanation(profile_snapshot, seances_detail, contexte_personnalisation)
+    explanation = generate_program_explanation(
+        profile_snapshot, seances_detail, contexte_personnalisation,
+        split_label=split["label"], frequence=frequence,
+    )
 
     return {
         "program_name": f"Programme {split['label']}",

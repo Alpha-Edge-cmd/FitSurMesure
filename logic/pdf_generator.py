@@ -212,9 +212,28 @@ def _cell(text, style=cell_style):
     return Paragraph(str(text), style)
 
 
+CONSEIL_EXECUTION_STYLE = ParagraphStyle("ConseilExecution", parent=cell_style, fontSize=8,
+                                          leading=10, textColor=colors.HexColor("#555555"))
+
+
+def _nom_avec_conseil(nom, conseil):
+    """Cellule "Exercice" : nom + (optionnel) conseil d'exécution en
+    sous-ligne plus petite/grisée, dans le MÊME Paragraph que le nom (pas de
+    colonne/ligne supplémentaire dans le tableau) — pour ne pas retoucher la
+    structure de `_exo_table` (déjà corrigée pour des bugs de chevauchement
+    de texte, cf. historique du projet). Additif (prompt hors 24 phases,
+    conseils d'exécution) : absent -> comportement strictement inchangé."""
+    if not conseil:
+        return _cell(nom)
+    from xml.sax.saxutils import escape
+    texte = f"<b>{escape(str(nom))}</b><br/><font size=8 color='#555555'><i>{escape(str(conseil))}</i></font>"
+    return Paragraph(texte, cell_style)
+
+
 def _exo_table(rows):
     data = [["Exercice", "Séries x Répétitions"]] + [
-        [_cell(nom), _cell(reps)] for nom, reps in rows
+        [(cell_nom if isinstance(cell_nom, Paragraph) else _cell(cell_nom)), _cell(reps)]
+        for cell_nom, reps in rows
     ]
     t = Table(data, colWidths=[10.5 * cm, 4.5 * cm], repeatRows=1)
     t.setStyle(TableStyle([
@@ -541,6 +560,12 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
             morpho_txt = {
                 "bras_longs": "bras plutôt longs", "bras_courts": "bras plutôt courts",
                 "jambes_longues": "jambes plutôt longues", "jambes_courtes": "jambes plutôt courtes",
+                # Additif (prompt hors 24 phases, bascule PDF payant sur le
+                # moteur V2) : le V2 suit aussi buste/épaules (cf.
+                # logic/recommendation/biomechanics._activated_morphologie_keys),
+                # jamais lus par l'ancien moteur -> absents jusqu'ici de cette table.
+                "buste_long": "buste plutôt long", "buste_court": "buste plutôt court",
+                "epaules_larges": "épaules plutôt larges", "epaules_etroites": "épaules plutôt étroites",
             }
             labels_fr = ", ".join(morpho_txt.get(m, m) for m in morpho_labels)
             story.append(_bullet(f"Morphologie : vu ta morphologie déclarée ({labels_fr}), certaines "
@@ -560,6 +585,19 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
                                   f"supplémentaire par rapport aux autres groupes, pour accélérer leur "
                                   f"développement comme demandé."))
 
+        # Additif (prompt hors 24 phases, "justification à 3 niveaux : exercice
+        # / séance / programme") : "pourquoi_programme" (niveau programme,
+        # cf. program_personalization.generate_program_explanation) — absent
+        # si le programme vient de l'ancien moteur (rétrocompatible, ignoré).
+        explanation = program.get("explanation") or {}
+        if explanation.get("pourquoi_programme"):
+            story.append(_p("Pourquoi CE programme, pour toi", h3_style))
+            story.append(_p(explanation["pourquoi_programme"], note_style))
+        pourquoi_seance_par_nom = {
+            s.get("nom"): s.get("pourquoi_seance")
+            for s in (explanation.get("seances") or [])
+        }
+
         if program["warnings"]:
             for w in program["warnings"]:
                 story.append(_p("⚠ " + w, warn_style))
@@ -567,8 +605,16 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
 
         for i, jour in enumerate(program["programme"]):
             story.append(_p(jour["nom"] + f" (≈ {jour['duree_estimee_min']} min)", h2_style))
+            # Additif (prompt hors 24 phases, justification niveau SÉANCE) :
+            # absent si le programme vient de l'ancien moteur (rétrocompatible).
+            pourquoi_seance = pourquoi_seance_par_nom.get(jour["nom"])
+            if pourquoi_seance:
+                story.append(_p(pourquoi_seance, note_style))
             for bloc in jour["muscles"]:
-                rows = [[e["nom"], f"{e['series']} x {e['reps']}"] for e in bloc["exercices"]]
+                rows = [
+                    [_nom_avec_conseil(e["nom"], e.get("conseil_execution")), f"{e['series']} x {e['reps']}"]
+                    for e in bloc["exercices"]
+                ]
                 story.append(KeepTogether([_p(bloc["muscle"], h3_style), _exo_table(rows)]))
 
             bonus = jour.get("bonus_poids_du_corps")

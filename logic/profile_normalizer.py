@@ -94,10 +94,44 @@ def _to_int_in_range(value, low, high, default):
 
 
 def _from_allowed(value, allowed, default):
+    # Prompt final (hors 24 phases) : "preference_materiel" accepte désormais
+    # plusieurs choix (checkbox-group côté questionnaire) — `value` peut donc
+    # être une liste. Cette fonction reste rétrocompatible avec une valeur
+    # scalaire unique (colonne `ProfileSnapshot.preference_materiel`, jamais
+    # modifiée en type) : dans ce cas, ne garde que le PREMIER choix reconnu,
+    # uniquement pour cette colonne d'affichage/compatibilité. La liste
+    # complète, elle, est lue directement depuis `variables_json` par
+    # `program_personalization.equipements_preferes` (voir ce module).
+    if isinstance(value, (list, tuple, set)):
+        for candidat in value:
+            candidat = _clean_str(candidat)
+            if candidat in allowed:
+                return candidat
+        return default
     value = _clean_str(value)
     if value is None or value not in allowed:
         return default
     return value
+
+
+def _liste_from_allowed(value, allowed):
+    """-> liste ordonnée, sans doublon, des éléments de `value` (liste ou
+    valeur scalaire unique, rétrocompatibilité) présents dans `allowed`.
+    Liste vide si rien de reconnu — jamais d'exception, jamais de
+    supposition (prompt final, hors 24 phases : choix multiples matériel)."""
+    if value is None:
+        candidats = []
+    elif isinstance(value, (list, tuple, set)):
+        candidats = list(value)
+    else:
+        candidats = [value]
+
+    resultat = []
+    for candidat in candidats:
+        candidat = _clean_str(candidat)
+        if candidat in allowed and candidat not in resultat:
+            resultat.append(candidat)
+    return resultat
 
 
 def normalize_questionnaire_data(raw):

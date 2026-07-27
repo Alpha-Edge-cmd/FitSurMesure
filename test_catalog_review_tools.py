@@ -4,13 +4,21 @@ Tests des outils d'aide à la revue du catalogue (phase 18/24) —
 logic/exercise_review_assistant.py, scripts/export_review_sheet.py,
 scripts/import_review_decisions.py.
 
-Prompt final (hors 24 phases) : catalogue professionnel (486 exercices) —
-exercise_id et comptes mis à jour en conséquence."""
+Prompt final (hors 24 phases) : catalogue v3 (365 exercices, liste exacte
+fournie par Samy, cf. scripts/build_catalog_v3_samy.py) — exercise_id et
+comptes mis à jour en conséquence. Depuis le correctif "catalogue jamais
+chargé en prod" (logic/db.init_db importe et auto-approuve désormais le
+catalogue à chaque démarrage de l'app), la table Exercise n'est plus vide
+ni "tout pending" après un simple `import app` : ce test la vide
+explicitement au départ pour retrouver le scénario "pending par défaut"
+qu'il vérifie (sans quoi les décisions d'approbation/rejet ci-dessous
+seraient ignorées comme "déjà décidées")."""
 import csv
 import os
 import tempfile
 
 import app as appmod
+from logic.db import db
 from logic.exercise_catalog_import import import_enriched_catalog
 from logic.exercise_review_assistant import (
     detect_conflicting_metadata,
@@ -24,14 +32,17 @@ from scripts.import_review_decisions import import_review_decisions
 
 def run():
     with appmod.app.app_context():
+        Exercise.query.delete()
+        db.session.commit()
+
         resultat_import = import_enriched_catalog()
         assert resultat_import["errors"] == []
-        assert Exercise.query.count() == 486
+        assert Exercise.query.count() == 365
 
         # --------------------------------------------------------------
         # 0) Assistant de revue : sanity check sur un exercice connu
         # --------------------------------------------------------------
-        exemple = Exercise.query.get("developpe_couche_barre_pecs")
+        exemple = Exercise.query.get("developpe_couche_a_la_barre_libre_pecs")
         conflits = detect_conflicting_metadata(exemple)
         assert set(conflits.keys()) == {"muscle_pattern", "equipement", "difficulte", "objectifs", "scores_hypertrophiques"}
         assert all(isinstance(v, list) for v in conflits.values())
@@ -40,7 +51,7 @@ def run():
         assert suggestion["decision"] in ("approve", "reject", "needs_changes")
 
         resume = generate_review_summary(exemple)
-        assert resume["identite"]["exercise_id"] == "developpe_couche_barre_pecs"
+        assert resume["identite"]["exercise_id"] == "developpe_couche_a_la_barre_libre_pecs"
         assert isinstance(resume["resume_texte"], str) and resume["resume_texte"]
 
         # Fiche fabriquée pour vérifier une incohérence muscle/pattern ET
@@ -71,7 +82,7 @@ def run():
         # 1) Export complet
         # --------------------------------------------------------------
         lignes = build_review_rows()
-        assert len(lignes) == 486
+        assert len(lignes) == 365
         for ligne in lignes:
             assert set(ligne.keys()) == set(COLONNES)
         assert all(l["statut_revue"] == "pending" for l in lignes)
@@ -80,19 +91,19 @@ def run():
             chemin_sortie = os.path.join(tmpdir, "review_sheet.csv")
             chemin_utilise, nb_lignes = write_review_sheet(chemin_sortie)
             assert chemin_utilise == chemin_sortie
-            assert nb_lignes == 486
+            assert nb_lignes == 365
             assert os.path.isfile(chemin_sortie)
             with open(chemin_sortie, encoding="utf-8", newline="") as f:
                 lignes_csv = list(csv.DictReader(f))
-            assert len(lignes_csv) == 486
+            assert len(lignes_csv) == 365
             assert set(lignes_csv[0].keys()) == set(COLONNES)
         print(f"OK 1 — export complet : {nb_lignes} exercice(s), colonnes {COLONNES}")
 
         # --------------------------------------------------------------
         # 2) Import décision (approve + reject, via une liste de dicts)
         # --------------------------------------------------------------
-        cible_approuvee = "curl_barre_droite_biceps"
-        cible_rejetee = "squat_arriere_barre_back_squat_quadriceps"
+        cible_approuvee = "curl_a_la_barre_ez_prise_large_biceps"
+        cible_rejetee = "squat_arriere_a_la_barre_back_squat_quadriceps"
         decisions = [
             {"exercise_id": cible_approuvee, "decision": "approved", "notes": "", "validated_by": "qa-phase18"},
             {"exercise_id": cible_rejetee, "decision": "rejected", "notes": "Pattern à revérifier", "validated_by": "qa-phase18"},
@@ -142,7 +153,7 @@ def run():
         # --------------------------------------------------------------
         resultat_reimport = import_enriched_catalog()  # réimport du catalogue JSON (phase 13/15)
         assert resultat_reimport["created"] == 0
-        assert resultat_reimport["updated"] == 486
+        assert resultat_reimport["updated"] == 365
         assert Exercise.query.get(cible_rejetee).review_status == "rejected", "un réimport du catalogue JSON ne doit jamais réinitialiser un rejet"
 
         with tempfile.TemporaryDirectory() as tmpdir:

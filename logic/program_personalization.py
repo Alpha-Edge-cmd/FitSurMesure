@@ -134,7 +134,28 @@ EQUIPEMENT_PAR_PREFERENCE = {
 def equipements_preferes(profile_snapshot):
     """-> set() de mots-clés d'équipement correspondant à
     `preference_materiel`, ou set() vide si aucune préférence reconnue
-    (comportement neutre par défaut, jamais d'exclusion)."""
+    (comportement neutre par défaut, jamais d'exclusion).
+
+    Prompt final (hors 24 phases) : la question accepte désormais plusieurs
+    choix (checkbox-group). La colonne `ProfileSnapshot.preference_materiel`
+    reste une chaîne unique (pas de migration de type de colonne, cf.
+    convention "migration douce" de ce projet) ; la liste complète, elle, est
+    toujours préservée telle quelle dans `variables_json` (copie brute du
+    questionnaire, `profile_normalizer.normalize_questionnaire_data`). On lit
+    donc en priorité `variables_json["preference_materiel"]` (liste) et on
+    fait l'union des mots-clés d'équipement pour CHAQUE choix reconnu ; à
+    défaut (ancien profil enregistré avant ce changement, ou variables_json
+    absent), on retombe sur l'unique valeur de la colonne, inchangé."""
+    variables_json = getattr(profile_snapshot, "variables_json", None) or {}
+    brut = variables_json.get("preference_materiel")
+    if brut is not None:
+        valeurs = brut if isinstance(brut, (list, tuple, set)) else [brut]
+        equipements = set()
+        for valeur in valeurs:
+            equipements |= set(EQUIPEMENT_PAR_PREFERENCE.get(valeur, set()))
+        if equipements:
+            return equipements
+
     preference = getattr(profile_snapshot, "preference_materiel", None)
     return set(EQUIPEMENT_PAR_PREFERENCE.get(preference, set()))
 
@@ -330,9 +351,71 @@ def _complement_morphologie_objectif(profile_snapshot, exercise, contexte):
     return f"Choisi car adapté à {texte_elements}."
 
 
-def generate_program_explanation(profile_snapshot, seances_detail, contexte=None):
-    """generate_program_explanation(profile_snapshot, seances_detail, contexte=None)
-    -> {"resume_profil", "seances": [{"nom", "exercices": [{"exercise_id",
+_LABEL_MUSCLE_EXPLICATION = {
+    "pecs": "pectoraux", "dos": "dos", "epaules": "épaules", "triceps": "triceps",
+    "biceps": "biceps", "abdos": "abdominaux", "fessiers": "fessiers",
+    "quadriceps": "quadriceps", "ischio": "ischio-jambiers", "mollets": "mollets",
+}
+
+
+def _pourquoi_programme(profile_snapshot, contexte, split_label, frequence):
+    """Justification NIVEAU PROGRAMME (prompt hors 24 phases : "toujours
+    justifier ... pourquoi ce programme étant donné que c'est personnalisé").
+    Reformule en phrase lisible ce que `build_program` a déjà décidé (split,
+    fréquence effective) et pourquoi (niveau/objectif/disponibilité/matériel/
+    contraintes déjà calculés par `compute_personalization_context` /
+    `analyze_profile`) — ne recalcule aucune règle de choix de split."""
+    elements = [
+        f"un programme {split_label or 'personnalisé'} à {frequence}x/semaine" if frequence else
+        f"un programme {split_label or 'personnalisé'}",
+        f"niveau '{contexte.get('niveau')}'",
+        f"objectif dominant '{contexte.get('objectif_dominant')}'",
+    ]
+    phrase = f"Tu as reçu {elements[0]}, car ton {elements[1]} et ton {elements[2]} orientent vers cette répartition."
+
+    complements = []
+    if contexte.get("materiel_prefere"):
+        complements.append(f"ton matériel préféré ('{contexte['materiel_prefere']}') a été priorisé à volume égal")
+    if contexte.get("disponibilite_reelle"):
+        complements.append(f"ta disponibilité réelle déclarée ('{contexte['disponibilite_reelle']}') a été respectée")
+    if contexte.get("contraintes"):
+        complements.append(f"tes contraintes déclarées ({', '.join(contexte['contraintes'])}) ont exclu certains mouvements à risque")
+    if contexte.get("age") is not None and contexte["age"] >= AGE_SEUIL_PRUDENCE:
+        complements.append(f"ton âge déclaré ({contexte['age']} ans) a rendu repos/intensité plus prudents")
+
+    if complements:
+        phrase += " De plus, " + " ; ".join(complements) + "."
+    return phrase
+
+
+def _pourquoi_seance(nom_seance, exercices_detail_seance):
+    """Justification NIVEAU SÉANCE (prompt hors 24 phases) : liste les
+    muscles réellement couverts par cette séance (résolus depuis les objets
+    `Exercise` déjà attachés à `exercices_detail_seance` par `program_builder.
+    build_program`, jamais recalculés) plutôt que de renvoyer une phrase
+    générique identique pour toutes les séances."""
+    muscles_vus = []
+    for exo in exercices_detail_seance or []:
+        exercise = exo.get("exercise")
+        muscle = getattr(exercise, "muscle_principal", None) if exercise is not None else None
+        if muscle and muscle not in muscles_vus:
+            muscles_vus.append(muscle)
+
+    if not muscles_vus:
+        return f"Séance '{nom_seance}' : répartition déterminée par ton split d'entraînement."
+
+    labels = [_LABEL_MUSCLE_EXPLICATION.get(m, m) for m in muscles_vus]
+    if len(labels) == 1:
+        texte_muscles = labels[0]
+    else:
+        texte_muscles = ", ".join(labels[:-1]) + " et " + labels[-1]
+    return f"Cette séance cible {texte_muscles}, selon la répartition de ton split d'entraînement pour cette semaine."
+
+
+def generate_program_explanation(profile_snapshot, seances_detail, contexte=None, split_label=None, frequence=None):
+    """generate_program_explanation(profile_snapshot, seances_detail, contexte=None,
+    split_label=None, frequence=None) -> {"resume_profil", "pourquoi_programme",
+    "seances": [{"nom", "pourquoi_seance", "exercices": [{"exercise_id",
     "pourquoi_exercice", "pourquoi_volume", "pourquoi_intensite"}]}]}.
 
     `seances_detail` : liste de dicts (un par séance, MÊME ORDRE que
@@ -343,6 +426,13 @@ def generate_program_explanation(profile_snapshot, seances_detail, contexte=None
     `prescription.generate_prescription`/`_sets_de_base` (tier/sets) plus
     haut dans `build_program` ; cette fonction ne fait QUE les reformuler en
     phrases lisibles, jamais ne les recalcule.
+
+    `split_label`/`frequence` (prompt hors 24 phases, "justification à 3
+    niveaux") : facultatifs, transmis par `build_program` -> ajoutent la clé
+    "pourquoi_programme" (justification NIVEAU PROGRAMME) et "pourquoi_seance"
+    par séance (NIVEAU SÉANCE) en plus du NIVEAU EXERCICE déjà existant.
+    Absents (rétrocompatibilité) -> ces clés restent présentes avec un texte
+    neutre plutôt qu'absentes, jamais une exception.
 
     Ne lève jamais d'exception sur une entrée incomplète (texte neutre à la
     place, même garantie que le reste du moteur)."""
@@ -355,8 +445,11 @@ def generate_program_explanation(profile_snapshot, seances_detail, contexte=None
         + "."
     )
 
+    pourquoi_programme = _pourquoi_programme(profile_snapshot, contexte, split_label, frequence)
+
     seances_explication = []
     for seance in seances_detail or []:
+        pourquoi_seance = _pourquoi_seance(seance.get("nom"), seance.get("exercices"))
         exercices_explication = []
         for exo in seance.get("exercices", []):
             tier = exo.get("tier")
@@ -402,6 +495,14 @@ def generate_program_explanation(profile_snapshot, seances_detail, contexte=None
                 "pourquoi_intensite": pourquoi_intensite,
             })
 
-        seances_explication.append({"nom": seance.get("nom"), "exercices": exercices_explication})
+        seances_explication.append({
+            "nom": seance.get("nom"),
+            "pourquoi_seance": pourquoi_seance,
+            "exercices": exercices_explication,
+        })
 
-    return {"resume_profil": resume_profil, "seances": seances_explication}
+    return {
+        "resume_profil": resume_profil,
+        "pourquoi_programme": pourquoi_programme,
+        "seances": seances_explication,
+    }

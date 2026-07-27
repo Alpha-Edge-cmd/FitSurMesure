@@ -229,6 +229,14 @@ class ProgramExercise(db.Model):
     rest_time_seconds = db.Column(db.Integer, nullable=True)
     intensity = db.Column(db.String(20), nullable=True)
     notes = db.Column(db.Text, nullable=True)
+    # Prompt hors 24 phases (retour Samy : "ajoute des conseils du style
+    # contrôler la descente et pousser fort, aller à l'échec") : conseil
+    # d'exécution ADDITIF à "notes" (produit par generate_prescription,
+    # cf. prescription.py). Colonne ajoutée à une table déjà existante en
+    # production -> migration additive via logic/db.py::COLONNES_ADDITIVES
+    # (même mécanisme que Exercise.portion_anatomique), nullable pour ne rien
+    # casser sur les lignes déjà en base.
+    conseil_execution = db.Column(db.Text, nullable=True)
 
     session = db.relationship("ProgramSession", back_populates="exercises")
     exercise = db.relationship("Exercise", back_populates="program_exercises")
@@ -300,6 +308,13 @@ class Exercise(db.Model):
     substitutes = db.Column(db.JSON, nullable=False, default=list)  # liste ordonnée d'exercise_id
     contre_indications = db.Column(db.JSON, nullable=False, default=list)  # cas médicaux non réductibles à joint_stress
     actif = db.Column(db.Boolean, nullable=False, default=True)  # jamais de suppression physique, seulement désactivation
+    # Portion anatomique précise du muscle travaillée (ex: "Haut des pecs",
+    # "Chef long (biceps)") — prompt final (hors 24 phases), catalogue v3.
+    # Colonne ADDITIVE sur une table déjà existante en production : ajoutée
+    # via une migration légère et idempotente dans logic/db.init_db (ALTER
+    # TABLE ADD COLUMN si absente), jamais via db.create_all() seul (qui ne
+    # touche jamais une table déjà créée, cf. logic/db.py).
+    portion_anatomique = db.Column(db.String(60), nullable=True)
 
     # --- Revue humaine (phase 14/16) -----------------------------------------
     # `needs_review` existait déjà comme clé éditoriale dans data/exercise_

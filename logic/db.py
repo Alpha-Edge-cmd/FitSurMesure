@@ -60,14 +60,67 @@ def get_database_uri():
 def init_db(app):
     """À appeler une fois, juste après la création de l'app Flask. Crée les
     tables si elles n'existent pas encore — ne touche jamais une table déjà
-    créée (pas de migration automatique destructive)."""
+    créée (pas de migration automatique destructive).
+
+    Synchronise aussi le catalogue d'exercices (data/exercise_enrichment.json
+    -> table Exercise) à CHAQUE démarrage de l'application. Découverte
+    critique (prompt hors 24 phases, retour utilisateur "le programme ne
+    change pas d'un poil") : rien ne rejouait jamais `import_enriched_
+    catalog()` en production — seuls les tests locaux le faisaient. Résultat,
+    la table Exercise restait vide sur Render, et `get_recommendation_catalog()`
+    retombait silencieusement sur l'ANCIEN catalogue legacy (111 exercices,
+    logic/exercises_db.py) à chaque génération de programme, quel que soit le
+    contenu réel de data/exercise_enrichment.json (486 exercices depuis ce
+    même prompt). `import_enriched_catalog` est idempotent et n'écrase jamais
+    une décision de revue humaine existante (cf. sa docstring) : l'appeler à
+    chaque boot est donc sans danger, y compris en production. `auto_approve
+    =True` ne s'applique qu'à la CRÉATION (jamais à une mise à jour) : au
+    tout premier boot après ce correctif, le nouveau catalogue est directement
+    exposé au moteur ; tout exercice approuvé/rejeté ensuite à la main garde
+    son statut pour toujours, réimport après réimport."""
     app.config["SQLALCHEMY_DATABASE_URI"] = get_database_uri()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    # Importé ici (et pas en haut du fichier) pour éviter tout import circulaire
-    # entre logic/db.py et logic/models.py, qui a besoin de `db` déjà défini.
+    # Importés ici (et pas en haut du fichier) pour éviter tout import
+    # circulaire entre logic/db.py et logic/models.py / logic/exercise_catalog_
+    # import.py, qui ont besoin de `db` déjà défini.
     from logic import models  # noqa: F401
 
     with app.app_context():
         db.create_all()
+        _ajouter_colonnes_additives_manquantes()
+
+        try:
+            from logic.exercise_catalog_import import import_enriched_catalog
+            import_enriched_catalog(auto_approve=True)
+        except Exception as exc:  # ne doit jamais empêcher l'application de démarrer
+            import sys
+            print(f"[init_db] synchronisation du catalogue d'exercices impossible au démarrage : {exc}", file=sys.stderr)
+
+
+# Colonnes ajoutées à un modèle APRÈS la création initiale de sa table en
+# production (ex: Exercise.portion_anatomique, catalogue v3, prompt final hors
+# 24 phases) : `db.create_all()` ne les ajoute jamais à une table déjà
+# existante (cf. docstring de `init_db` ci-dessus). Table -> [(colonne, type
+# SQL portable SQLite/Postgres)] à vérifier/ajouter à chaque démarrage,
+# idempotent (ne fait rien si la colonne existe déjà).
+COLONNES_ADDITIVES = {
+    "exercises": [("portion_anatomique", "VARCHAR(60)")],
+    "program_exercises": [("conseil_execution", "TEXT")],
+}
+
+
+def _ajouter_colonnes_additives_manquantes():
+    from sqlalchemy import inspect, text
+
+    inspecteur = inspect(db.engine)
+    for table, colonnes in COLONNES_ADDITIVES.items():
+        if table not in inspecteur.get_table_names():
+            continue  # table pas encore créée (ne devrait pas arriver juste après create_all())
+        colonnes_existantes = {c["name"] for c in inspecteur.get_columns(table)}
+        for nom_colonne, type_sql in colonnes:
+            if nom_colonne in colonnes_existantes:
+                continue
+            with db.engine.begin() as connexion:
+                connexion.execute(text(f"ALTER TABLE {table} ADD COLUMN {nom_colonne} {type_sql}"))

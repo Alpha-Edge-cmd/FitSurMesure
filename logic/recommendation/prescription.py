@@ -62,6 +62,65 @@ NOTE_PRINCIPALE = "Priorité à la technique et à la progression de charge."
 NOTE_ISOLATION = "Contrôle du mouvement, amplitude complète."
 NOTE_EXPLOSIVITE = "Recherche de vitesse maximale, arrêter si perte de qualité."
 
+# --- Conseils d'exécution (prompt hors 24 phases, retour Samy : "j'aimerai
+# que tu ajoutes des trucs du style contrôler la descente et pousser fort ou
+# inversement, aller jusqu'à l'échec") -----------------------------------------
+# Champ ADDITIF ("conseil_execution"), distinct de "notes" (déjà testé/figé,
+# cf. test_prescription.py) : ne modifie ni ne remplace la logique de "notes"
+# existante, s'ajoute simplement à côté dans le dict retourné par exercice.
+CONSEIL_PAR_MOVEMENT_TYPE = {
+    "push": "Contrôle la descente (2-3 secondes), puis pousse fort et de façon explosive en phase de remontée.",
+    "pull": "Résiste à la descente/au retour de la charge, puis tire fort et de façon explosive.",
+    "squat": "Descends de façon contrôlée jusqu'à ta profondeur maîtrisée, puis pousse fort dans le sol pour remonter.",
+    "hinge": "Contrôle la descente de la charge le long des jambes, puis pousse fort dans le sol pour te redresser.",
+    "lunge": "Descends de façon contrôlée, puis pousse fort pour remonter, sans à-coup.",
+    "carry": "Garde le gainage serré et une marche contrôlée, sans précipitation.",
+    "rotation": "Mouvement contrôlé sur toute l'amplitude, sans à-coup ni élan.",
+    "isometrique": "Maintiens la position de façon stable, respiration régulière, jusqu'au temps ou à la fatigue ciblée.",
+}
+CONSEIL_DEFAUT = "Contrôle le mouvement sur toute l'amplitude, sans à-coup."
+CONSEIL_ECHEC_FINISSEUR = "Sur la dernière série, cherche à aller proche de l'échec musculaire (1-2 répétitions en réserve max)."
+CONSEIL_EXPLOSIVITE = "Vitesse maximale en phase concentrique ; arrête la série dès que la vitesse d'exécution chute nettement."
+
+# Mapping exact vers les 4 mouvements sur lesquels le questionnaire demande un
+# 1RM testé ou non (cf. profile.variables_json["pr_..."], questions ajoutées
+# côté questionnaire) -> permet un conseil de calibrage de charge adapté.
+PR_EXERCISE_IDS = {
+    "developpe_couche_a_la_barre_libre_pecs": "pr_developpe_couche_barre",
+    "developpe_couche_aux_halteres_pecs": "pr_developpe_couche_haltere",
+    "squat_arriere_a_la_barre_back_squat_quadriceps": "pr_squat_barre",
+    "souleve_de_terre_traditionnel_deadlift_a_la_barre_dos": "pr_souleve_de_terre",
+}
+CONSEIL_PR_CONNU = " Tu as déjà un repère de charge max sur ce mouvement : cale tes charges de travail sur un pourcentage connu de ce record plutôt que d'estimer à l'aveugle."
+CONSEIL_PR_INCONNU = " Tu n'as pas encore de 1RM testé sur ce mouvement : monte progressivement sur tes 2-3 premières séries d'approche avant d'atteindre ton poids de travail, plutôt que d'estimer directement une charge."
+
+
+def _conseil_execution(exercise, dominant, tier, profile):
+    """Conseil d'exécution ADDITIF (tempo/intensité d'effort), distinct de
+    `_note_automatique` (inchangée). Basé sur `movement_type` (déjà validé,
+    cf. exercise_order.py) + objectif dominant + palier (isolation/finisseur
+    -> recherche de l'échec sur la dernière série) + repère PR déclaré au
+    questionnaire pour les 4 mouvements de référence, s'il y en a un."""
+    if dominant == "explosivite" and tier in (exercise_order.TIER_PRINCIPAL, exercise_order.TIER_SECONDAIRE):
+        conseil = CONSEIL_EXPLOSIVITE
+    else:
+        movement_type = getattr(exercise, "movement_type", None)
+        conseil = CONSEIL_PAR_MOVEMENT_TYPE.get(movement_type, CONSEIL_DEFAUT)
+        if tier in (exercise_order.TIER_ISOLATION, exercise_order.TIER_FINISSEUR):
+            conseil = f"{conseil} {CONSEIL_ECHEC_FINISSEUR}"
+
+    exercise_id = getattr(exercise, "exercise_id", None)
+    champ_pr = PR_EXERCISE_IDS.get(exercise_id)
+    if champ_pr is not None:
+        variables_json = getattr(profile, "variables_json", None) or {}
+        valeur = variables_json.get(champ_pr)
+        if valeur == "Oui":
+            conseil += CONSEIL_PR_CONNU
+        elif valeur == "Non":
+            conseil += CONSEIL_PR_INCONNU
+
+    return conseil
+
 
 def _dominant_objective(profile):
     vector = objectives.get_objective_vector(profile)
@@ -211,6 +270,7 @@ def generate_prescription(profile, workout, available_exercises=None):
                 "rest_seconds": None,
                 "intensity": None,
                 "notes": NOTE_ISOLATION,
+                "conseil_execution": CONSEIL_DEFAUT,
             })
             continue
 
@@ -222,6 +282,7 @@ def generate_prescription(profile, workout, available_exercises=None):
             "rest_seconds": calculate_rest_time(exo_obj, profile),
             "intensity": calculate_intensity(profile, exo_obj),
             "notes": _note_automatique(dominant, tier),
+            "conseil_execution": _conseil_execution(exo_obj, dominant, tier, profile),
         })
 
     return {"exercises": resultats}

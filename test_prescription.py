@@ -2,7 +2,20 @@
 """
 Tests de la prescription d'entraînement (phase 9/16) —
 logic/recommendation/prescription.py, intensity.py, rest_time.py.
-"""
+
+Prompt hors 24 phases (bascule du PDF payant sur le moteur V2) : les tests
+1 à 5 utilisent désormais "1h" (plutôt que "1h - 1h30") comme durée passée à
+`generate_workout` — volontairement HORS du plancher explicite de volume
+total par séance ajouté à `workout_generator._completer_volume_minimum`
+(SESSION_MIN_EXOS, plancher déjà testé au niveau séance réelle dans
+test_min_exos_and_families.py). Ce plancher, sur les catalogues synthétiques
+minuscules (4 exercices/muscle) utilisés ici pour isoler la logique de
+prescription, forcerait l'ajout de TOUS les exercices disponibles (y compris
+isolation) et fausserait les assertions dédiées à une préoccupation
+différente (séries/repos/intensité selon niveau/objectif). Le test 6 reste
+en "1h30+" à dessein (scénario explicitement "fatigue élevée") : son
+assertion porte sur le budget de SÉRIES de `prescription.py` (mécanisme
+indépendant, en aval), pas sur le nombre d'exercices."""
 import app as appmod
 from logic.models import ProfileSnapshot, Exercise
 from logic.recommendation.workout_generator import generate_workout
@@ -64,7 +77,7 @@ def run():
         # --------------------------------------------------------------
         p1 = profil(niveau_musculation="Débutant complet", objectif_principal="Prise de muscle")
         catalogue1 = catalogue_muscle("pecs", "push")
-        w1 = generate_workout(p1, ["pecs"], catalogue1, "1h - 1h30")
+        w1 = generate_workout(p1, ["pecs"], catalogue1, "1h")
         presc1 = generate_prescription(p1, w1, catalogue1)
         for e in presc1["exercises"]:
             assert 2 <= e["sets"] <= 4, e
@@ -82,7 +95,7 @@ def run():
             objectif_secondaire="Gagner en force",
         )
         catalogue2 = catalogue_muscle("dos", "pull")
-        w2 = generate_workout(p2, ["dos"], catalogue2, "1h - 1h30")
+        w2 = generate_workout(p2, ["dos"], catalogue2, "1h")
         presc2 = generate_prescription(p2, w2, catalogue2)
         for e in presc2["exercises"]:
             assert e["reps"] == "3-6", e  # dominant = force
@@ -96,7 +109,7 @@ def run():
         # --------------------------------------------------------------
         p3 = profil(niveau_musculation="Intermédiaire", objectif_principal="Recomposition (sec + muscle)")
         catalogue3 = catalogue_muscle("quadriceps", "squat")
-        w3 = generate_workout(p3, ["quadriceps"], catalogue3, "1h - 1h30")
+        w3 = generate_workout(p3, ["quadriceps"], catalogue3, "1h")
         presc3 = generate_prescription(p3, w3, catalogue3)
         for e in presc3["exercises"]:
             assert e["reps"] == "6-12", e  # dominant = hypertrophie (0.40, premier max ex-aequo avec perte_de_gras)
@@ -109,7 +122,7 @@ def run():
         # --------------------------------------------------------------
         p4 = profil(niveau_musculation="Avancé", objectif_principal="Performance / explosivité")
         catalogue4 = catalogue_muscle("pecs", "push")
-        w4 = generate_workout(p4, ["pecs"], catalogue4, "1h - 1h30")
+        w4 = generate_workout(p4, ["pecs"], catalogue4, "1h")
         presc4 = generate_prescription(p4, w4, catalogue4)
         for e in presc4["exercises"]:
             assert e["reps"] == "3-8", e
@@ -134,7 +147,7 @@ def run():
             tolerance_technique=1,
         )
         catalogue5 = catalogue_muscle("epaules", "push")
-        w5 = generate_workout(p5_normale, ["epaules"], catalogue5, "1h - 1h30")
+        w5 = generate_workout(p5_normale, ["epaules"], catalogue5, "1h")
         presc5_normale = generate_prescription(p5_normale, w5, catalogue5)
         presc5_faible = generate_prescription(p5_faible, w5, catalogue5)
         ordre = {"faible": 0, "modérée": 1, "élevée": 2}

@@ -3,11 +3,17 @@
 Tests du workflow de revue humaine (phase 14/16) —
 logic/exercise_review.py et logic/exercise_quality.py.
 
-Prompt final (hors 24 phases) : catalogue professionnel (486 exercices) —
-exercise_id et comptes mis à jour en conséquence."""
+Prompt final (hors 24 phases) : catalogue v3 (365 exercices, liste exacte
+fournie par Samy, cf. scripts/build_catalog_v3_samy.py) — exercise_id et
+comptes mis à jour en conséquence. Depuis le correctif "catalogue jamais
+chargé en prod" (logic/db.init_db importe et auto-approuve désormais le
+catalogue à chaque démarrage de l'app), la table Exercise n'est plus vide
+ni "tout pending" après un simple `import app` : ce test la vide
+explicitement au départ pour retrouver ce scénario."""
 import copy
 
 import app as appmod
+from logic.db import db
 from logic.exercise_catalog_import import import_enriched_catalog
 from logic.exercise_quality import validate_exercise_quality
 from logic.exercise_review import (
@@ -22,6 +28,9 @@ from logic.models import Exercise
 
 def run():
     with appmod.app.app_context():
+        Exercise.query.delete()
+        db.session.commit()
+
         resultat_import = import_enriched_catalog()
         assert resultat_import["errors"] == []
         total = Exercise.query.count()
@@ -29,7 +38,7 @@ def run():
         # --------------------------------------------------------------
         # 1) exercice pending -> approve -> statut correct
         # --------------------------------------------------------------
-        cible1 = "developpe_couche_barre_pecs"
+        cible1 = "developpe_couche_a_la_barre_libre_pecs"
         avant = Exercise.query.get(cible1)
         assert avant.needs_review is True
         assert avant.review_status == "pending"
@@ -45,7 +54,7 @@ def run():
         # --------------------------------------------------------------
         # 2) exercice pending -> reject -> raison conservée
         # --------------------------------------------------------------
-        cible2 = "squat_arriere_barre_back_squat_quadriceps"
+        cible2 = "squat_arriere_a_la_barre_back_squat_quadriceps"
         rejete = reject_exercise(cible2, reason="Difficulty_level à revérifier avec un coach", reviewer="samy")
         assert rejete.review_status == "rejected"
         assert rejete.review_notes == "Difficulty_level à revérifier avec un coach"
@@ -66,7 +75,7 @@ def run():
         # --------------------------------------------------------------
         # 3) modification manuelle d'un champ -> validation correcte
         # --------------------------------------------------------------
-        cible3 = "curl_barre_droite_biceps"
+        cible3 = "curl_a_la_barre_ez_prise_large_biceps"
         avant3 = Exercise.query.get(cible3)
         assert avant3.technical_complexity != 5
 
@@ -127,17 +136,17 @@ def run():
         # --------------------------------------------------------------
         # 5) exercice valide accepté sans warning bloquant
         # --------------------------------------------------------------
-        exercice_valide = Exercise.query.get("developpe_couche_barre_pecs")
+        exercice_valide = Exercise.query.get("developpe_couche_a_la_barre_libre_pecs")
         rapport5 = validate_exercise_quality(exercice_valide)
         assert rapport5["valid"] is True
         assert rapport5["errors"] == []
-        print(f"OK 5 — exercice valide ('developpe_couche_barre_pecs') : valid=True, 0 erreur, {len(rapport5['warnings'])} avertissement(s)")
+        print(f"OK 5 — exercice valide ('developpe_couche_a_la_barre_libre_pecs') : valid=True, 0 erreur, {len(rapport5['warnings'])} avertissement(s)")
 
         # --------------------------------------------------------------
         # 6) catalogue complet : validation globale, aucun crash
         # --------------------------------------------------------------
         tous = Exercise.query.all()
-        assert len(tous) == total == 486
+        assert len(tous) == total == 365
         nb_erreurs_total = 0
         nb_avertissements_total = 0
         for ex in tous:

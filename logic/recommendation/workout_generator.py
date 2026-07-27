@@ -39,6 +39,81 @@ MESSAGE_SEANCE_VIDE = (
     "Aucun exercice disponible pour cette séance compte tenu de tes contraintes."
 )
 
+# Prompt hors 24 phases (bascule du PDF payant sur le moteur V2, régression
+# détectée via test_min_exos_and_families.py) : plancher explicite de nombre
+# total d'exercices par séance selon la durée choisie — MÊMES valeurs que
+# l'ancien moteur (`logic.program_builder.MIN_EXOS_PAR_SEANCE`, tâche #52 des
+# 24 phases). Le budget de fatigue PAR EXERCICE (`calculate_fatigue_budget`,
+# phase 6) a été calibré indépendamment de cette contrainte de VOLUME TOTAL
+# et, pour un split à plusieurs muscles par séance (Upper/Lower, PPL...),
+# converge naturellement vers beaucoup moins d'exercices que ce plancher
+# métier explicite. Le contrôle fin du volume d'ENTRAÎNEMENT réel (fatigue
+# cumulée) reste géré en aval par `prescription._ajuster_series_selon_budget`
+# (nombre de SÉRIES par exercice, pas nombre d'exercices) : ajouter des
+# exercices ici pour tenir ce plancher ne fait donc jamais courir de risque
+# de surentraînement, seulement plus de variété avec moins de séries chacun.
+SESSION_MIN_EXOS = {
+    "1h - 1h30": 9,
+    "1h30+": 10,
+}
+MESSAGE_PLANCHER_SEANCE_INATTEIGNABLE = (
+    "Impossible d'atteindre {plancher} exercices sur cette séance compte tenu de tes contraintes "
+    "actuelles (équipement/blessures/exclusions) — {total} exercice(s) proposé(s), c'est le maximum "
+    "réellement disponible."
+)
+
+
+def _completer_volume_minimum(par_muscle, profile, available_exercises, session_duration, warnings):
+    """Complète (JAMAIS ne réduit) le nombre total d'exercices de la séance
+    pour atteindre `SESSION_MIN_EXOS[session_duration]`, si applicable.
+    N'ajoute que des exercices RÉELLEMENT disponibles (relance `fallback.
+    run_fallback_cascade` avec un objectif +1 pour le muscle le moins fourni
+    à chaque tour, jamais d'invention) ; répartit l'ajout entre muscles
+    plutôt que d'empiler sur un seul. S'arrête et avertit explicitement si le
+    plancher demandé reste hors de portée (mêmes garanties que le reste du
+    moteur : jamais un silence sur une limite réelle)."""
+    plancher = SESSION_MIN_EXOS.get(session_duration)
+    if not plancher or not par_muscle:
+        return
+
+    def total():
+        return sum(len(groupe["exercises"]) for groupe in par_muscle)
+
+    deja_par_groupe = {
+        id(groupe): {item["exercise"].exercise_id for item in groupe["exercises"]}
+        for groupe in par_muscle
+    }
+
+    tentatives_sans_progres = 0
+    while total() < plancher and tentatives_sans_progres <= len(par_muscle):
+        groupe = min(par_muscle, key=lambda g: len(g["exercises"]))
+        deja = deja_par_groupe[id(groupe)]
+        resultat = fallback.run_fallback_cascade(
+            profile, available_exercises, groupe["muscle"], len(groupe["exercises"]) + 1
+        )
+        nouveaux = [e for e in resultat["exercises"] if e["exercise_id"] not in deja]
+        if not nouveaux:
+            tentatives_sans_progres += 1
+            continue
+
+        candidat = nouveaux[0]
+        exo_obj = next(
+            (ex for ex in available_exercises if getattr(ex, "exercise_id", None) == candidat["exercise_id"]),
+            None,
+        )
+        if exo_obj is None:
+            tentatives_sans_progres += 1
+            continue
+
+        groupe["exercises"].append({"exercise": exo_obj, "score": candidat["score"]})
+        deja.add(candidat["exercise_id"])
+        tentatives_sans_progres = 0
+
+    if total() < plancher:
+        warnings.append(
+            MESSAGE_PLANCHER_SEANCE_INATTEIGNABLE.format(plancher=plancher, total=total())
+        )
+
 
 def estimate_exercise_fatigue_cost(exercise):
     """Coût de fatigue estimé d'UN exercice, pour arbitrer le volume total
@@ -152,6 +227,7 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
         par_muscle.append({"muscle": muscle, "exercises": enrichis})
 
     _reduire_volume_si_besoin(par_muscle, budget, warnings)
+    _completer_volume_minimum(par_muscle, profile, available_exercises, session_duration, warnings)
 
     exercices_sortie = []
     for groupe in par_muscle:

@@ -1,11 +1,11 @@
 # PRODUCTION_READY.md
 
-Audit généré le 2026-07-27 19:50 par `scripts/production_check.py` (Phase 24/24).
+Audit généré le 2026-07-27 22:38 par `scripts/production_check.py` (Phase 24/24).
 
 ## Verdict : 🔴 BLOQUÉ — au moins un BLOCKER à corriger avant lancement
 
-- OK : 33
-- WARNING : 6
+- OK : 34
+- WARNING : 5
 - BLOCKER : 3
 
 Cet audit s'exécute dans un environnement totalement isolé (dossier de données temporaire jetable, base SQLite dédiée) : aucune commande, aucun utilisateur, aucun code promo réel n'a été lu ni modifié. Les contrôles de sécurité/configuration portent sur les variables d'environnement réelles, en lecture seule.
@@ -33,7 +33,7 @@ render.yaml déclare un disque persistant
 
 **✅ OK — Installation vierge**
 
-9 tables créées, toutes vides (/sessions/epic-affectionate-shannon/tmp/fitsurmesure_audit_cxwwm1b6)
+9 tables créées ; données utilisateur toutes vides, catalogue d'exercices pré-chargé (365 exercices) — dossier isolé /sessions/epic-affectionate-shannon/tmp/fitsurmesure_audit_a828va4p
 
 **✅ OK — Migration douce**
 
@@ -91,22 +91,22 @@ UserAccessToken.token_hash indexé/unique (recherche de jeton en O(1))
 
 **✅ OK — Temps d'exécution — import_catalogue**
 
-0.29s (sous le seuil indicatif 5.0s)
+0.17s (sous le seuil indicatif 5.0s)
 
 **✅ OK — Temps d'exécution — generation_programme**
 
-0.04s (sous le seuil indicatif 2.0s)
+0.12s (sous le seuil indicatif 2.0s)
 
 **✅ OK — Temps d'exécution — generation_pdf**
 
-0.04s (sous le seuil indicatif 3.0s)
+0.08s (sous le seuil indicatif 3.0s)
 
 
 ## Paiement
 
 **✅ OK — Commande simulée**
 
-Commande 5cbab324a98a449aab47ab0b627dd59c créée et marquée payée
+Commande ae9c68c95e744d63849dc809715d8a56 créée et marquée payée
 
 **✅ OK — Indépendance paiement/programme**
 
@@ -133,11 +133,11 @@ signature invalide correctement rejetée (400)
 
 **✅ OK — Import du catalogue**
 
-486 exercices importés (créés=486, maj=0, invalides ignorés=0) en 0.29s
+365 exercices importés (créés=0, maj=365, invalides ignorés=0) en 0.17s
 
-**⚠️ WARNING — Exercices approuvés**
+**✅ OK — Exercices approuvés**
 
-0 exercice au statut 'approved' — le moteur repose entièrement sur le repli catalogue legacy (fonctionnel, mais aucune revue humaine effectuée)
+365 exercices approuvés / 365
 
 **✅ OK — Champs critiques manquants**
 
@@ -152,7 +152,7 @@ aucun
 
 **✅ OK — Génération de programme**
 
-Program #1 : 3 séance(s), 10 exercice(s) en 0.04s
+Program #1 : 3 séance(s), 27 exercice(s) en 0.12s
 
 **✅ OK — Exclusion des exercices rejetés**
 
@@ -171,7 +171,7 @@ paiement -> jeton -> connexion -> /my-program -> action -> /mon-compte -> décon
 
 **✅ OK — Génération PDF**
 
-PDF valide généré (16292 octets) en 0.04s
+PDF valide généré (20761 octets) en 0.08s
 
 
 ## Questionnaire
@@ -205,5 +205,5 @@ ValueError levée comme attendu
 
 **✅ OK — Signaux d'apprentissage**
 
-calculate_user_preferences() renvoie les 4 signaux attendus : {'preferred_exercises': [], 'avoided_patterns': ['developpe_plat'], 'difficulty_adjustment': 0, 'volume_adjustment': -1}
+calculate_user_preferences() renvoie les 4 signaux attendus : {'preferred_exercises': [], 'avoided_patterns': ['developpe'], 'difficulty_adjustment': 0, 'volume_adjustment': -1}
 

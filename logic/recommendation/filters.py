@@ -61,6 +61,47 @@ def _blessure_exclusion_reason(profile, exercise):
     return None
 
 
+# Correspondance option "equipement" (accès matériel réel déclaré au
+# questionnaire) -> ensemble de mots-clés `Exercise.equipment` réellement
+# praticables. Portée depuis l'ancien moteur (logic/program_builder.py,
+# `_equip_allowed`), qui appliquait déjà cette règle. Découverte lors du
+# prompt final (hors 24 phases) : le nouveau moteur (logic/recommendation/*)
+# n'avait ENCORE JAMAIS cette exclusion — un profil "Matériel limité à
+# domicile" pouvait se voir recommander des exercices à la barre ou en
+# machine, impossibles à réaliser chez lui. Un exercice inaccessible n'est
+# pas "moins pertinent", il est IRRÉALISABLE : il doit être exclu en passe 1
+# (filtrage dur), au même titre qu'une contre-indication de blessure — pas
+# laissé à une simple pénalité de score (passe 2).
+TOUS_LES_EQUIPEMENTS = {"barre", "haltere", "machine", "poids_du_corps", "elastique"}
+EQUIPEMENT_AUTORISE_PAR_ACCES = {
+    "Salle complète": TOUS_LES_EQUIPEMENTS,
+    "Surtout machines guidées": TOUS_LES_EQUIPEMENTS,
+    "Surtout poids libres": TOUS_LES_EQUIPEMENTS,
+    "Matériel limité à domicile": {"haltere", "poids_du_corps", "elastique"},
+}
+
+
+def _equipement_indisponible_reason(profile, exercise):
+    """`equipement` (accès matériel) n'a pas de colonne dédiée sur
+    `ProfileSnapshot` (cf. `preference_materiel`, un axe différent : la
+    PRÉFÉRENCE, pas l'ACCÈS réel) — il est lu directement dans
+    `variables_json`, copie brute du questionnaire (`profile_normalizer.
+    normalize_questionnaire_data`). Valeur absente/non reconnue -> aucune
+    exclusion, jamais de supposition."""
+    variables_json = getattr(profile, "variables_json", None) or {}
+    acces = variables_json.get("equipement")
+    autorise = EQUIPEMENT_AUTORISE_PAR_ACCES.get(acces)
+    if autorise is None:
+        return None
+
+    equipement_exercice = set(getattr(exercise, "equipment", None) or [])
+    if not equipement_exercice:
+        return None  # exercice sans équipement déclaré -> jamais exclu ici (donnée incomplète, pas une décision)
+    if not (equipement_exercice & autorise):
+        return f"equipement_indisponible_{acces} : exercice nécessite {sorted(equipement_exercice)}"
+    return None
+
+
 def _feedback_douleur_exclusion_reason(profile, exercise, feedback_repository=None):
     """Prépare l'interface pour un futur `ExerciseFeedback` (phase historique/
     feedback, pas encore créée) : un feedback "douleur/gêne" sur cet exercice
@@ -83,6 +124,10 @@ def exclusion_reason(profile, exercise, feedback_repository=None):
     """Point d'entrée unique de la passe 1. Retourne une chaîne expliquant
     l'exclusion, ou None si l'exercice passe le filtrage dur."""
     reason = _blessure_exclusion_reason(profile, exercise)
+    if reason:
+        return reason
+
+    reason = _equipement_indisponible_reason(profile, exercise)
     if reason:
         return reason
 

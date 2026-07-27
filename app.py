@@ -14,6 +14,21 @@ from logic.pdf_generator import generate_pdf
 from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction
 from logic.db import init_db
 
+# Prompt hors 24 phases (décision explicite de Samy, cf. discussion sur le
+# constat "le PDF payant utilise encore l'ancien moteur à 111 exercices") :
+# /generate-preview et /download basculent sur le moteur V2 (catalogue
+# enrichi, objectifs composites, préférence matériel multi-choix, questions
+# PR, conseils d'exécution, justification à 3 niveaux) — cf. `_build_
+# program_v2` ci-dessous. L'ancien moteur (`build_program`, import ci-dessus,
+# jamais modifié) reste utilisé comme FILET DE SÉCURITÉ si la génération V2
+# lève une exception (catalogue vide, champ questionnaire imprévu...) : ne
+# jamais bloquer un client payant à cause d'un problème côté V2.
+from logic.models import ProfileSnapshot
+from logic.profile_normalizer import normalize_questionnaire_data
+from logic.recommendation.catalog_provider import get_recommendation_catalog
+from logic.recommendation.program_builder import build_program as build_program_v2
+from logic.pdf_program_adapter import raw_result_to_pdf_data
+
 app = Flask(__name__)
 
 # Fondations données FitSurMesure V2 (phase 1/16, cf. architecture_v2_consolidation.md).
@@ -156,6 +171,63 @@ def _derive_objectif_principal(data):
     return data
 
 
+RAISON_DOULEUR_REVUE = "Douleur / gêne"
+
+
+def _build_program_v2(data, frequence, duree_seance):
+    """_build_program_v2(data, frequence, duree_seance) -> dict PDF-ready
+    (même forme que l'ancien `build_program`) ou lève une exception (à
+    l'appelant de retomber sur l'ancien moteur, cf. docstring de l'import
+    ci-dessus).
+
+    Construit un `ProfileSnapshot` ÉPHÉMÈRE (jamais ajouté à `db.session`,
+    jamais committé) : `/generate-preview` tourne AVANT tout paiement, il ne
+    doit donc jamais écrire de User/ProfileSnapshot en base juste pour un
+    aperçu. `/download`, lui, réutilise cette même fonction par simplicité
+    (même résultat déterministe pour les mêmes données de commande, cf.
+    `logic.recommendation.program_builder` "déterminisme préservé") plutôt
+    que de dépendre d'un `Program` déjà persisté (qui pourrait ne pas encore
+    exister si `_essayer_generer_programme_v2` a échoué silencieusement)."""
+    cleaned = normalize_questionnaire_data(data)
+    profile_ephemere = ProfileSnapshot(**cleaned)
+
+    catalogue = get_recommendation_catalog()
+
+    # Retours "je n'aime pas cet exercice" d'un programme précédent (même
+    # contrat que l'ancien moteur, `program_builder._rejected_sets`) : exclu
+    # par nom exact, et par SCHÉMA DE MOUVEMENT (pattern) en plus si la raison
+    # est une douleur/gêne (une autre variante du même mouvement risque de
+    # poser le même problème).
+    exercices_rejetes = data.get("exercices_rejetes") or []
+    noms_exclus = set()
+    patterns_exclus = set()
+    for item in exercices_rejetes:
+        if not isinstance(item, dict):
+            continue
+        nom = item.get("nom")
+        if not nom:
+            continue
+        noms_exclus.add(nom)
+        if item.get("raison") == RAISON_DOULEUR_REVUE:
+            for ex in catalogue:
+                if getattr(ex, "name", None) == nom:
+                    patterns_exclus.add(getattr(ex, "pattern", None))
+
+    if noms_exclus or patterns_exclus:
+        catalogue = [
+            ex for ex in catalogue
+            if getattr(ex, "name", None) not in noms_exclus
+            and getattr(ex, "pattern", None) not in patterns_exclus
+        ]
+
+    result = build_program_v2(profile_ephemere, catalogue, options={
+        "frequence": frequence, "duree_seance": duree_seance,
+    })
+    return raw_result_to_pdf_data(
+        result, catalogue, questionnaire_data=data, profile_snapshot=profile_ephemere,
+    )
+
+
 def _build_everything(data):
     """Valide le questionnaire et construit profile/nutrition/program/cardio/lifestyle.
     Retourne (error_response, profile, nutrition, program, cardio, lifestyle).
@@ -291,25 +363,35 @@ def _build_everything(data):
     program = None
     cardio = None
     if not nutrition["blocked"] and veut_musculation:
-        program_input = {
-            "frequence_entrainement": frequence,
-            "split_preference": data.get("split_preference", "auto"),
-            "equipement": data.get("equipement", "Salle complète"),
-            "blessures": data.get("blessures", []),
-            "exercices_incapables": data.get("exercices_incapables", []),
-            "duree_seance": data.get("duree_seance", "1h - 1h30"),
-            "exos_par_muscle_pref": data.get("exos_par_muscle_pref", "auto"),
-            "niveau_musculation": data.get("niveau_musculation", "Débutant complet"),
-            "objectif_principal": data.get("objectif_principal", "Condition physique générale"),
-            "muscles_prioritaires": data.get("muscles_prioritaires", []),
-            "longueur_bras": data.get("longueur_bras", "Je ne sais pas"),
-            "longueur_jambes": data.get("longueur_jambes", "Je ne sais pas"),
-            "signature": signature,
-            # Retours "je n'aime pas cet exercice" sur un programme précédent :
-            # [{ "nom": "...", "raison": "..." }, ...]
-            "exercices_rejetes": data.get("exercices_rejetes", []),
-        }
-        program = build_program(program_input)
+        try:
+            program = _build_program_v2(data, frequence, data.get("duree_seance", "1h - 1h30"))
+        except Exception:
+            # Filet de sécurité (jamais bloquer un client payant à cause d'un
+            # problème côté moteur V2, cf. docstring de _build_program_v2) :
+            # repli sur l'ancien moteur, comportement identique à avant la
+            # bascule V2 de cette phase.
+            app.logger.exception(
+                "génération V2 du programme musculation impossible, repli sur l'ancien moteur"
+            )
+            program_input = {
+                "frequence_entrainement": frequence,
+                "split_preference": data.get("split_preference", "auto"),
+                "equipement": data.get("equipement", "Salle complète"),
+                "blessures": data.get("blessures", []),
+                "exercices_incapables": data.get("exercices_incapables", []),
+                "duree_seance": data.get("duree_seance", "1h - 1h30"),
+                "exos_par_muscle_pref": data.get("exos_par_muscle_pref", "auto"),
+                "niveau_musculation": data.get("niveau_musculation", "Débutant complet"),
+                "objectif_principal": data.get("objectif_principal", "Condition physique générale"),
+                "muscles_prioritaires": data.get("muscles_prioritaires", []),
+                "longueur_bras": data.get("longueur_bras", "Je ne sais pas"),
+                "longueur_jambes": data.get("longueur_jambes", "Je ne sais pas"),
+                "signature": signature,
+                # Retours "je n'aime pas cet exercice" sur un programme précédent :
+                # [{ "nom": "...", "raison": "..." }, ...]
+                "exercices_rejetes": data.get("exercices_rejetes", []),
+            }
+            program = build_program(program_input)
 
     if not nutrition["blocked"] and veut_cardio:
         temps_1km_raw = data.get("temps_1km")

@@ -55,6 +55,9 @@ def _regrouper_par_muscle(program_exercises):
             "nom": getattr(exercise, "name", None) or pe.exercise_id,
             "series": pe.series,
             "reps": pe.reps,
+            # Additif (prompt hors 24 phases, conseils d'exécution) : clé en
+            # plus, lue par pdf_generator.py si présente (sinon ignorée).
+            "conseil_execution": getattr(pe, "conseil_execution", None),
         })
 
     return [{"muscle": _label_muscle(m), "exercices": par_muscle[m]} for m in ordre_muscles]
@@ -103,4 +106,103 @@ def program_to_pdf_data(program):
         "prioritaires_labels": [],
         "morpho_labels": [],
         "objectif": objectif,
+    }
+
+
+def _regrouper_exercices_par_muscle_v2(exercices_seance, exercises_by_id):
+    """Même regroupement que `_regrouper_par_muscle` ci-dessus, mais à partir
+    de la structure BRUTE renvoyée par `logic.recommendation.program_builder.
+    build_program()` (dicts {"exercise_id","series","repetitions","rest_time",
+    "intensity","notes","conseil_execution"}), PAS d'un `Program` persisté en
+    base. Utilisé par `raw_result_to_pdf_data` (aperçu avant paiement et PDF
+    payant définitif, depuis la bascule du moteur V2 pour ces deux routes,
+    prompt hors 24 phases)."""
+    par_muscle = {}
+    ordre_muscles = []
+
+    for exo in exercices_seance:
+        exercise = exercises_by_id.get(exo.get("exercise_id"))
+        muscle_key = getattr(exercise, "muscle_principal", None) or "?"
+
+        if muscle_key not in par_muscle:
+            par_muscle[muscle_key] = []
+            ordre_muscles.append(muscle_key)
+
+        par_muscle[muscle_key].append({
+            "nom": getattr(exercise, "name", None) or exo.get("exercise_id"),
+            "series": exo.get("series"),
+            "reps": exo.get("repetitions"),
+            "conseil_execution": exo.get("conseil_execution"),
+        })
+
+    return [{"muscle": _label_muscle(m), "exercices": par_muscle[m]} for m in ordre_muscles]
+
+
+def raw_result_to_pdf_data(result, exercises_catalog, questionnaire_data=None, profile_snapshot=None):
+    """raw_result_to_pdf_data(result, exercises_catalog, questionnaire_data=None,
+    profile_snapshot=None) -> dict compatible avec `pdf_generator.generate_pdf`
+    ET avec `app._preview_json` (même forme "split_label"/"programme" que
+    `program_to_pdf_data` ci-dessus et que l'ancien moteur
+    `logic.program_builder.build_program`).
+
+    `result` : sortie BRUTE (dict Python, jamais persistée) de
+    `logic.recommendation.program_builder.build_program(profile_snapshot,
+    exercises_catalog, options)` — permet de construire un aperçu PDF-ready
+    SANS écrire en base (utile avant paiement, `/generate-preview`), et sert
+    aussi de base pour `/download` (PDF payant définitif) depuis la bascule
+    du moteur V2 pour ces deux routes (prompt hors 24 phases, décision
+    explicite de Samy après le constat que le PDF payant utilisait encore
+    l'ancien moteur à 111 exercices malgré tout le travail fait sur le V2).
+
+    `questionnaire_data` : dict brut du questionnaire (facultatif), utilisé
+    UNIQUEMENT pour objectif_note/niveau_note/prioritaires_labels/equipement
+    (mêmes textes explicatifs que l'ancien moteur, réutilisés en LECTURE
+    SEULE depuis `logic/program_builder.py`, jamais recalculés ici).
+    `profile_snapshot` : facultatif, permet de calculer `morpho_labels` via
+    `logic.recommendation.biomechanics._activated_morphologie_keys` (mêmes
+    traits que ceux réellement utilisés par le scoring V2, plutôt que de
+    redériver une règle parallèle bras/jambes comme l'ancien moteur)."""
+    from logic.program_builder import NIVEAU_NOTES, OBJECTIF_NOTES
+    from logic.program_repository import _parse_duree_minutes
+
+    exercises_by_id = {getattr(ex, "exercise_id", None): ex for ex in exercises_catalog}
+    questionnaire_data = questionnaire_data or {}
+
+    programme = []
+    for session in result.get("sessions", []):
+        programme.append({
+            "nom": session.get("name"),
+            "muscles": _regrouper_exercices_par_muscle_v2(session.get("exercises", []), exercises_by_id),
+            "duree_estimee_min": _parse_duree_minutes(session.get("duration")) or 0,
+            "bonus_poids_du_corps": [],
+        })
+
+    split_label = (result.get("program_name") or "Programme").replace("Programme ", "", 1) or "Programme"
+    objectif = result.get("objective")
+    niveau = questionnaire_data.get("niveau_musculation")
+
+    morpho_labels = []
+    if profile_snapshot is not None:
+        from logic.recommendation.biomechanics import _activated_morphologie_keys
+        morpho_labels = sorted(
+            t for t in _activated_morphologie_keys(profile_snapshot) if t != "mobilite_faible"
+        )
+
+    return {
+        "split_label": split_label,
+        "split_key": None,
+        "programme": programme,
+        "warnings": result.get("warnings", []),
+        "objectif_note": OBJECTIF_NOTES.get(objectif),
+        "niveau_note": NIVEAU_NOTES.get(niveau),
+        "equipement": questionnaire_data.get("equipement") or "Salle complète",
+        "prioritaires_labels": sorted(set(questionnaire_data.get("muscles_prioritaires") or [])),
+        "morpho_labels": morpho_labels,
+        "objectif": objectif,
+        # Additif (prompt hors 24 phases, justification à 3 niveaux) : passe
+        # tel quel "explanation" (program_personalization.generate_program_
+        # explanation), déjà calculée par build_program -> pdf_generator.py
+        # l'affiche si présente, l'ignore sinon (rétrocompatible avec
+        # `program_to_pdf_data` ci-dessus, qui ne la fournit pas).
+        "explanation": result.get("explanation"),
     }

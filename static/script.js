@@ -32,6 +32,15 @@ const SEVERITE_OPTIONS = ["Légère gêne occasionnelle", "Gêne modérée régu
 // affiché après la dernière étape du questionnaire et avant génération du PDF.
 let reviewMode = false;
 let previewData = null;
+// Prompt hors 24 phases ("Régénérer toute cette séance") : exclusions
+// ajoutées par ce bouton, tenues à part de `formData.exercices_rejetes`.
+// Raison : `collectReviewRejections()` (appelée juste avant le paiement final)
+// RECONSTRUIT `formData.exercices_rejetes` uniquement à partir des cases à
+// cocher actuellement affichées — or un exercice qu'on vient de faire exclure
+// via "régénérer la séance" n'est justement PLUS affiché (il a disparu du
+// nouvel aperçu) : sans cette liste séparée, fusionnée à chaque collecte,
+// cette exclusion serait silencieusement perdue au moment de payer.
+let regeneratedExclusions = [];
 
 const RAISONS_EXERCICE = [
   "Je n'aime pas ce mouvement",
@@ -40,6 +49,13 @@ const RAISONS_EXERCICE = [
   "Trop difficile / technique",
   "Autre",
 ];
+// Prompt hors 24 phases : "en plus de pouvoir modifier les exercices, laisser
+// une chance à l'algorithme si toute la séance ne plaît pas" — raison dédiée
+// pour "Régénérer toute cette séance", VOLONTAIREMENT distincte de "Douleur /
+// gêne" (qui exclut aussi tout le schéma de mouvement côté serveur, cf.
+// app.py::_build_program_v2) : ici on veut juste d'autres exercices, pas
+// nécessairement écarter tout le mouvement pour les prochaines générations.
+const RAISON_REGENERATION_SEANCE = "Je veux une séance différente (régénération complète)";
 const RAISONS_CARDIO = [
   "Trop difficile / intense",
   "Je n'aime pas ce sport",
@@ -64,7 +80,7 @@ const steps = [
     title: "Profil général",
     fields: [
       { id: "prenom", label: "Prénom (facultatif)", type: "text", placeholder: "Ex : Antonio" },
-      { id: "date_naissance", label: "Date de naissance", type: "date", required: true },
+      { id: "date_naissance", label: "Date de naissance", type: "date-parts", required: true },
       { id: "sexe", label: "Sexe", type: "select", required: true,
         options: ["Homme", "Femme"] },
       { id: "poids", label: "Poids (kg)", type: "number", required: true, min: 30, max: 300 },
@@ -77,6 +93,18 @@ const steps = [
       { id: "annees_pratique", label: "Depuis combien de temps pratiques-tu la musculation régulièrement ? (facultatif)",
         type: "select",
         options: ["Moins de 6 mois", "6 mois à 2 ans", "2 à 5 ans", "Plus de 5 ans"] },
+      // As-tu déjà testé ton 1RM (record perso) sur ces 4 mouvements de référence ?
+      // Sert à calibrer le conseil d'exécution (cf. logic/recommendation/prescription.py,
+      // conseil_execution) : monter progressivement si jamais testé, ou se
+      // caler sur un pourcentage connu du record si déjà testé.
+      { id: "pr_developpe_couche_barre", label: "As-tu déjà testé ton record perso (1RM) au développé couché à la barre ?",
+        type: "select", options: ["Non", "Oui"], showIf: d => d.formule !== "cardio" },
+      { id: "pr_developpe_couche_haltere", label: "As-tu déjà testé ton record perso (1RM) au développé couché aux haltères ?",
+        type: "select", options: ["Non", "Oui"], showIf: d => d.formule !== "cardio" },
+      { id: "pr_squat_barre", label: "As-tu déjà testé ton record perso (1RM) au squat à la barre ?",
+        type: "select", options: ["Non", "Oui"], showIf: d => d.formule !== "cardio" },
+      { id: "pr_souleve_de_terre", label: "As-tu déjà testé ton record perso (1RM) au soulevé de terre ?",
+        type: "select", options: ["Non", "Oui"], showIf: d => d.formule !== "cardio" },
     ],
   },
   // ---- Catégorie 2/7 : Objectifs --------------------------------------------
@@ -259,10 +287,10 @@ const steps = [
         showIf: d => d.formule !== "cardio",
         options: ["Salle complète", "Surtout machines guidées", "Surtout poids libres",
                    "Matériel limité à domicile"] },
-      { id: "preference_materiel", label: "Si tu as le choix, tu préfères plutôt travailler avec : (facultatif)",
-        type: "select",
+      { id: "preference_materiel", label: "Si tu as le choix, tu préfères plutôt travailler avec : (plusieurs choix possibles, facultatif)",
+        type: "checkbox-group",
         showIf: d => d.formule !== "cardio",
-        options: ["Barres libres", "Haltères", "Machines guidées", "Pas de préférence"] },
+        options: ["Barres libres", "Haltères", "Machines guidées"] },
       { id: "preference_style_charge", label: "Tu préfères plutôt : (facultatif)", type: "select",
         showIf: d => d.formule !== "cardio",
         options: ["Soulever lourd, peu de répétitions", "Contrôler le mouvement, plus de répétitions",
@@ -353,6 +381,42 @@ function fieldHtml(f) {
     );
     return `<select data-field="${f.id}">${opts.join("")}</select>`;
   }
+  if (f.type === "date-parts") {
+    // Remplace l'ancien <input type="date"> : sur mobile (iOS notamment), un
+    // input date natif s'affiche en molette qu'il faut faire défiler année
+    // par année depuis la date du jour — très pénible pour remonter à une
+    // date de naissance (retour Samy, prompt hors 24 phases). Trois <select>
+    // indépendants (jour/mois/année) permettent d'aller directement à
+    // l'année voulue sans défilement complet.
+    const current = val || "";
+    const [yActuelle, mActuelle, dActuelle] = current.split("-");
+    const jours = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
+    const moisNoms = [
+      ["01", "Janvier"], ["02", "Février"], ["03", "Mars"], ["04", "Avril"],
+      ["05", "Mai"], ["06", "Juin"], ["07", "Juillet"], ["08", "Août"],
+      ["09", "Septembre"], ["10", "Octobre"], ["11", "Novembre"], ["12", "Décembre"],
+    ];
+    const anneeActuelle = new Date().getFullYear();
+    // De 10 à 100 ans : couvre tous les profils réalistes du questionnaire,
+    // sans obliger à défiler jusqu'en l'an 1900.
+    const annees = Array.from({ length: 91 }, (_, i) => String(anneeActuelle - 10 - i));
+
+    const optJour = ['<option value="">Jour</option>'].concat(
+      jours.map(j => `<option value="${j}" ${dActuelle === j ? "selected" : ""}>${j}</option>`)
+    ).join("");
+    const optMois = ['<option value="">Mois</option>'].concat(
+      moisNoms.map(([v, l]) => `<option value="${v}" ${mActuelle === v ? "selected" : ""}>${l}</option>`)
+    ).join("");
+    const optAnnee = ['<option value="">Année</option>'].concat(
+      annees.map(a => `<option value="${a}" ${yActuelle === a ? "selected" : ""}>${a}</option>`)
+    ).join("");
+
+    return `<div class="date-parts-grid">
+      <select data-field="${f.id}" data-date-part="jour">${optJour}</select>
+      <select data-field="${f.id}" data-date-part="mois">${optMois}</select>
+      <select data-field="${f.id}" data-date-part="annee">${optAnnee}</select>
+    </div>`;
+  }
   if (f.type === "checkbox-group") {
     const arr = formData[f.id] || [];
     return `<div class="checkbox-grid">${f.options.map(o => `
@@ -430,7 +494,25 @@ function renderStep() {
     });
   });
 
-  container.querySelectorAll("[data-field]:not([data-severity-zone])").forEach(el => {
+  // Trois <select> jour/mois/année (champ "date-parts") : recompose la date
+  // ISO complète depuis les 3 sélecteurs de son propre groupe à chaque
+  // changement, plutôt que d'écraser formData[f.id] avec la seule valeur du
+  // <select> modifié (ce qu'aurait fait le gestionnaire générique ci-dessous).
+  container.querySelectorAll(".date-parts-grid").forEach(grid => {
+    const selects = grid.querySelectorAll("select[data-date-part]");
+    const key = selects[0].dataset.field;
+    selects.forEach(sel => {
+      sel.addEventListener("change", () => {
+        const parts = {};
+        selects.forEach(s => { parts[s.dataset.datePart] = s.value; });
+        formData[key] = (parts.jour && parts.mois && parts.annee)
+          ? `${parts.annee}-${parts.mois}-${parts.jour}`
+          : "";
+      });
+    });
+  });
+
+  container.querySelectorAll("[data-field]:not([data-severity-zone]):not([data-date-part])").forEach(el => {
     if (el.type === "checkbox") {
       el.addEventListener("change", () => {
         const key = el.dataset.field;
@@ -586,7 +668,14 @@ function renderReview() {
   if (previewData.program) {
     html += `<div class="review-group"><h3>Musculation — ${previewData.program.split_label}</h3>`;
     previewData.program.programme.forEach(jour => {
-      html += `<h4>${jour.nom}</h4>`;
+      html += `
+        <div class="review-session-header">
+          <h4>${jour.nom}</h4>
+          <button type="button" class="btn-secondary btn-regenerate-session" data-jour="${jour.nom}">
+            🔁 Régénérer toute cette séance
+          </button>
+        </div>
+      `;
       jour.muscles.forEach(bloc => {
         bloc.exercices.forEach(nom => {
           const key = `${jour.nom}::${bloc.muscle}::${nom}`;
@@ -637,6 +726,38 @@ function renderReview() {
     });
   });
 
+  // Prompt hors 24 phases : "Régénérer toute cette séance" — au lieu de cocher
+  // exercice par exercice, on ajoute d'un coup TOUS les exercices actuellement
+  // affichés pour cette séance à `exercices_rejetes` (même mécanisme déjà
+  // existant que le rejet individuel, cf. app.py::_build_program_v2, qui
+  // exclut ces exercices précis du prochain tirage), puis on redemande
+  // immédiatement un nouvel aperçu au serveur pour que l'algorithme propose
+  // d'autres exercices pour cette séance.
+  container.querySelectorAll(".btn-regenerate-session").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const nomJour = btn.dataset.jour;
+      const jour = (previewData.program.programme || []).find(j => j.nom === nomJour);
+      if (!jour) return;
+
+      const nomsDeLaSeance = new Set();
+      jour.muscles.forEach(bloc => bloc.exercices.forEach(nom => nomsDeLaSeance.add(nom)));
+
+      const dejaRejetes = new Set(regeneratedExclusions.map(r => r.nom));
+      nomsDeLaSeance.forEach(nom => {
+        if (!dejaRejetes.has(nom)) {
+          regeneratedExclusions.push({ nom, raison: RAISON_REGENERATION_SEANCE });
+        }
+      });
+      formData.exercices_rejetes = regeneratedExclusions.concat(
+        formData.exercices_rejetes.filter(r => !dejaRejetes.has(r.nom))
+      );
+
+      btn.disabled = true;
+      btn.textContent = "Régénération en cours...";
+      await showReview();
+    });
+  });
+
   document.getElementById("backBtn").style.visibility = "visible";
   const nextBtn = document.getElementById("nextBtn");
   nextBtn.disabled = false;
@@ -657,6 +778,16 @@ function collectReviewRejections() {
   container.querySelectorAll("input[data-cardio]:checked").forEach(cb => {
     const select = container.querySelector(`select[data-group="cardio"][data-item="${cb.dataset.key}"]`);
     cardioRejets.push({ seance_nom: cb.dataset.cardio, raison: select ? select.value : "Autre" });
+  });
+
+  // Fusionne avec les exclusions posées par "Régénérer toute cette séance"
+  // (cf. `regeneratedExclusions`) : ces exercices ne sont plus affichés comme
+  // cases à cocher (ils ont déjà disparu du nouvel aperçu), donc absents de
+  // `exercicesRejetes` ci-dessus — sans cette fusion, ils seraient perdus au
+  // moment de payer.
+  const nomsDejaCollectes = new Set(exercicesRejetes.map(r => r.nom));
+  regeneratedExclusions.forEach(r => {
+    if (!nomsDejaCollectes.has(r.nom)) exercicesRejetes.push(r);
   });
 
   formData.exercices_rejetes = exercicesRejetes;

@@ -110,6 +110,9 @@ def serialize_program(program):
                 "series": pe.series,
                 "repetitions": pe.reps,
                 "rest_time": pe.rest_time_seconds,
+                # Additif (prompt hors 24 phases, conseils d'exécution) :
+                # clé en plus, ne modifie pas le contrat existant.
+                "conseil_execution": pe.conseil_execution,
             })
         sessions.append({"name": session.nom_seance, "exercises": exercises})
 

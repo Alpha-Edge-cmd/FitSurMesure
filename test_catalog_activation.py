@@ -5,13 +5,21 @@ logic/exercise_catalog_service.py, logic/exercise_catalog_import.py
 (auto_approve), logic/recommendation/catalog_provider.py.
 
 Prompt final (hors 24 phases) : data/exercise_enrichment.json contient
-désormais le nouveau catalogue professionnel (486 exercices) — les
-exercise_id de référence et les comptes ci-dessous sont mis à jour en
-conséquence. Le repli legacy (`get_recommendation_catalog()` sans aucun
-exercice approuvé) reste, lui, inchangé à 111 : il reconstruit à la volée
-l'ANCIEN catalogue depuis logic/exercises_db.py, indépendamment de ce
-fichier JSON (cf. logic/recommendation/catalog_provider.py, jamais modifié)."""
+désormais le catalogue v3 (365 exercices, liste exacte fournie par Samy, cf.
+scripts/build_catalog_v3_samy.py) — les exercise_id de référence et les
+comptes ci-dessous sont mis à jour en conséquence. Le repli legacy
+(`get_recommendation_catalog()` sans aucun exercice approuvé) reste, lui,
+inchangé à 111 : il reconstruit à la volée l'ANCIEN catalogue depuis
+logic/exercises_db.py, indépendamment de ce fichier JSON (cf. logic/
+recommendation/catalog_provider.py, jamais modifié).
+
+Depuis le correctif "catalogue jamais chargé en prod" (logic/db.init_db
+importe et auto-approuve désormais le catalogue à chaque démarrage de
+l'app), la table Exercise n'est plus vide après un simple `import app` :
+ce test la vide explicitement au départ pour retrouver le scénario
+"pending par défaut" qu'il vérifie."""
 import app as appmod
+from logic.db import db
 from logic.exercise_catalog_import import import_enriched_catalog
 from logic.exercise_catalog_service import (
     get_active_exercises,
@@ -25,16 +33,21 @@ from logic.recommendation.catalog_provider import get_recommendation_catalog
 
 def run():
     with appmod.app.app_context():
+        # `import app` a déjà importé/auto-approuvé le catalogue (correctif
+        # "catalogue jamais chargé en prod") : on repart d'une table vide.
+        Exercise.query.delete()
+        db.session.commit()
+
         # Import par défaut : tout le catalogue en "pending" (comportement
         # historique de la phase 13, inchangé par défaut).
         resultat_import = import_enriched_catalog()
         assert resultat_import["errors"] == []
-        assert Exercise.query.count() == 486
+        assert Exercise.query.count() == 365
 
         # --------------------------------------------------------------
         # 1) exercice pending -> absent du catalogue moteur
         # --------------------------------------------------------------
-        cible_pending = "curl_barre_droite_biceps"
+        cible_pending = "curl_a_la_barre_ez_prise_large_biceps"
         assert Exercise.query.get(cible_pending).review_status == "pending"
         assert cible_pending not in {e.exercise_id for e in get_active_exercises(include_pending=False)}
         # visible seulement si on demande explicitement les "pending"
@@ -44,7 +57,7 @@ def run():
         # --------------------------------------------------------------
         # 2) exercice approved -> présent dans le catalogue moteur
         # --------------------------------------------------------------
-        cible_approuvee = "developpe_couche_barre_pecs"
+        cible_approuvee = "developpe_couche_a_la_barre_libre_pecs"
         approve_exercise(cible_approuvee, reviewer="samy")
         actifs_defaut = {e.exercise_id for e in get_active_exercises(include_pending=False)}
         assert cible_approuvee in actifs_defaut
@@ -55,7 +68,7 @@ def run():
         # --------------------------------------------------------------
         # 3) exercice rejected -> absent même si actif=True
         # --------------------------------------------------------------
-        cible_rejetee = "squat_arriere_barre_back_squat_quadriceps"
+        cible_rejetee = "squat_arriere_a_la_barre_back_squat_quadriceps"
         rejete = reject_exercise(cible_rejetee, reason="difficulty_level à revoir", reviewer="samy")
         assert rejete.actif is True  # jamais désactivé automatiquement
         assert cible_rejetee not in {e.exercise_id for e in get_active_exercises(include_pending=False)}
@@ -73,7 +86,6 @@ def run():
         # lignes "approved" -> "pending", cohérent avec "ne jamais supprimer
         # automatiquement un exercice" ; la ligne "rejected" du scénario 3
         # n'est volontairement pas touchée par ce filtre).
-        from logic.db import db
         Exercise.query.filter_by(review_status="approved").update(
             {"review_status": "pending"}, synchronize_session=False
         )
@@ -95,7 +107,7 @@ def run():
 
         resultat_reimport = import_enriched_catalog()  # auto_approve=False par défaut
         assert resultat_reimport["created"] == 0
-        assert resultat_reimport["updated"] == 486
+        assert resultat_reimport["updated"] == 365
 
         apres_reimport = Exercise.query.get(cible_approuvee)
         assert apres_reimport.review_status == "approved", "le réimport ne doit jamais écraser une approbation humaine"
@@ -108,10 +120,10 @@ def run():
         # 6) catalogue complet : status correct, aucun crash, provider filtré
         # --------------------------------------------------------------
         statut = get_catalog_status()
-        assert statut["total"] == 486
+        assert statut["total"] == 365
         assert statut["approved"] == Exercise.query.filter_by(review_status="approved").count() == 1
         assert statut["rejected"] == Exercise.query.filter_by(review_status="rejected").count() == 1
-        assert statut["pending"] == 486 - statut["approved"] - statut["rejected"]
+        assert statut["pending"] == 365 - statut["approved"] - statut["rejected"]
         assert statut["needs_review"] == Exercise.query.filter_by(needs_review=True).count()
 
         catalogue_final = get_recommendation_catalog()

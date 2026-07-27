@@ -18,6 +18,10 @@ CHAMPS_MODELE = (
     "technical_complexity", "stability_demand", "morphologie_adaptee",
     "objectifs_adaptes", "score_tension_mecanique", "score_contraction_max",
     "potentiel_hypertrophique", "substitutes", "contre_indications", "actif",
+    # Portion anatomique précise (catalogue v3, prompt final hors 24 phases) —
+    # champ facultatif : `fiche.get(...)` renvoie None si absent (anciennes
+    # fiches v2 encore en base tant qu'un réimport ne les a pas mises à jour).
+    "portion_anatomique",
 )
 
 

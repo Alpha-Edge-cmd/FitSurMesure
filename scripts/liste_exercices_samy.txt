@@ -1,0 +1,396 @@
+1. PECTORAUX
+A. Haut des pecs (Faisceau claviculaire) —
+1.	Développé incliné à la barre libre
+2.	Développé incliné aux haltères
+3.	Développé incliné à la Smith machine
+4.	Développé incliné à la machine convergente
+5.	Écarté incliné à la poulie basse (trajectoire montante)
+6.	Low-to-High Cable Fly (Écarté vis-à-vis bas-haut debout)
+7.	Low-to-High Cable Fly unilatéral à la poulie
+8.	Landmine Press à deux mains (Barre coincée au sol/support)
+9.	Landmine Press unilatéral
+10.	Reverse-Grip Incline Bench Press (Incliné barre supination)
+11.	Développé incliné aux haltères en rotation (Pronation vers Neutre)
+12.	Écarté incliné sur banc 30° à la poulie basse
+13.	Incline Chest Fly à la poulie haute en déclinant le buste vers l'avant
+14.	Développé incliné unilatéral aux haltères (Gainage buste)
+15.	Développé incliné à la machine guidée assis
+B. Milieu des pecs (Faisceau sterno-costal) —
+1.	Développé couché à la barre libre
+2.	Développé couché aux haltères
+3.	Développé couché à la Smith machine
+4.	Développé plat à la machine convergente
+5.	Pec Deck / Machine Papillon
+6.	Écarté vis-à-vis à la poulie (Hauteur de poitrine)
+7.	Écarté vis-à-vis à la poulie unilatéral
+8.	Floor Press à la barre libre
+9.	Floor Press aux haltères
+10.	Développé plat unilatéral aux haltères
+11.	Développé couché prise neutre aux haltères (Hex Press/Squeeze Press)
+12.	Développé couché poulie basse assis sur banc
+13.	Écarté couché à la poulie basse sur banc plat
+14.	Développé à la machine guidée assis (Pec Fly/Press combo)
+15.	Cable Chest Press plat (Debout avec poulies à hauteur de poitrine)
+C. Bas des pecs (Faisceau abdominal) — [EXCLU : développé décliné toutes variantes]
+4.	Écarté décliné à la poulie basse sur banc décliné
+5.	High-to-Low Cable Fly (Poulie haute vers le bas)
+6.	High-to-Low Cable Fly unilatéral
+7.	High-to-Low Cable Fly à genoux
+8.	Cable Crossover décliné debout (Croisement des câbles vers le bas)
+9.	Écarté vis-à-vis assis avec poulies hautes
+2. DOS
+A. Grand Dorsal (Largeur du dos) —
+1.	Tirage vertical prise large pronation (Lat Pulldown)
+2.	Tirage vertical prise neutre (Triangle V-Bar)
+3.	Tirage vertical prise large neutre (Barre double poignée)
+4.	Tirage vertical unilatéral à la poulie
+5.	Tirage vertical à la machine convergente
+6.	Pull-over à la poulie haute avec corde
+7.	Pull-over à la poulie haute avec barre droite
+8.	Pull-over à la poulie haute avec barre Z
+9.	Pull-over unilatéral à la poulie haute
+10.	Tirage horizontal poulie basse en prise neutre serrée
+11.	Row unilatéral à la poulie haute (Genou au sol)
+12.	Meadow Row à la Landmine (Barre au sol)
+13.	Lat Pulldown unilatéral à la machine convergente
+14.	Tirage vertical derrière la nuque à la poulie (Machine)
+15.	Lat Pulldown bras tendus à la poulie haute assis
+16.	Tirage vertical à genoux avec poulies vis-à-vis
+17.	Tirage unilatéral à la machine guidée
+B. Trapèzes & Rhomboïdes (Épaisseur du dos) —
+1.	Rowing barre buste penché en pronation
+2.	Rowing barre en supination (Yates Row)
+3.	Rowing haltères buste penché (Deux mains)
+4.	Rowing T-Bar (Barre en T guidée ou libre)
+5.	Rowing unilatéral avec haltère (Un bras sur banc)
+6.	Rowing machine à charge guidée (Prise neutre)
+7.	Rowing machine à charge guidée (Prise pronation large)
+8.	Rowing Seal / Seal Row (Couché à plat ventre sur banc) aux haltères
+9.	Rowing Seal à la barre libre ou Z
+10.	Shrugs à la barre (Devant le corps)
+11.	Shrugs à la barre (Derrière le corps / Smith Machine)
+12.	Shrugs aux haltères debout
+13.	Shrugs aux haltères assis
+14.	Shrugs à la Smith machine
+15.	Shrugs à la poulie basse (Corde ou barre)
+16.	Shrugs sur machine à mollets/épaules guidée
+17.	Chest-Supported Row (Rowing appui sternum sur banc incliné aux haltères)
+18.	Low Row à la machine convergente
+19.	High-to-Low Row (Tirage horizontal diagonal à la poulie)
+20.	Rowing Landmine unilatéral (Buste penché)
+C. Lombaires & Érecteurs du rachis —
+1.	Soulevé de terre traditionnel (Deadlift) à la barre
+2.	Soulevé de terre Sumo à la barre
+3.	Soulevé de terre à la Hex Bar / Trap Bar
+4.	Good Morning à la barre libre
+5.	Good Morning à la Smith machine
+6.	Extension du buste au banc 45° (Lesté avec disque)
+7.	Extension du buste au banc 45° (Lesté avec haltères)
+8.	Soulevé de terre partiel (Rack Pull) à la Smith machine ou cage
+9.	Soulevé de terre roumain avec haltères
+10.	Soulevé de terre roumain à la barre
+11.	Good Morning à la poulie basse (Câble entre les jambes)
+12.	Soulevé de terre à la poulie basse (Cable Deadlift)
+13.	Machine à extension lombaire guidée (Back Extension Machine)
+14.	Deficit Deadlift (Soulevé de terre surélevé)
+15.	Paused Deadlift (Soulevé de terre avec pause sous les genoux)
+3. EPAULES
+A. Deltoide Anterieur (Avant) — [EXCLU : Développé militaire debout à la barre (OHP) — on ne garde que haltère/machine]
+2.	Développé épaules assis aux haltères
+3.	Développé épaules à la Smith machine
+4.	Développé Arnold aux haltères
+5.	Développé épaules sur machine convergente
+6.	Élévations frontales aux haltères (Alternées / Simultanées)
+7.	Élévations frontales à la barre droite ou EZ
+8.	Élévations frontales avec disque à deux mains
+9.	Élévations frontales à la poulie basse avec corde
+10.	Élévations frontales à la poulie basse avec barre
+11.	Élévations frontales unilatérales à la poulie basse
+12.	Élévations frontales sur banc incliné aux haltères
+13.	Développé épaules assis à la machine guidée
+14.	Driver Press avec disque (Élévation frontale + rotation)
+15.	Élévations frontales prise marteau aux haltères
+16.	Incline Cable Front Raise (Poulie basse derrière le banc)
+B. Deltoide Lateral (Cote) —
+1.	Élévations latérales aux haltères debout
+2.	Élévations latérales aux haltères assis
+3.	Élévations latérales à la poulie basse (Derrière le corps)
+4.	Élévations latérales à la poulie basse (Devant le corps)
+5.	Élévations latérales unilatérales au câble en inclinaison (Lean-away)
+6.	Élévations latérales à la machine guidée
+7.	Rowing vertical à la barre prise large (Upright Row)
+8.	Rowing vertical aux haltères
+9.	Rowing vertical à la poulie basse
+10.	Rowing vertical à la Smith machine
+11.	Heavy Partial Lateral Raise (Élévations lourdes partielles aux haltères)
+12.	Y-Raise aux haltères sur banc incliné
+13.	Y-Raise à la poulie basse
+14.	Upright Row unilatéral à la poulie basse
+15.	Upright Row à la Landmine
+16.	Élévations latérales aux haltères avec pause en haut
+C. Deltoide Posterieur (Arriere) —
+1.	Oiseau aux haltères buste penché
+2.	Oiseau sur banc incliné aux haltères (Poitrine appuyée)
+3.	Face Pull à la poulie haute avec corde
+4.	Face Pull assis à la poulie basse/moyenne avec corde
+5.	Reverse Fly sur machine Pec Deck (Rear Delt Fly)
+6.	Écarté arrière à la poulie vis-à-vis (Cable Rear Delt Fly)
+7.	Écarté arrière unilatéral à la poulie haute (sans poignée)
+8.	W-Raise aux haltères sur banc incliné
+9.	Cable Y-Raise inversé à la poulie haute
+10.	High Row à la machine guidée (Coudes hauts)
+11.	Oiseau assis aux haltères
+4. TRICEPS
+A. Chef Long (Partie interne/arriere) —
+1.	Extension triceps au-dessus de la tête à la poulie haute avec corde
+2.	Extension triceps au-dessus de la tête avec haltère à deux mains (Assis/Debout)
+3.	Extension triceps unilatérale au-dessus de la tête avec haltère
+4.	Barre au front (French Press) sur banc plat avec barre EZ
+5.	Barre au front sur banc incliné avec barre EZ
+6.	Barre au front aux haltères (Banc plat / incliné)
+7.	Extension triceps assis à la barre EZ derrière la tête
+8.	Tate Press aux haltères sur banc plat
+9.	Tate Press aux haltères sur banc incliné
+10.	Extension triceps couché sur banc à la poulie basse (avec corde ou barre EZ)
+11.	JM Press à la barre libre
+12.	JM Press à la Smith machine
+13.	Kickback à la poulie basse (Tronc penché)
+14.	Extension triceps au-dessus de la tête à la poulie basse avec barre/corde
+15.	Extension triceps unilatérale au câble haut (Overhead cable extension)
+16.	Barre au front à la Smith machine
+B. Chefs Lateral et Medial (Partie externe et mediane) —
+1.	Extension triceps à la poulie haute avec corde
+2.	Extension triceps à la poulie haute avec barre droite
+3.	Extension triceps à la poulie haute avec barre en V
+4.	Extension triceps prise inversée (Supination) à la poulie haute
+5.	Extension triceps unilatérale à la poulie haute (sans poignée, directement au câble)
+6.	Développé couché prise serrée à la barre libre
+7.	Développé couché prise serrée aux haltères (Hex Press)
+8.	Développé couché prise serrée à la Smith machine
+9.	Extension triceps assis sur machine guidée à charge libre
+10.	Floor Press prise serrée aux haltères
+11.	Floor Press prise serrée à la barre
+12.	Kickback aux haltères buste penché
+13.	Kickback unilatéral aux haltères appuyé sur banc
+14.	Extension triceps barre EZ couchée contre le front (Skullcrusher basique)
+15.	Extension triceps à la poulie haute avec barre EZ
+17.	Extension triceps croisée aux câbles (Dual cable tricep pushdown)
+18.	Extension triceps unilatérale à la poulie haute (Poignée neutre)
+19.	Machine à triceps guidée (Sélection par goupille)
+20.	Board Press (Développé couché amplitude réduite) prise serrée
+5. BICEPS
+A. Chef Court (Partie interne) —
+1.	Curl à la barre EZ prise large
+2.	Curl aux haltères prise large (Supination forcée)
+3.	Curl au banc Larry Scott (Preacher Curl) à la barre EZ prise large
+4.	Curl Larry Scott aux haltères unilatéral
+5.	Curl Larry Scott à la machine guidée
+6.	Curl araignée (Spider Curl) à la barre EZ prise large
+7.	Curl araignée aux haltères
+8.	Curl vis-à-vis aux poulies hautes (Cable High Curl / Biceps Pose)
+9.	Curl concentré assis avec haltère
+10.	Curl concentré à la poulie basse
+11.	Curl sur banc incliné prise large aux haltères
+12.	Curl à la poulie basse avec barre droite prise large
+13.	Curl couché sur le dos à la poulie haute
+14.	Curl Larry Scott à la Smith machine
+15.	Curl pupitre unilatéral à la poulie basse
+16.	Curl court assis aux haltères (Supination constante)
+17.	Curl araignée à la poulie basse
+18.	Curl au câble croisé bas
+19.	Curl concentré debout buste penché avec haltère
+20.	Machine à biceps convergente (Prise externe)
+B. Chef Long (Partie externe, "Bosse") —
+1.	Curl à la barre EZ prise serrée
+2.	Curl à la barre droite (Debout)
+3.	Curl sur banc incliné aux haltères (45-60°)
+4.	Drag Curl à la barre libre
+5.	Drag Curl aux haltères
+6.	Drag Curl à la Smith machine
+7.	Drag Curl à la poulie basse
+8.	Bayesian Curl (Curl à la poulie basse, dos à la poulie, bras en arrière)
+9.	Curl alterné aux haltères avec supination
+10.	Curl unilatéral à la poulie basse
+11.	Curl assis aux haltères (Stricte sur banc droit)
+12.	Curl araignée prise serrée à la barre EZ
+13.	Curl au banc Larry Scott prise serrée
+14.	Curl à la poulie haute assis (Face au câble)
+15.	Waiter Curl (Curl avec un seul disque tenu à deux mains plat)
+16.	Curl sur banc inclinable unilatéral au câble
+17.	Curl alterné au câble bas
+18.	Single-arm Preacher Curl à la poulie
+19.	Curl à la barre olympique droite
+20.	Machine à biceps guidée (Prise interne)
+C. Brachial et Avant-bras —
+1.	Curl marteau (Hammer Curl) aux haltères debout
+2.	Curl marteau aux haltères assis
+3.	Curl marteau sur banc incliné aux haltères
+4.	Curl marteau avec corde à la poulie basse
+5.	Curl marteau avec barre EZ (Prise sur les courbures)
+6.	Curl marteau au banc Larry Scott aux haltères
+7.	Curl inversé à la barre droite/EZ (Pronation)
+8.	Curl inversé à la poulie basse
+9.	Curl marteau en travers du corps (Pinwheel Curl)
+10.	Flexion des poignets à la barre (Supination sur banc)
+11.	Flexion des poignets aux haltères (Supination)
+12.	Extension des poignets à la barre (Pronation sur banc)
+13.	Extension des poignets aux haltères (Pronation)
+14.	Roll-up avec bobine de Andrieu / Wrist Roller lesté (si disponible)
+15.	Farmer Walk / Marche du fermier avec haltères lourds
+16.	Farmer Walk avec piège Hex Bar / Trap Bar
+17.	Maintien de disque lourd à bout de doigts (Pinch Grip Hold)
+18.	Flexion des poignets à la poulie basse
+19.	Extension des poignets à la poulie basse
+20.	Reverse Spider Curl (Curl inversé sur banc incliné)
+6. ABDOMINAUX
+A. Grand Droit (Haut et Bas des abdos) —
+1.	Crunch à la poulie haute avec corde (Cable Crunch)
+2.	Crunch sur machine guidée à abdos (Sélection par goupille)
+3.	Crunch lesté sur banc décliné (avec disque sur la poitrine)
+4.	Crunch lesté sur Fitball avec haltère/disque
+5.	Relevé de jambes suspendu à la barre fixe avec haltère entre les pieds
+6.	Relevé de genoux/jambes lesté sur chaise romaine (Captain's Chair)
+7.	Relevé de bassin sur banc incliné avec lest aux chevilles
+8.	Ab Wheel / Roulette à abdos (sur genoux avec disque/gilet lesté)
+9.	Crunch à la poulie basse avec sangle aux chevilles
+10.	Landmine Ab Press (Poussée/maintien au sol)
+11.	Crunch à la Smith machine (Poussée de barre verticale avec les pieds)
+12.	Reverse Crunch sur banc plat avec haltère entre les pieds
+13.	Machine Crunch à charge libre (Plate-loaded)
+14.	Pull-over/Crunch combo à la poulie haute
+15.	Sit-up lesté avec disque ou barre sur banc plat
+16.	Sit-up lesté sur banc décliné
+17.	Dragon Flag assisté/lesté sur banc plat
+18.	Jackknife / V-Up avec haltère dans les mains
+19.	Relevé de jambes couché sur banc avec haltère
+20.	Rollout à la barre olympique chargée sur disques
+B. Obliques —
+1.	Rotation du buste à la poulie (Woodchopper) du haut vers le bas
+2.	Rotation du buste à la poulie (Woodchopper) du bas vers le haut
+3.	Rotation du buste à la poulie (Woodchopper) horizontale
+4.	Flexion latérale du buste avec haltère (Side Bend) debout
+5.	Flexion latérale du buste à la poulie basse
+6.	Flexion latérale sur banc à hyperextension (Banc 45°) avec disque
+7.	Russian Twist assis avec disque ou kettlebell
+8.	Machine à obliques guidée (Torso Rotation Machine)
+9.	Windmill avec kettlebell ou haltère
+10.	Suitcase Carry (Marche de la valise avec haltère lourd unilatéral)
+11.	Crunch oblique lesté sur banc décliné
+12.	Pallof Press à la poulie (Maintien anti-rotation)
+13.	Pallof Press avec élévation verticale du câble
+14.	Landmine Rotation / Twist (Rotation du buste avec barre)
+15.	Relevé de jambes latéral suspendu à la chaise romaine
+16.	Gainage latéral (Side Plank) avec haltère sur la hanche
+17.	Cable Cross Crunch (Crunch croisé à la poulie haute)
+18.	Flexion latérale à la Smith machine
+19.	Russian Twist sur Fitball avec disque
+20.	Suitcase Deadlift (Soulevé de terre unilatéral avec une seule barre/haltère)
+7. FESSIERS
+A. Grand Fessier (Volume principal) —
+1.	Hip Thrust à la barre olympique (sur banc)
+2.	Hip Thrust à la Smith machine
+3.	Hip Thrust sur machine dédiée (Booty Builder / Plate-loaded)
+4.	Kas Glute Bridge à la barre
+5.	Kas Glute Bridge à la Smith machine
+6.	Soulevé de terre jambes tendues / semi-tendues (RDL) à la barre
+7.	Soulevé de terre roumain (RDL) aux haltères
+8.	Step-up lourd sur banc avec haltères
+9.	Step-up sur banc à la Smith machine
+10.	Fentes arrière (Reverse Lunges) avec barre
+11.	Fentes arrière avec haltères
+12.	Fentes arrière à la Smith machine
+13.	Fentes marchées lestées (Haltères ou barre)
+14.	Cable Pull-Through (Tirage entre les jambes à la poulie basse)
+15.	Back Extension 45° ciblé fessiers (Dos rond, pieds ouverts) avec disque
+16.	Back Extension 45° ciblé fessiers à la barre libre
+17.	Reverse Hyperextension au banc avec haltère entre les pieds
+18.	Squat bulgare (Bulgarian Split Squat) ciblé fessiers (Buste penché) avec haltères
+19.	Squat bulgare à la Smith machine
+20.	Belt Squat ciblé fessiers (Incliné vers l'arrière)
+B. Moyen et Petit Fessier (Hanches, Galbe superieur) —
+1.	Abduction des hanches à la machine assise (Machine à abducteurs)
+2.	Abduction des hanches à la machine penché en avant
+3.	Cable Kickback (Extension arrière) à la poulie basse avec sangle de cheville
+4.	Cable Kickback diagonal (30-45°) à la poulie basse
+5.	Cable Hip Abduction (Abduction latérale) à la poulie basse
+6.	Fentes croisées (Curtsy Lunges) aux haltères
+7.	Fentes croisées à la Smith machine
+8.	Squat sumo à la barre libre
+9.	Squat sumo avec Kettlebell / Haltère lourd sur deux bancs/pylônes
+10.	Hip Thrust unilatéral aux haltères
+11.	Landmine Single-Leg RDL
+12.	Soulevé de terre unilatéral aux haltères (Single-leg RDL)
+13.	Monster Walk avec bande de résistance et haltères
+14.	Step-up latéral sur banc avec haltères
+15.	Abduction latérale à la poulie basse sur banc (Couché sur le côté)
+16.	Side Plank avec abduction de la jambe du dessus lestée
+17.	Cable Kickback sur banc incliné
+18.	Glute Bridge unilatéral à la Smith machine
+19.	Deficit Reverse Lunge (Fente arrière surélevée) aux haltères
+20.	Frog Pumps lestés avec disque sur le bassin
+8. QUADRICEPS
+A. Quadriceps —
+1.	Squat arrière à la barre (Back Squat)
+2.	Squat avant à la barre (Front Squat)
+3.	Presse à cuisses à 45° (Leg Press)
+4.	Presse à cuisses horizontale
+5.	Hack Squat à la machine
+6.	Reverse Hack Squat à la machine (Face à la machine)
+7.	Leg Extension (Machine quadriceps)
+8.	Leg Extension unilatéral à la machine
+9.	Sissy Squat sur support dédié avec disque/haltère
+10.	Bulgarian Split Squat (Squat bulgare buste droit) avec haltères
+11.	Bulgarian Split Squat à la Smith machine
+12.	Belt Squat à la machine
+13.	Goblet Squat avec haltère ou kettlebell
+14.	Squat à la Smith machine (Pieds sous la barre / verticaux)
+15.	Pendulum Squat machine
+16.	Zercher Squat à la barre libre
+17.	Landmine Squat (Barre au sol bloquée)
+18.	Step-up avant sur box/banc haut avec haltères
+19.	Squat talon surélevé (Heels-elevated squat) aux haltères
+20.	Safety Bar Squat (avec barre SSB)
+9. ISCHIO-JAMBIERS
+A. Ischio-jambiers —
+1.	Leg Curl allongé à la machine (Lying Leg Curl)
+2.	Leg Curl allongé unilatéral à la machine
+3.	Leg Curl assis à la machine (Seated Leg Curl)
+4.	Leg Curl debout unilatéral à la machine
+5.	Soulevé de terre roumain (RDL) à la barre
+6.	Soulevé de terre roumain aux haltères
+7.	Soulevé de terre roumain unilatéral aux haltères
+8.	Soulevé de terre jambes tendues à la Smith machine
+9.	Good Morning à la barre Z ou droite
+10.	Good Morning à la Smith machine
+11.	Glute Ham Raise (GHR) lesté d'un disque
+12.	Single-Leg RDL à la poulie basse
+13.	Leg Curl avec haltère serré entre les pieds (sur banc plat)
+14.	Soulevé de terre jambes tendues depuis un déficit (surélevé)
+15.	Jefferson Curl lourd aux haltères
+16.	Nordic Hamstring Curl assisté à la poulie ou lesté
+17.	Soulevé de terre jambes tendues à la Hex Bar
+18.	Romanian Deadlift à la poulie basse avec corde
+19.	Leg Curl debout à la poulie basse avec sangle de cheville
+20.	Landmine Romanian Deadlift à deux mains
+10. MOLLETS
+A. Mollets et Adducteurs —
+1.	Mollets debout à la machine (Standing Calf Raise)
+2.	Mollets assis à la machine (Seated Calf Raise - Soléaire)
+3.	Extension des mollets à la presse à cuisses à 45°
+4.	Extension des mollets à la presse horizontale
+5.	Extension des mollets à la Smith machine (Sur cale/step)
+6.	Extension des mollets unilatérale avec haltère (Sur step)
+7.	Extension des mollets debout à la barre libre
+8.	Extension des mollets à la machine Hack Squat
+9.	Extension des mollets unilatérale à la Smith machine
+10.	Mollets assis avec barre chargée sur les genoux (avec cale)
+11.	Mollets assis aux haltères sur les genoux
+12.	Don Key Calf Raise à la machine ou guidé
+13.	Adducteurs à la machine assise (Adductor Machine)
+14.	Adducteurs à la poulie basse avec sangle de cheville (Cable Adduction)
+15.	Copenhagen Plank lestée avec disque sur la hanche
+16.	Squat latéral avec haltère / Kettlebell (Cossack Squat)
+17.	Squat sumo très large à la Smith machine (Ciblé adducteurs)
+18.	Fentes latérales (Side Lunges) avec haltères
+19.	Landmine Cossack Squat
+20.	Adduction des hanches couché au sol à la poulie basse

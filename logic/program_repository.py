@@ -107,6 +107,7 @@ def create_program_from_result(user_id, profile_snapshot_id, result):
                 rest_time_seconds=exo_data.get("rest_time"),
                 intensity=exo_data.get("intensity"),
                 notes=exo_data.get("notes"),
+                conseil_execution=exo_data.get("conseil_execution"),
             )
             db.session.add(program_exercise)
 

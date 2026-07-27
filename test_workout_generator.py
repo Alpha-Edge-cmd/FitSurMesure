@@ -66,9 +66,20 @@ def run():
         # --------------------------------------------------------------
         # 1) Débutant full body : volume raisonnable
         # --------------------------------------------------------------
+        # Prompt hors 24 phases (bascule PDF payant sur le moteur V2) : durée
+        # "1h" plutôt que "1h - 1h30", volontairement HORS du plancher
+        # explicite de volume total par séance ajouté à `workout_generator.
+        # _completer_volume_minimum` (SESSION_MIN_EXOS) — ce plancher est une
+        # politique de SÉANCE RÉELLE à plusieurs muscles (Push/Pull/Legs,
+        # Upper/Lower...), déjà testée à ce niveau dans
+        # test_min_exos_and_families.py ; il contaminerait ici un test dédié
+        # à une préoccupation différente et orthogonale (l'échelle de volume
+        # PAR MUSCLE selon le niveau) sur un catalogue synthétique minuscule
+        # (4 exercices/muscle) qui n'a jamais eu vocation à représenter une
+        # vraie séance de split.
         p_debutant = profil(niveau_musculation="Débutant complet")
         catalogue_full = catalogue_muscle("pecs", "push") + catalogue_muscle("dos", "pull")
-        w1 = generate_workout(p_debutant, ["pecs", "dos"], catalogue_full, "1h - 1h30")
+        w1 = generate_workout(p_debutant, ["pecs", "dos"], catalogue_full, "1h")
         assert set(w1["muscles"]) == {"pecs", "dos"}
         for ex in w1["exercises"]:
             assert set(ex.keys()) == {
@@ -85,7 +96,7 @@ def run():
         # 2) Avancé salle complète : plus de volume
         # --------------------------------------------------------------
         p_avance = profil(niveau_musculation="Avancé")
-        w2 = generate_workout(p_avance, ["pecs", "dos"], catalogue_full, "1h - 1h30")
+        w2 = generate_workout(p_avance, ["pecs", "dos"], catalogue_full, "1h")
         compte_par_muscle_avance = {
             m: sum(1 for e in w2["exercises"] if e["muscle_principal"] == m) for m in ("pecs", "dos")
         }
@@ -115,7 +126,21 @@ def run():
         lookup4 = {ex.exercise_id: ex for ex in catalogue_full}
         exercices_obj4 = [lookup4[e["exercise_id"]] for e in w4["exercises"]]
         total_fatigue4 = estimate_session_fatigue(exercices_obj4)
-        assert total_fatigue4 <= budget4 or MESSAGE_BUDGET_PLANCHER in w4["warnings"], (
+        # Prompt hors 24 phases (bascule PDF payant sur le moteur V2) :
+        # `_completer_volume_minimum` peut désormais RÉ-AJOUTER des exercices
+        # après la réduction budgétaire pour respecter le plancher explicite
+        # de volume total (SESSION_MIN_EXOS["1h30+"] = 10, cf. workout_
+        # generator.py) — un dépassement du budget de fatigue PAR EXERCICE
+        # devient alors possible PAR DESIGN (le contrôle fin du volume
+        # d'entraînement réel reste géré en aval, au niveau des SÉRIES, par
+        # `prescription._ajuster_series_selon_budget`, jamais retiré) : la
+        # 3e branche accepte ce cas, reconnaissable au message d'avertissement
+        # "Impossible d'atteindre" (plancher demandé hors de portée avec ce
+        # catalogue synthétique minuscule).
+        depassement_du_au_plancher = any(
+            w.startswith("Impossible d'atteindre") for w in w4["warnings"]
+        )
+        assert total_fatigue4 <= budget4 or MESSAGE_BUDGET_PLANCHER in w4["warnings"] or depassement_du_au_plancher, (
             total_fatigue4, budget4, w4["warnings"]
         )
         assert len(w4["exercises"]) >= sum(compte_par_muscle_debutant.values()), (

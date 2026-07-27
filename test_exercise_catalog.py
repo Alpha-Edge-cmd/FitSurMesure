@@ -5,16 +5,22 @@ logic/exercise_catalog_enrichment.py, exercise_catalog_validator.py,
 exercise_catalog_import.py.
 
 Prompt final (hors 24 phases) : data/exercise_enrichment.json contient
-désormais le nouveau catalogue professionnel (486 exercices, cf.
-scripts/build_professional_catalog.py), remplaçant l'ancien catalogue de 111
-exercices — les comptes attendus ci-dessous sont mis à jour en conséquence
-(486, pas 111). `iter_enriched_exercises()` (utilisé aux tests 2/3, sans
-rapport avec ce fichier JSON) continue de reconstruire l'ANCIEN catalogue
-legacy à la volée depuis logic/exercises_db.py, inchangé — toujours valide
-pour tester la validation de fiches isolées."""
+désormais le catalogue v3 (365 exercices, liste exacte fournie par Samy, cf.
+scripts/build_catalog_v3_samy.py), remplaçant le catalogue précédent — les
+comptes attendus ci-dessous sont mis à jour en conséquence (365).
+`iter_enriched_exercises()` (utilisé aux tests 2/3, sans rapport avec ce
+fichier JSON) continue de reconstruire l'ANCIEN catalogue legacy à la volée
+depuis logic/exercises_db.py, inchangé — toujours valide pour tester la
+validation de fiches isolées.
+
+Depuis le correctif "catalogue jamais chargé en prod" (logic/db.init_db
+importe désormais le catalogue à chaque démarrage de l'app), la table
+Exercise n'est plus vide après un simple `import app` : le test 4 la vide
+explicitement pour retrouver le scénario "premier import" qu'il vérifie."""
 import copy
 
 import app as appmod
+from logic.db import db
 from logic.exercise_catalog_enrichment import iter_enriched_exercises
 from logic.exercise_catalog_import import import_enriched_catalog
 from logic.exercise_catalog_validator import DEFAULT_ENRICHMENT_PATH, validate_catalog
@@ -30,8 +36,8 @@ def run():
         # --------------------------------------------------------------
         rapport1 = validate_catalog(DEFAULT_ENRICHMENT_PATH)
         assert rapport1["erreurs"] == [], f"aucune erreur bloquante attendue, obtenu {rapport1['erreurs']}"
-        assert len(rapport1["exercise_ids_valides"]) == 486, (
-            f"486 exercices attendus (nouveau catalogue professionnel), obtenu {len(rapport1['exercise_ids_valides'])}"
+        assert len(rapport1["exercise_ids_valides"]) == 365, (
+            f"365 exercices attendus (catalogue v3), obtenu {len(rapport1['exercise_ids_valides'])}"
         )
         assert len(rapport1["a_revoir"]) == len(rapport1["exercise_ids_valides"]), (
             "toutes les fiches de ce premier jet doivent être marquées needs_review"
@@ -70,16 +76,22 @@ def run():
         # --------------------------------------------------------------
         # 4) Import : crée correctement les Exercise en base
         # --------------------------------------------------------------
+        # `import app` a déjà importé le catalogue (correctif "catalogue
+        # jamais chargé en prod") : on repart d'une table vide pour tester
+        # le scénario "premier import" que ce test vérifie.
+        Exercise.query.delete()
+        db.session.commit()
+
         resultat4 = import_enriched_catalog()
         assert resultat4["errors"] == []
-        assert resultat4["created"] == 486, resultat4
+        assert resultat4["created"] == 365, resultat4
         assert resultat4["updated"] == 0
 
         exemple = Exercise.query.filter_by(muscle_principal="pecs").first()
         assert exemple is not None
         assert exemple.muscle_principal == "pecs"
         assert exemple.actif is True
-        assert Exercise.query.count() == 486
+        assert Exercise.query.count() == 365
         print(f"OK 4 — import initial : {resultat4['created']} exercices créés en base")
 
         # --------------------------------------------------------------
@@ -87,8 +99,8 @@ def run():
         # --------------------------------------------------------------
         resultat5 = import_enriched_catalog()
         assert resultat5["created"] == 0, "aucune création attendue au réimport"
-        assert resultat5["updated"] == 486, resultat5
-        assert Exercise.query.count() == 486, "aucun doublon attendu après réimport"
+        assert resultat5["updated"] == 365, resultat5
+        assert Exercise.query.count() == 365, "aucun doublon attendu après réimport"
         print(f"OK 5 — réimport : {resultat5['updated']} exercices mis à jour, toujours {Exercise.query.count()} en base")
 
         # --------------------------------------------------------------

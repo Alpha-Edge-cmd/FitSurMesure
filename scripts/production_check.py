@@ -211,8 +211,17 @@ def check_architecture():
 def check_installation_vierge():
     """`app` vient d'être importé (donc `init_db(app)` vient d'appeler
     `db.create_all()` une première fois, sur le dossier temporaire isolé créé
-    en tête de ce script) : toutes les tables doivent exister et être vides —
-    c'est exactement le scénario "installation vierge" demandé."""
+    en tête de ce script) : toutes les tables doivent exister — c'est
+    exactement le scénario "installation vierge" demandé.
+
+    Depuis le correctif "catalogue jamais chargé en prod" (`init_db()`
+    importe et auto-approuve désormais le catalogue d'exercices à CHAQUE
+    démarrage, cf. logic/db.py), la table `exercises` n'est plus vide juste
+    après l'installation : c'est le comportement voulu (sans quoi le
+    catalogue resterait vide en production tant que personne ne lance un
+    script d'import à la main). Seules les tables propres aux DONNÉES
+    UTILISATEUR (comptes, programmes générés, snapshots de profil, tokens
+    d'accès) doivent rester vides sur une installation neuve."""
     with appmod.app.app_context():
         tables = list(db.metadata.tables.keys())
         attendues = {
@@ -225,21 +234,25 @@ def check_installation_vierge():
                              f"Tables manquantes après création à vide : {manquantes}")
             return
 
-        comptes = {nom: db.session.execute(db.metadata.tables[nom].select()).rowcount for nom in attendues}
-        # rowcount sur un SELECT SQLite/Postgres via l'API Core n'est pas toujours fiable ;
-        # on recompte explicitement via count() pour chaque modèle connu.
-        comptes = {
+        comptes_donnees_utilisateur = {
             "users": User.query.count(), "programs": Program.query.count(),
-            "exercises": Exercise.query.count(), "profile_snapshots": ProfileSnapshot.query.count(),
+            "profile_snapshots": ProfileSnapshot.query.count(),
             "user_access_tokens": UserAccessToken.query.count(),
         }
-        non_vides = {k: v for k, v in comptes.items() if v != 0}
+        nb_exercices = Exercise.query.count()
+
+        non_vides = {k: v for k, v in comptes_donnees_utilisateur.items() if v != 0}
         if non_vides:
             RAPPORT.blocker("Base de données", "Installation vierge",
                              f"Tables non vides juste après une installation neuve : {non_vides}")
+        elif nb_exercices == 0:
+            RAPPORT.blocker("Base de données", "Installation vierge",
+                             "Le catalogue d'exercices est vide juste après l'installation : "
+                             "init_db() n'a pas synchronisé data/exercise_enrichment.json au démarrage.")
         else:
             RAPPORT.ok("Base de données", "Installation vierge",
-                        f"{len(attendues)} tables créées, toutes vides ({TEMP_DIR})")
+                        f"{len(attendues)} tables créées ; données utilisateur toutes vides, "
+                        f"catalogue d'exercices pré-chargé ({nb_exercices} exercices) — dossier isolé {TEMP_DIR}")
 
 
 @_section("Base de données", "Migration douce")

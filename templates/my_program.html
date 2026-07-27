@@ -110,6 +110,7 @@
           {% if pe.intensity %}<span>Intensité : <strong>{{ pe.intensity }}</strong></span>{% endif %}
         </div>
         {% if pe.notes %}<p class="exo-conseils">{{ pe.notes }}</p>{% endif %}
+        {% if pe.conseil_execution %}<p class="exo-conseils exo-conseils-execution">{{ pe.conseil_execution }}</p>{% endif %}
 
         <div class="exo-actions">
           <button type="button" class="exo-action-btn" data-action="realise" data-exercise-id="{{ pe.exercise_id }}">

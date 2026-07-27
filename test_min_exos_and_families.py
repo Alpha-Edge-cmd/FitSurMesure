@@ -112,8 +112,15 @@ for i in range(N):
                     key = (current_session, current_muscle)
                     fams = muscle_families.setdefault(key, {})
                     fams[fam] = fams.get(fam, 0) + 1
-            else:
-                in_table = False
+            # Prompt hors 24 phases (conseils d'exécution) : chaque exercice
+            # est désormais suivi d'une ligne de conseil (tempo/effort) qui ne
+            # matche jamais le motif "nom N x M" ci-dessus. Avant, une seule
+            # ligne ne matchant pas suffisait à sortir du tableau (`in_table
+            # = False`) — ce qui coupait le comptage après le 1er exercice de
+            # chaque bloc muscle. La sortie de tableau reste correctement
+            # détectée plus haut (nouvel en-tête muscle/nouvelle séance) : une
+            # ligne isolée non reconnue À L'INTÉRIEUR du tableau est donc
+            # maintenant simplement ignorée plutôt que de couper le comptage.
     flush_session_check()
 
     for (session, muscle), fams in muscle_families.items():
