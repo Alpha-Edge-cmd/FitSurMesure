@@ -47,6 +47,21 @@
     </p>
     <a href="/download/{{ order_id }}" class="cta-primary" id="downloadAgainBtn">Télécharger mon PDF →</a>
 
+    {% if access_token %}
+    <div class="modify-section">
+      <h3>Ton espace personnel</h3>
+      <p>
+        Retrouve à tout moment ton programme, ton historique et ton évolution sur
+        <a href="/mon-compte">ton espace personnel</a>. Garde précieusement ce jeton
+        d'accès (il ne sera plus jamais affiché) pour t'y reconnecter depuis un autre
+        appareil :
+      </p>
+      <p style="font-family: monospace; background: #f4f4f6; border-radius: 8px; padding: 0.7rem 1rem; word-break: break-all;">
+        {{ access_token }}
+      </p>
+    </div>
+    {% endif %}
+
     <div class="modify-section">
       <h3>Un exercice ou une séance ne te convient pas ?</h3>
       <p>

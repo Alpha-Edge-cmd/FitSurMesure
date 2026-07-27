@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mon espace personnel | FitSurMesure</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0f1115; color: #e6e8ec; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  header h1 { font-size: 1.4rem; margin: 0; }
+  header .sub { color: #9aa1af; font-size: 0.85rem; margin-top: 0.2rem; }
+  header a { color: #9aa1af; font-size: 0.85rem; text-decoration: none; }
+  header a:hover { color: #fff; }
+
+  .panel {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 1.1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid #21252f; vertical-align: top; }
+  th { color: #9aa1af; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  .empty { color: #6b7280; font-size: 0.85rem; padding: 0.5rem 0; }
+  .badge {
+    display: inline-block; padding: 0.15rem 0.5rem; border-radius: 5px; font-size: 0.72rem; font-weight: 600;
+  }
+  .badge-aime { background: #17301f; color: #7be2a0; }
+  .badge-deteste { background: #3a1c1c; color: #ff8a8a; }
+  .badge-douleur_gene { background: #3a2a1c; color: #ffb35c; }
+  .badge-trop_difficile { background: #241c3a; color: #b39dff; }
+  .badge-trop_facile { background: #1c2f3a; color: #7cd4ff; }
+  .muted { color: #6b7280; font-size: 0.78rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Mon espace personnel</h1>
+      <div class="sub">{{ utilisateur.email }}</div>
+    </div>
+    <a href="/logout">Se déconnecter</a>
+  </header>
+
+  <div class="panel">
+    <h2>Programme actuel</h2>
+    {% if dashboard.programme_actuel %}
+      <p><strong>{{ dashboard.programme_actuel.objective or "—" }}</strong> — généré le
+        {{ dashboard.programme_actuel.created_at or "—" }}</p>
+      <table>
+        <thead><tr><th>Séance</th><th>Nb. exercices</th></tr></thead>
+        <tbody>
+          {% for s in dashboard.programme_actuel.sessions %}
+          <tr><td>{{ s.name }}</td><td>{{ s.exercises|length }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">Aucun programme généré pour le moment.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Historique des programmes</h2>
+    {% if dashboard.historique_programmes %}
+      <table>
+        <thead><tr><th>Programme</th><th>Formule</th><th>Généré le</th></tr></thead>
+        <tbody>
+          {% for p in dashboard.historique_programmes %}
+          <tr><td>#{{ p.program_id }}</td><td>{{ p.formule }}</td><td>{{ p.created_at or "—" }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">Aucun historique pour le moment.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Feedback exercices</h2>
+    {% if dashboard.feedback_exercices %}
+      <table>
+        <thead><tr><th>Exercice</th><th>Retour</th><th>Le</th></tr></thead>
+        <tbody>
+          {% for f in dashboard.feedback_exercices %}
+          <tr>
+            <td>{{ f.exercise_name or f.exercise_id }}</td>
+            <td><span class="badge badge-{{ f.feedback_type }}">{{ f.feedback_type }}</span></td>
+            <td>{{ f.created_at or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">Aucun retour sur exercice pour le moment.</p>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Évolution du profil</h2>
+    {% if dashboard.evolution_profil %}
+      <table>
+        <thead><tr><th>Date</th><th>Niveau</th><th>Objectif</th><th>Poids</th></tr></thead>
+        <tbody>
+          {% for s in dashboard.evolution_profil %}
+          <tr>
+            <td>{{ s.created_at or "—" }}</td>
+            <td>{{ s.niveau_musculation }}</td>
+            <td>{{ s.objectif_principal }}</td>
+            <td>{{ s.poids }} kg</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">Aucun profil enregistré pour le moment.</p>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

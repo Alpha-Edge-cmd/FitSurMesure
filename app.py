@@ -11,9 +11,17 @@ from logic.calculations import build_nutrition_profile
 from logic.program_builder import build_program
 from logic.cardio_builder import build_cardio_program
 from logic.pdf_generator import generate_pdf
-from logic import promo_codes, orders, stripe_client
+from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction
+from logic.db import init_db
 
 app = Flask(__name__)
+
+# Fondations données FitSurMesure V2 (phase 1/16, cf. architecture_v2_consolidation.md).
+# N'affecte aucune route existante : crée seulement les nouvelles tables
+# (User/ProfileSnapshot/Program/ProgramSession/ProgramExercise) si elles
+# n'existent pas encore. Le stockage JSON existant (orders.py, promo_codes.py)
+# continue de fonctionner exactement comme avant, sans aucune modification.
+init_db(app)
 
 # Clé de session et mot de passe admin : à surcharger via variables d'environnement
 # en production (SECRET_KEY / ADMIN_PASSWORD). Valeurs par défaut fournies pour que
@@ -120,11 +128,41 @@ def questionnaire():
     return render_template("index.html")
 
 
+def _derive_objectif_principal(data):
+    """Objectifs multiples (prompt final, hors 24 phases) : le questionnaire
+    envoie maintenant `objectifs` (liste, checkboxes cochées simultanément) au
+    lieu d'un unique `objectif_principal`. Cette fonction ne fait QUE combler
+    `objectif_principal` pour le pipeline legacy (nutrition/cardio/programme
+    V1, tous inchangés, qui lisent encore cette clé unique directement dans
+    `data`) — le vrai calcul de pondération composite sur tous les objectifs
+    cochés se fait uniquement côté moteur V2 (logic/recommendation/
+    objectives.py), jamais ici. Retourne un NOUVEAU dict (ne mute jamais
+    l'original, cohérent avec la même précaution prise dans
+    logic/profile_normalizer.py)."""
+    if data.get("objectif_principal"):
+        return data
+    objectifs = data.get("objectifs")
+    if not isinstance(objectifs, list) or not objectifs:
+        return data
+    principaux_valides = {
+        "Prise de muscle", "Perte de gras", "Recomposition (sec + muscle)",
+        "Performance / explosivité", "Condition physique générale",
+    }
+    candidats = [o for o in objectifs if o in principaux_valides]
+    if not candidats:
+        return data
+    data = dict(data)
+    data["objectif_principal"] = candidats[0]
+    return data
+
+
 def _build_everything(data):
     """Valide le questionnaire et construit profile/nutrition/program/cardio/lifestyle.
     Retourne (error_response, profile, nutrition, program, cardio, lifestyle).
     error_response est None si tout est valide. Partagé entre /generate (PDF) et
     /generate-preview (JSON, pour l'écran de révision \"je n'aime pas cet exercice\")."""
+    data = _derive_objectif_principal(data)
+
     # ---- Consentement RGPD : obligatoire, on ne traite rien sans ça ----
     if not data.get("consentement_rgpd"):
         return _error("Le consentement au traitement des données est obligatoire."), None, None, None, None, None
@@ -198,8 +236,14 @@ def _build_everything(data):
     # sert à départager des choix à égalité de pertinence (exercices, repas d'exemple...)
     # pour éviter que deux profils similaires obtiennent toujours exactement les mêmes
     # suggestions.
+    # `_nonce` : identifiant unique généré côté frontend à chaque nouvelle session
+    # de questionnaire (voir static/script.js). Sans lui, deux soumissions avec les
+    # mêmes informations de profil (nom, date de naissance, poids, taille, sexe)
+    # produiraient toujours exactement le même programme — un problème réel pour
+    # un client qui régénère son programme plus tard (ex: formule abonnement).
     signature = "|".join(str(x) for x in [
         data.get("prenom", ""), data.get("date_naissance", ""), poids, taille, data.get("sexe", ""),
+        data.get("_nonce", ""),
     ])
 
     profile = {
@@ -327,6 +371,34 @@ def generate_preview():
 #      exercices/séances remplacés (POST), uniquement si la commande est payée.
 # ---------------------------------------------------------------------------
 
+def _essayer_generer_programme_v2(order_id, order):
+    """Phase 12/16 : tente de générer automatiquement un `Program` (nouveau
+    moteur V2, phases 6-11) dès qu'une commande devient payée. Appelée aux
+    3 points où une commande passe à "payée" : accès gratuit immédiat
+    (`create_checkout_session`), vérification directe Stripe au retour sur
+    `/payment-success`, et webhook Stripe asynchrone.
+
+    Ne bloque et ne casse JAMAIS le flux de paiement existant : toute erreur
+    est absorbée ici (journalisée), la commande reste valide et payée même
+    si cette étape échoue — conformément à la consigne explicite de cette
+    phase ("ne jamais remplacer la création de commande/validation
+    paiement/stockage legacy"). Si aucun email n'est disponible pour cette
+    commande, le programme n'est simplement pas généré maintenant : il
+    pourra l'être plus tard via `program_service.generate_user_program()`
+    dès qu'un email sera connu (jamais de blocage du paiement pour cette
+    raison)."""
+    try:
+        email = order_migration._resolve_email(order)
+        if not email:
+            return
+        program_service.generate_user_program(email, order.get("data") or {})
+    except Exception:
+        app.logger.exception(
+            "Génération automatique du programme V2 (phase 12) : échec non "
+            "bloquant pour order_id=%s", order_id,
+        )
+
+
 @app.route("/create-checkout-session", methods=["POST"])
 def create_checkout_session():
     data = request.get_json(silent=True) or {}
@@ -367,6 +439,7 @@ def create_checkout_session():
                                     discount_pct=discount_pct, commission_pct=commission_pct)
 
     if is_free:
+        _essayer_generer_programme_v2(order_id, orders.get_order(order_id))
         return jsonify({
             "free": True,
             "order_id": order_id,
@@ -419,6 +492,7 @@ def payment_success():
                 orders.mark_paid(order_id, stripe_session_id=session_id,
                                   stripe_subscription_id=checkout_session.get("subscription"))
                 order = orders.get_order(order_id)
+                _essayer_generer_programme_v2(order_id, order)
         except Exception:
             pass
 
@@ -430,7 +504,27 @@ def payment_success():
             order_id=order_id,
         ), 402
 
-    return render_template("payment_success.html", order_id=order_id)
+    # Phase 22/24 : émet un jeton d'accès personnel + connecte automatiquement
+    # l'acheteur (session Flask) à l'instant précis où le paiement vient
+    # d'être confirmé — même frontière de confiance que le téléchargement PDF
+    # par order_id déjà en place, jamais une nouvelle hypothèse de sécurité.
+    # Enveloppé pour ne JAMAIS bloquer l'affichage de cette page en cas
+    # d'échec (même garantie que `_essayer_generer_programme_v2`, phase 12) :
+    # le paiement/téléchargement reste indépendant de l'authentification.
+    access_token = None
+    try:
+        email = order_migration._resolve_email(order)
+        if email:
+            user = program_service.get_or_create_user_for_email(email)
+            access_token = auth.issue_token_for_user(user)
+            auth.login(user)
+    except Exception:
+        app.logger.exception(
+            "Émission du jeton d'accès personnel (phase 22) : échec non "
+            "bloquant pour order_id=%s", order_id,
+        )
+
+    return render_template("payment_success.html", order_id=order_id, access_token=access_token)
 
 
 @app.route("/payment-cancel")
@@ -457,6 +551,7 @@ def stripe_webhook():
                 stripe_session_id=checkout_session.get("id"),
                 stripe_subscription_id=checkout_session.get("subscription"),
             )
+            _essayer_generer_programme_v2(order_id, orders.get_order(order_id))
 
     return jsonify({"received": True})
 
@@ -531,6 +626,105 @@ def download_order(order_id):
     filename = "programme_personnalise.pdf"
     return send_file(buffer, mimetype="application/pdf",
                       as_attachment=True, download_name=filename)
+
+
+def _login_required(view):
+    """Phase 22/24 : même mécanique que `_admin_required` (session Flask,
+    déjà en place pour le dashboard admin) — jamais une nouvelle façon de
+    gérer une session, la même, appliquée à l'espace personnel utilisateur."""
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        utilisateur = auth.current_user()
+        if utilisateur is None:
+            return redirect(url_for("login_page", next=request.path))
+        return view(utilisateur, *args, **kwargs)
+    return wrapped
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login_page():
+    """Phase 22/24 : connexion par jeton d'accès personnel (cf. logic/auth.py
+    pour l'explication du choix — pas de mot de passe, pas d'email envoyé,
+    aucune infrastructure d'envoi d'email n'existant dans ce projet)."""
+    if auth.current_user() is not None:
+        return redirect(url_for("mon_compte"))
+
+    error = None
+    if request.method == "POST":
+        token = request.form.get("token", "")
+        utilisateur = auth.verify_token(token)
+        if utilisateur is not None:
+            auth.login(utilisateur)
+            next_url = request.form.get("next") or url_for("mon_compte")
+            return redirect(next_url)
+        # Message volontairement générique : ne jamais révéler si un jeton
+        # existe ou non (protection contre l'énumération/le brute force).
+        error = "Jeton d'accès invalide ou expiré."
+
+    return render_template("login.html", error=error, next=request.args.get("next", ""))
+
+
+@app.route("/logout")
+def logout_page():
+    auth.logout()
+    return redirect(url_for("landing"))
+
+
+@app.route("/mon-compte")
+@_login_required
+def mon_compte(utilisateur):
+    """Phase 22/24 : espace personnel — programme actuel, historique des
+    programmes, feedback exercices, évolution du profil (consigne). Lecture
+    seule stricte (cf. `program_service.get_user_dashboard`)."""
+    dashboard = program_service.get_user_dashboard(utilisateur)
+    return render_template("mon_compte.html", utilisateur=utilisateur, dashboard=dashboard)
+
+
+@app.route("/my-program")
+@_login_required
+def my_program(utilisateur):
+    """Phase 12/16 (JSON par `?email=`) puis phase 22/24 (JSON par session)
+    REMPLACÉE en phase 23/24 par une VRAIE INTERFACE HTML mobile-first
+    (consigne : "Créer une interface : /my-program") — séances, exercices,
+    séries, répétitions, repos, conseils, et les 4 boutons de feedback
+    ("J'ai réalisé"/"Trop facile"/"Trop difficile"/"Douleur") qui appellent
+    `/my-program/action` en AJAX (cf. static/my_program.js).
+
+    Cette route ne fait QUE lire/afficher (`program_service.get_user_
+    current_program`, phase 12, inchangé) : aucune écriture, aucune règle du
+    moteur backend ici (cf. logic/program_interaction.py pour l'écriture,
+    et sa docstring pour la liste exacte des fichiers moteur non touchés)."""
+    program = program_service.get_user_current_program(utilisateur.email)
+    return render_template("my_program.html", utilisateur=utilisateur, program=program)
+
+
+@app.route("/my-program/action", methods=["POST"])
+def my_program_action():
+    """Phase 23/24 : enregistre un usage réalisé (`ExerciseUsageLog`) ou un
+    feedback exercice (`ExerciseFeedback`) depuis l'interface `/my-program`
+    (cf. logic/program_interaction.py, seul module qui écrit ces tables ici
+    — aucune logique de recommandation dans cette route ni dans ce module).
+    Route JSON (401 explicite si non connecté, pas de redirection HTML,
+    inadapté à un appel `fetch()`)."""
+    utilisateur = auth.current_user()
+    if utilisateur is None:
+        return _error("Non authentifié.", 401)
+
+    payload = request.get_json(silent=True) or {}
+    exercise_id = (payload.get("exercise_id") or "").strip()
+    action = (payload.get("action") or "").strip()
+
+    programme_actuel = program_service.get_user_current_program(utilisateur.email)
+    program_id = programme_actuel.id if programme_actuel else None
+
+    try:
+        program_interaction.record_exercise_action(
+            utilisateur.id, exercise_id, action, program_id=program_id
+        )
+    except ValueError as e:
+        return _error(str(e), 400)
+
+    return jsonify({"ok": True})
 
 
 # ---------------------------------------------------------------------------

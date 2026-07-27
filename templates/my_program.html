@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mon programme | FitSurMesure</title>
+<style>
+  /* Phase 23/24 : mobile-first — styles de base pensés pour un petit écran
+     (colonne unique, boutons larges), puis progressivement enrichis pour
+     des écrans plus grands via la seule media query en fin de fichier. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0f1115; color: #e6e8ec;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.2rem; gap: 0.5rem; flex-wrap: wrap;
+  }
+  header h1 { font-size: 1.2rem; margin: 0; }
+  header nav a {
+    color: #9aa1af; font-size: 0.8rem; text-decoration: none; margin-left: 0.8rem;
+  }
+  header nav a:hover { color: #fff; }
+
+  .empty {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px;
+    padding: 1.5rem; text-align: center; color: #9aa1af; font-size: 0.9rem;
+  }
+  .empty a { color: #f5c344; }
+
+  .session-block { margin-bottom: 1.6rem; }
+  .session-block h2 {
+    font-size: 1rem; margin: 0 0 0.7rem; color: #f5c344;
+  }
+
+  .exo-card {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px;
+    padding: 1rem; margin-bottom: 0.8rem;
+  }
+  .exo-card h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
+  .exo-meta {
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.6rem;
+    font-size: 0.82rem; color: #cbd1db;
+  }
+  .exo-meta span strong { color: #fff; }
+  .exo-conseils {
+    font-size: 0.8rem; color: #9aa1af; margin: 0 0 0.9rem; line-height: 1.4;
+  }
+
+  .exo-actions {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+  }
+  .exo-action-btn {
+    padding: 0.65rem 0.5rem; border-radius: 8px; border: 1px solid #2c313d;
+    background: #10131a; color: #e6e8ec; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; min-height: 44px; /* cible tactile confortable, mobile-first */
+  }
+  .exo-action-btn:active { transform: scale(0.98); }
+  .exo-action-btn[data-action="realise"] { border-color: #1f5c34; color: #7be2a0; }
+  .exo-action-btn[data-action="trop_facile"] { border-color: #1c5066; color: #7cd4ff; }
+  .exo-action-btn[data-action="trop_difficile"] { border-color: #3a2a5c; color: #b39dff; }
+  .exo-action-btn[data-action="douleur"] { border-color: #5c2626; color: #ff8a8a; }
+  .exo-action-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .exo-status {
+    margin-top: 0.5rem; font-size: 0.78rem; min-height: 1.1em;
+  }
+  .exo-status.ok { color: #7be2a0; }
+  .exo-status.error { color: #ff8a8a; }
+
+  /* Progressive enhancement pour écrans plus larges (mobile-first : cette
+     media query n'ajoute que du confort, jamais requise pour l'usage mobile). */
+  @media (min-width: 640px) {
+    .wrap { padding: 2rem 1.5rem 4rem; }
+    .exo-actions { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mon programme</h1>
+    <nav>
+      <a href="/mon-compte">Mon espace</a>
+      <a href="/logout">Se déconnecter</a>
+    </nav>
+  </header>
+
+  {% if not program %}
+    <div class="empty">
+      Aucun programme généré pour le moment.<br>
+      <a href="/questionnaire">Complète le questionnaire</a> pour en générer un.
+    </div>
+  {% else %}
+    {% for session in program.sessions %}
+    <div class="session-block">
+      <h2>{{ session.nom_seance }}</h2>
+
+      {% for pe in session.exercises %}
+      <div class="exo-card">
+        <h3>{{ pe.exercise.name if pe.exercise else pe.exercise_id }}</h3>
+        <div class="exo-meta">
+          <span><strong>{{ pe.series }}</strong> séries</span>
+          <span><strong>{{ pe.reps }}</strong> répétitions</span>
+          {% if pe.rest_time_seconds %}<span>Repos : <strong>{{ pe.rest_time_seconds }}s</strong></span>{% endif %}
+          {% if pe.intensity %}<span>Intensité : <strong>{{ pe.intensity }}</strong></span>{% endif %}
+        </div>
+        {% if pe.notes %}<p class="exo-conseils">{{ pe.notes }}</p>{% endif %}
+
+        <div class="exo-actions">
+          <button type="button" class="exo-action-btn" data-action="realise" data-exercise-id="{{ pe.exercise_id }}">
+            J'ai réalisé
+          </button>
+          <button type="button" class="exo-action-btn" data-action="trop_facile" data-exercise-id="{{ pe.exercise_id }}">
+            Trop facile
+          </button>
+          <button type="button" class="exo-action-btn" data-action="trop_difficile" data-exercise-id="{{ pe.exercise_id }}">
+            Trop difficile
+          </button>
+          <button type="button" class="exo-action-btn" data-action="douleur" data-exercise-id="{{ pe.exercise_id }}">
+            Douleur
+          </button>
+        </div>
+        <div class="exo-status"></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='my_program.js') }}"></script>
+</body>
+</html>

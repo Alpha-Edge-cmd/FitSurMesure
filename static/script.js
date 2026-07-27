@@ -1,6 +1,18 @@
+// Identifiant unique à cette session de questionnaire : envoyé avec toutes les
+// requêtes (aperçu puis paiement) pour garantir un programme varié à chaque
+// nouvelle génération, même si la personne retape exactement les mêmes
+// informations de profil (nom, date de naissance, poids, taille...). Reste
+// stable entre l'aperçu et le PDF final d'une même commande.
+function _generateNonce() {
+  if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+  return "nonce-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+}
+
 const formData = {
   blessures: [],
+  severite_blessure: {},
   exercices_incapables: [],
+  exercices_maitrises: [],
   complements: [],
   aliments_apprecies: [],
   muscles_prioritaires: [],
@@ -8,7 +20,13 @@ const formData = {
   formule: "les_deux",
   exercices_rejetes: [],
   cardio_rejets: [],
+  _nonce: _generateNonce(),
 };
+
+// Options de sévérité pour la question "à quel point cette gêne te limite-t-elle
+// aujourd'hui ?" (une par zone cochée dans "blessures") — mêmes libellés que
+// logic/profile_normalizer.py attend en clair, aucune traduction/code numérique.
+const SEVERITE_OPTIONS = ["Légère gêne occasionnelle", "Gêne modérée régulière", "Douleur invalidante"];
 
 // État de l'écran de révision ("je n'aime pas cet exercice / cette séance"),
 // affiché après la dernière étape du questionnaire et avant génération du PDF.
@@ -41,8 +59,9 @@ const steps = [
         ] },
     ],
   },
+  // ---- Catégorie 1/7 : Profil général --------------------------------------
   {
-    title: "Profil",
+    title: "Profil général",
     fields: [
       { id: "prenom", label: "Prénom (facultatif)", type: "text", placeholder: "Ex : Antonio" },
       { id: "date_naissance", label: "Date de naissance", type: "date", required: true },
@@ -53,16 +72,30 @@ const steps = [
       { id: "composition_corporelle", label: "Comment décrirais-tu ton corps actuellement ?", type: "select",
         options: ["Plutôt sec / mince", "Plutôt en surpoids / du gras à perdre",
                    "Musclé(e) avec du gras à perdre (recomposition)", "Je ne sais pas"] },
-    ],
-  },
-  {
-    title: "Niveau et objectif",
-    fields: [
       { id: "niveau_musculation", label: "Niveau en musculation", type: "select", required: true,
         options: ["Débutant complet", "Quelques mois d'expérience", "Intermédiaire", "Avancé"] },
-      { id: "objectif_principal", label: "Objectif principal", type: "select", required: true,
+      { id: "annees_pratique", label: "Depuis combien de temps pratiques-tu la musculation régulièrement ? (facultatif)",
+        type: "select",
+        options: ["Moins de 6 mois", "6 mois à 2 ans", "2 à 5 ans", "Plus de 5 ans"] },
+    ],
+  },
+  // ---- Catégorie 2/7 : Objectifs --------------------------------------------
+  {
+    title: "Objectifs",
+    fields: [
+      // Plusieurs objectifs peuvent être cochés en même temps (ex: Prise de
+      // muscle + Force + Perte de gras) : le moteur calcule un objectif
+      // composite à partir de TOUS les choix cochés (cf. logic/recommendation/
+      // objectives.py, pondération dynamique). Remplace l'ancien select unique
+      // "objectif_principal" (conservé côté backend pour compatibilité, déduit
+      // automatiquement du premier choix coché).
+      { id: "objectifs", label: "Tes objectifs (plusieurs choix possibles)", type: "checkbox-group", required: true,
         options: ["Prise de muscle", "Perte de gras", "Recomposition (sec + muscle)",
-                   "Performance / explosivité", "Condition physique générale"] },
+                   "Performance / explosivité", "Condition physique générale", "Gagner en force"] },
+      { id: "objectif_secondaire", label: "Un objectif annexe, en plus de ceux ci-dessus ? (facultatif)",
+        type: "select",
+        options: ["Aucun", "Améliorer ma mobilité",
+                   "Corriger un déséquilibre postural", "Préparer un événement (compétition, vacances...)"] },
       { id: "niveau_activite_quotidien", label: "Activité quotidienne hors sport", type: "select", required: true,
         options: [
           { value: "sedentaire", label: "Assis toute la journée (bureau, études)" },
@@ -88,17 +121,88 @@ const steps = [
       { id: "niveau_cardio", label: "Ton niveau actuel en cardio", type: "select", required: true,
         showIf: d => ["cardio", "les_deux", "abonnement"].includes(d.formule),
         options: ["Débutant", "Intermédiaire", "Confirmé"] },
-      { id: "autre_sport", label: "Pratiques-tu un autre sport en parallèle (foot, tennis, danse...) ?",
-        type: "select", options: ["Non", "Oui"] },
-      { id: "autre_sport_type", label: "Lequel ?", type: "text", placeholder: "Ex : Football",
-        showIf: d => d.autre_sport === "Oui" },
-      { id: "autre_sport_frequence", label: "À quelle fréquence ?", type: "select",
-        options: ["1x / semaine", "2x / semaine", "3x / semaine ou plus"],
-        showIf: d => d.autre_sport === "Oui" },
     ],
   },
+  // ---- Catégorie 3/7 : Morphologie ------------------------------------------
   {
-    title: "Entraînement",
+    title: "Morphologie",
+    fields: [
+      { id: "longueur_bras", label: "Longueur de tes bras par rapport à ton buste (aide à choisir entre barre et haltères)",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: ["Je ne sais pas", "Plutôt courts", "Moyens", "Plutôt longs"] },
+      { id: "longueur_jambes", label: "Longueur de tes jambes par rapport à ton buste (aide à choisir ta variante de squat/soulevé de terre)",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: ["Je ne sais pas", "Plutôt courtes", "Équilibrées", "Plutôt longues"] },
+      { id: "longueur_buste", label: "Ton buste est-il plutôt long ou court par rapport à tes jambes ?",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: ["Je ne sais pas", "Plutôt court", "Équilibré", "Plutôt long"] },
+      { id: "largeur_epaules", label: "Comment décrirais-tu la largeur de tes épaules par rapport à ta cage thoracique ?",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: ["Je ne sais pas", "Plutôt étroites", "Moyennes", "Plutôt larges"] },
+      { id: "particularites_morphologiques", label: "Une particularité qui pourrait influencer certains exercices ? (facultatif)",
+        type: "textarea",
+        placeholder: "Ex : hyperlaxité, scoliose légère, une jambe plus courte que l'autre...",
+        showIf: d => d.formule !== "cardio" },
+    ],
+  },
+  // ---- Catégorie 4/7 : Mobilité et technique ---------------------------------
+  {
+    title: "Mobilité et technique",
+    fields: [
+      { id: "mobilite_generale", label: "Comment évaluerais-tu ta mobilité générale (chevilles, hanches, épaules) ?",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: [
+          { value: "1", label: "1 — Très raide" }, { value: "2", label: "2" },
+          { value: "3", label: "3 — Moyenne" }, { value: "4", label: "4" },
+          { value: "5", label: "5 — Très mobile" },
+        ] },
+      { id: "amplitude_squat", label: "Arrives-tu à descendre confortablement en squat complet (cuisses sous parallèle) sans lever les talons ?",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: ["Oui, facilement", "Avec difficulté", "Non, pas du tout"] },
+      { id: "amplitude_epaule", label: "Arrives-tu à lever les bras complètement au-dessus de la tête sans cambrer le dos ?",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: ["Oui, facilement", "Avec difficulté", "Non, pas du tout"] },
+      { id: "tolerance_technique", label: "Es-tu à l'aise pour apprendre des mouvements techniquement exigeants (ex : soulevé de terre, olympique...) ?",
+        type: "select",
+        showIf: d => d.formule !== "cardio",
+        options: [
+          { value: "1", label: "1 — Je préfère rester simple" }, { value: "2", label: "2" },
+          { value: "3", label: "3 — Ça dépend" }, { value: "4", label: "4" },
+          { value: "5", label: "5 — J'adore apprendre des mouvements techniques" },
+        ] },
+      { id: "exercices_maitrises", label: "Parmi ces mouvements, lesquels maîtrises-tu techniquement ? (facultatif)",
+        type: "checkbox-group",
+        showIf: d => d.formule !== "cardio",
+        options: ["Squat barre", "Soulevé de terre", "Développé couché barre", "Tractions",
+                   "Développé militaire barre", "Aucun de ces mouvements"] },
+    ],
+  },
+  // ---- Catégorie 5/7 : Contraintes physiques ---------------------------------
+  {
+    title: "Contraintes physiques",
+    fields: [
+      { id: "blessures", label: "Douleurs ou blessures actuelles", type: "checkbox-group",
+        options: ["Épaule", "Dos / lombaires", "Genoux", "Chevilles / talons", "Poignets"] },
+      { id: "severite_blessure", label: "À quel point ces gênes te limitent-elles aujourd'hui ?",
+        type: "severity-per-zone", zonesField: "blessures",
+        showIf: d => (d.blessures || []).length > 0 },
+      { id: "exercices_incapables", label: "Exercices qu'il ne sait pas / ne peut pas faire", type: "checkbox-group",
+        showIf: d => d.formule !== "cardio",
+        options: ["Tractions", "Dips", "Squat barre libre", "Soulevé de terre barre"] },
+      { id: "precisions", label: "Précisions (facultatif)", type: "textarea",
+        placeholder: "Ex : sensibilité au talon droit à la course" },
+    ],
+  },
+  // ---- Catégorie 6/7 : Organisation entraînement -----------------------------
+  {
+    title: "Organisation entraînement",
     fields: [
       { id: "frequence_entrainement", label: "Fréquence de musculation souhaitée", type: "select", required: true,
         showIf: d => d.formule !== "cardio",
@@ -110,6 +214,9 @@ const steps = [
       { id: "duree_seance", label: "Durée max par séance", type: "select",
         showIf: d => d.formule !== "cardio",
         options: ["45 min", "1h", "1h - 1h30", "1h30+"] },
+      { id: "disponibilite_reelle", label: "En réalité, combien de temps peux-tu consacrer à l'entraînement par semaine, tout compris ? (facultatif)",
+        type: "select",
+        options: ["Moins de 2h", "2 à 4h", "4 à 6h", "Plus de 6h"] },
       { id: "split_preference", label: "Split préféré", type: "select",
         showIf: d => d.formule !== "cardio",
         options: [
@@ -119,10 +226,6 @@ const steps = [
           { value: "ppl", label: "Push / Pull / Legs" },
           { value: "arnold", label: "Arnold Split" },
         ] },
-      { id: "equipement", label: "Équipement disponible", type: "select",
-        showIf: d => d.formule !== "cardio",
-        options: ["Salle complète", "Surtout machines guidées", "Surtout poids libres",
-                   "Matériel limité à domicile"] },
       { id: "exos_par_muscle_pref", label: "Nombre d'exercices par muscle souhaité", type: "select",
         showIf: d => d.formule !== "cardio",
         options: [
@@ -135,26 +238,37 @@ const steps = [
         type: "checkbox-group",
         showIf: d => d.formule !== "cardio",
         options: ["Pectoraux", "Dos", "Épaules", "Bras (biceps/triceps)", "Jambes (quadriceps/ischio)", "Fessiers", "Abdominaux"] },
+      { id: "autre_sport", label: "Pratiques-tu un autre sport en parallèle (foot, tennis, danse...) ?",
+        type: "select", options: ["Non", "Oui"] },
+      { id: "autre_sport_type", label: "Lequel ?", type: "text", placeholder: "Ex : Football",
+        showIf: d => d.autre_sport === "Oui" },
+      { id: "autre_sport_frequence", label: "À quelle fréquence ?", type: "select",
+        options: ["1x / semaine", "2x / semaine", "3x / semaine ou plus"],
+        showIf: d => d.autre_sport === "Oui" },
+      { id: "sommeil", label: "Sommeil moyen par nuit", type: "select",
+        options: ["Moins de 6h", "6 à 7h", "7 à 8h", "8h et plus"] },
+      { id: "niveau_stress", label: "Niveau de stress actuel", type: "select",
+        options: ["Faible", "Modéré", "Élevé"] },
     ],
   },
+  // ---- Catégorie 7/7 : Préférences -------------------------------------------
   {
-    title: "Contraintes physiques",
+    title: "Préférences",
     fields: [
-      { id: "blessures", label: "Douleurs ou blessures actuelles", type: "checkbox-group",
-        options: ["Épaule", "Dos / lombaires", "Genoux", "Chevilles / talons", "Poignets"] },
-      { id: "exercices_incapables", label: "Exercices qu'il ne sait pas / ne peut pas faire", type: "checkbox-group",
+      { id: "equipement", label: "Équipement disponible", type: "select",
         showIf: d => d.formule !== "cardio",
-        options: ["Tractions", "Dips", "Squat barre libre", "Soulevé de terre barre"] },
-      { id: "longueur_bras", label: "Longueur de tes bras par rapport à ton buste (aide à choisir entre barre et haltères)",
+        options: ["Salle complète", "Surtout machines guidées", "Surtout poids libres",
+                   "Matériel limité à domicile"] },
+      { id: "preference_materiel", label: "Si tu as le choix, tu préfères plutôt travailler avec : (facultatif)",
         type: "select",
         showIf: d => d.formule !== "cardio",
-        options: ["Je ne sais pas", "Plutôt courts", "Moyens", "Plutôt longs"] },
-      { id: "longueur_jambes", label: "Longueur de tes jambes par rapport à ton buste (aide à choisir ta variante de squat/soulevé de terre)",
-        type: "select",
+        options: ["Barres libres", "Haltères", "Machines guidées", "Pas de préférence"] },
+      { id: "preference_style_charge", label: "Tu préfères plutôt : (facultatif)", type: "select",
         showIf: d => d.formule !== "cardio",
-        options: ["Je ne sais pas", "Plutôt courtes", "Équilibrées", "Plutôt longues"] },
-      { id: "precisions", label: "Précisions (facultatif)", type: "textarea",
-        placeholder: "Ex : sensibilité au talon droit à la course" },
+        options: ["Soulever lourd, peu de répétitions", "Contrôler le mouvement, plus de répétitions",
+                   "Un mix des deux"] },
+      { id: "preferences_libres", label: "Autre chose à préciser sur tes préférences d'entraînement ? (facultatif)",
+        type: "textarea", placeholder: "Ex : je préfère éviter les longues séries de cardio en fin de séance" },
     ],
   },
   {
@@ -181,10 +295,9 @@ const steps = [
   {
     title: "Mode de vie et compléments",
     fields: [
-      { id: "sommeil", label: "Sommeil moyen par nuit", type: "select",
-        options: ["Moins de 6h", "6 à 7h", "7 à 8h", "8h et plus"] },
-      { id: "niveau_stress", label: "Niveau de stress actuel", type: "select",
-        options: ["Faible", "Modéré", "Élevé"] },
+      // sommeil / niveau_stress ont déménagé dans "Organisation entraînement"
+      // (catégorie 6/7) — ce sont des variables moteur, elles vivent maintenant
+      // au même endroit que fréquence/durée/disponibilité réelle.
       { id: "tabac", label: "Tabac (cigarette classique)", type: "select",
         options: ["Non", "Occasionnel", "Régulier"] },
       { id: "cigarette_electronique", label: "Cigarette électronique / vapote", type: "select",
@@ -251,6 +364,25 @@ function fieldHtml(f) {
   if (f.type === "textarea") {
     return `<textarea rows="2" data-field="${f.id}" placeholder="${f.placeholder || ""}">${val || ""}</textarea>`;
   }
+  if (f.type === "severity-per-zone") {
+    // Une case à cocher par zone déjà déclarée dans f.zonesField (ex: "blessures"),
+    // pas une seule valeur — ce champ n'a donc pas de formData[f.id] scalaire comme
+    // les autres, mais un objet {zone: sévérité}. Rempli/lu directement dans formData.
+    const zones = formData[f.zonesField] || [];
+    if (!formData[f.id]) formData[f.id] = {};
+    if (!zones.length) return "";
+    return `<div class="severity-grid">${zones.map(zone => {
+      const current = formData[f.id][zone] || "";
+      const opts = ['<option value="">-- choisir --</option>'].concat(
+        SEVERITE_OPTIONS.map(o => `<option value="${o}" ${current === o ? "selected" : ""}>${o}</option>`)
+      );
+      return `
+        <div class="severity-row">
+          <span class="severity-zone">${zone}</span>
+          <select data-severity-zone="${zone}" data-field="${f.id}">${opts.join("")}</select>
+        </div>`;
+    }).join("")}</div>`;
+  }
   const min = f.min !== undefined ? `min="${f.min}"` : "";
   const max = f.max !== undefined ? `max="${f.max}"` : "";
   return `<input type="${f.type}" data-field="${f.id}" placeholder="${f.placeholder || ""}" value="${val || ""}" ${min} ${max}>`;
@@ -286,7 +418,19 @@ function renderStep() {
 
   container.innerHTML = html;
 
-  container.querySelectorAll("[data-field]").forEach(el => {
+  // Selects de sévérité par zone (champ "severity-per-zone") : traités à part,
+  // car ils écrivent dans un objet imbriqué (formData.severite_blessure[zone]),
+  // pas dans formData[f.id] directement comme un select classique.
+  container.querySelectorAll("[data-severity-zone]").forEach(el => {
+    el.addEventListener("change", () => {
+      const zone = el.dataset.severityZone;
+      const key = el.dataset.field;
+      if (!formData[key]) formData[key] = {};
+      formData[key][zone] = el.value;
+    });
+  });
+
+  container.querySelectorAll("[data-field]:not([data-severity-zone])").forEach(el => {
     if (el.type === "checkbox") {
       el.addEventListener("change", () => {
         const key = el.dataset.field;
@@ -295,7 +439,18 @@ function renderStep() {
           if (!formData[key].includes(el.value)) formData[key].push(el.value);
         } else {
           formData[key] = formData[key].filter(v => v !== el.value);
+          // Zone décochée : on nettoie sa sévérité éventuelle pour ne pas garder
+          // une donnée orpheline (zone plus déclarée mais sévérité toujours stockée).
+          if (key === "blessures" && formData.severite_blessure) {
+            delete formData.severite_blessure[el.value];
+          }
         }
+        // Une case à cocher ne fait perdre aucun focus de saisie (contrairement à un
+        // champ texte/nombre en cours de frappe) : on peut re-render sans risque. C'est
+        // nécessaire pour les champs conditionnés par une checkbox-group (ex : sévérité
+        // par zone de blessure), et corrige au passage la réactivité de "temps au km"
+        // (dépendait déjà de cardio_types sans jamais se ré-afficher avant ce changement).
+        renderStep();
       });
     } else if (el.tagName === "SELECT") {
       // Un select change en une seule action (pas de perte de focus possible) :
@@ -334,7 +489,15 @@ function validateStep() {
   const s = steps[current];
   const visibleFields = s.fields.filter(f => !f.showIf || f.showIf(formData));
   for (const f of visibleFields) {
-    if (f.required && !formData[f.id]) {
+    // checkbox-group : un tableau vide est "truthy" en JS ([] est vrai), donc
+    // le test générique ci-dessous ne suffit pas — vérifie explicitement la
+    // longueur (utilisé notamment par le nouveau champ "objectifs", plusieurs
+    // choix possibles, prompt final hors 24 phases).
+    if (f.required && f.type === "checkbox-group" && (!formData[f.id] || formData[f.id].length === 0)) {
+      showMessage(`Merci de sélectionner au moins une option pour : ${f.label}`, "error");
+      return false;
+    }
+    if (f.required && f.type !== "checkbox-group" && !formData[f.id]) {
       showMessage(`Merci de renseigner : ${f.label}`, "error");
       return false;
     }
