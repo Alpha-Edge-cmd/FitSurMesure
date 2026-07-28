@@ -239,8 +239,31 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
     if avertissement_frequence:
         warnings.append(avertissement_frequence)
 
+    # Retour Samy (prompt hors 24 phases : "les séances A et B sont souvent
+    # identiques, il faut diversifier") : un split répété plusieurs fois dans
+    # la semaine (Upper A/Upper B, Push/Push (2)...) ciblait à chaque fois le
+    # MÊME muscle avec le MÊME profil -> sans mémoire d'une séance à l'autre,
+    # `generate_workout` retombait systématiquement sur les mêmes exercices
+    # top-score. Réutilise le mécanisme de pénalité de récence déjà en place
+    # pour l'historique INTER-semaines (`recent_exercises_provider`, phases
+    # 7/10) : on l'alimente ici avec les exercices déjà choisis PLUS TÔT DANS
+    # CETTE MÊME semaine plutôt que d'inventer un second mécanisme. Pénalité
+    # SOUCE (PENALITE_RECENCE), jamais une exclusion dure : un petit
+    # catalogue peut légitimement réutiliser un exercice s'il n'y a pas
+    # d'alternative valable.
+    exercices_deja_choisis_semaine = set()
+
+    def _fournisseur_variete_intra_semaine(user_id, window_weeks=None):
+        return list(exercices_deja_choisis_semaine)
+
     for jour in plan_seances:
-        workout = generate_workout(profile_snapshot, jour["muscles"], exercises_catalog, duree_seance)
+        workout = generate_workout(
+            profile_snapshot, jour["muscles"], exercises_catalog, duree_seance,
+            recent_exercises_provider=_fournisseur_variete_intra_semaine,
+        )
+        exercices_deja_choisis_semaine.update(
+            w_ex["exercise_id"] for w_ex in workout["exercises"]
+        )
 
         # Phase 20/24 : réordonne (jamais n'exclut, jamais ne change de
         # palier `exercise_order` déjà décidé) les exercices déjà choisis

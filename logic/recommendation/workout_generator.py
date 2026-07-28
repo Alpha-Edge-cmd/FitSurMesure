@@ -159,7 +159,8 @@ def _reduire_volume_si_besoin(par_muscle, budget, warnings, planchers=None):
         warnings.append(MESSAGE_REDUCTION_VOLUME)
 
 
-def generate_workout(profile, target_muscles, available_exercises, session_duration):
+def generate_workout(profile, target_muscles, available_exercises, session_duration,
+                      recent_exercises_provider=None):
     """Point d'entrée principal de cette phase.
 
     profile             : ProfileSnapshot.
@@ -168,6 +169,21 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
     available_exercises : catalogue d'objets Exercise à considérer.
     session_duration     : minutes (int/float) ou libellé questionnaire
                            ("45 min", "1h", "1h - 1h30", "1h30+").
+    recent_exercises_provider : callable optionnel `(user_id, window_weeks) ->
+                           [exercise_id]`, transmis tel quel à
+                           `fallback.run_fallback_cascade`/`selector.
+                           select_exercises` (mécanisme de pénalité de
+                           récence déjà existant, phases 7/10). Additif
+                           (prompt hors 24 phases, retour Samy : "les séances
+                           A et B sont souvent identiques") : permet à
+                           l'appelant (`logic.recommendation.program_builder.
+                           build_program`) de pénaliser les exercices déjà
+                           choisis PLUS TÔT DANS LA MÊME SEMAINE (Upper A vs
+                           Upper B, PPL x2...), en réutilisant le même levier
+                           que la récence inter-semaines plutôt que d'inventer
+                           un second mécanisme parallèle. Absent -> comportement
+                           strictement inchangé (repli sur l'historique DB
+                           habituel, cf. `selector.get_recent_exercises`).
 
     Retourne {"name", "muscles", "exercises", "estimated_duration", "warnings",
     "profile_analysis", "muscle_floors"} ; ne prescrit ni séries, ni
@@ -213,7 +229,10 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
             nombre = planchers[muscle]
         else:
             nombre = volume.calculate_exercise_count(profile, muscle, session_duration)
-        resultat = fallback.run_fallback_cascade(profile, available_exercises, muscle, nombre)
+        resultat = fallback.run_fallback_cascade(
+            profile, available_exercises, muscle, nombre,
+            recent_exercises_provider=recent_exercises_provider,
+        )
         if resultat["warning"]:
             warnings.append(f"{muscle} : {resultat['warning']}")
         if nouvelle_repartition and len(resultat["exercises"]) < nombre:
