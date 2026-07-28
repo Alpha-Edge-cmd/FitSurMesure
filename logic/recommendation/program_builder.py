@@ -18,13 +18,26 @@ définit pas encore sa propre notion de "split" (Full Body / Upper-Lower /
 PPL / Arnold) — cette notion existe déjà, éprouvée, dans le moteur legacy
 (`logic/program_builder.py`, jamais modifié ici) et ses données de référence
 (`logic/exercises_db.py`, `SPLITS`). Ce module réutilise ces deux éléments
-en LECTURE SEULE (`_split_key_auto` pour choisir le split selon fréquence/
-objectif/niveau, `SPLITS` pour la répartition des muscles par séance) plutôt
-que d'inventer une seconde logique de split parallèle et incohérente avec
-l'existant.
+en LECTURE SEULE (`_split_key_selectionne` pour choisir le split selon
+fréquence/objectif/niveau/préférence/exclusions, `SPLITS` pour la répartition
+des muscles par séance) plutôt que d'inventer une seconde logique de split
+parallèle et incohérente avec l'existant.
+
+Correctif (prompt hors 24 phases, retour Samy) : ce module appelait
+auparavant directement `_split_key_auto` (fréquence/objectif/niveau
+uniquement) sans jamais lire `split_preference` (le choix manuel du
+questionnaire, "Split préféré" -> "auto"|"full_body"|...) ni les nouvelles
+exclusions ("y a-t-il un ou plusieurs programmes que tu ne souhaites PAS
+avoir ?") : le moteur V2 (celui réellement utilisé pour la quasi-totalité des
+clients, cf. `app._build_program_v2`) ignorait donc silencieusement le split
+choisi manuellement -- seul le moteur legacy (repli d'exception rare) le
+respectait. `_split_key_selectionne` gère les deux tel quel (cf. sa
+docstring) : appelé ici avec les mêmes valeurs lues dans
+`profile_snapshot.variables_json` (copie brute du questionnaire, même
+mécanisme que pour "equipement"/"exercices_incapables").
 """
 from logic.exercises_db import SPLITS
-from logic.program_builder import _split_key_auto
+from logic.program_builder import _split_key_selectionne
 from logic.program_personalization import (
     adjust_frequency_for_availability,
     adjust_intensity_for_age,
@@ -218,7 +231,23 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
 
     niveau = getattr(profile_snapshot, "niveau_musculation", None)
     objectif = getattr(profile_snapshot, "objectif_principal", None)
-    split_key = _split_key_auto(frequence, objectif, niveau)
+    variables = getattr(profile_snapshot, "variables_json", None) or {}
+
+    sessions = []
+    warnings = []
+    seances_detail = []
+    total_exercices = 0
+
+    if avertissement_frequence:
+        warnings.append(avertissement_frequence)
+
+    split_key, avertissement_split = _split_key_selectionne(
+        frequence, objectif, niveau,
+        split_preference=variables.get("split_preference"),
+        splits_exclus=variables.get("splits_exclus"),
+    )
+    if avertissement_split:
+        warnings.append(avertissement_split)
     split = SPLITS[split_key]
 
     plan_seances = _repartir_seances(split["jours"], frequence)
@@ -230,14 +259,6 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
     contexte_personnalisation = compute_personalization_context(profile_snapshot)
     preferences_materiel = equipements_preferes(profile_snapshot)
     exercises_by_id = {getattr(ex, "exercise_id", None): ex for ex in exercises_catalog}
-
-    sessions = []
-    warnings = []
-    seances_detail = []
-    total_exercices = 0
-
-    if avertissement_frequence:
-        warnings.append(avertissement_frequence)
 
     # Retour Samy (prompt hors 24 phases : "les séances A et B sont souvent
     # identiques, il faut diversifier") : un split répété plusieurs fois dans

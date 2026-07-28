@@ -390,6 +390,7 @@ def _build_everything(data):
             program_input = {
                 "frequence_entrainement": frequence,
                 "split_preference": data.get("split_preference", "auto"),
+                "splits_exclus": data.get("splits_exclus", []),
                 "equipement": data.get("equipement", "Salle complète"),
                 "blessures": data.get("blessures", []),
                 "exercices_incapables": data.get("exercices_incapables", []),

@@ -137,6 +137,82 @@ def _split_key_auto(frequence, objectif=None, niveau=None):
     return _choisir_ppl_ou_arnold(niveau, objectif)
 
 
+# Retour Samy (prompt hors 24 phases : "y a-t-il un ou plusieurs programmes
+# que vous ne souhaitez pas avoir et seulement et uniquement dans ce cas là
+# le nombre de jours d'entraînement choisi ne dépend plus du programme") :
+# ordre stable (départage à distance égale) pour rendre le choix de repli
+# déterministe -- pas un ordre de préférence en soi, seulement un tie-break.
+ORDRE_SPLITS_STABLE = ["full_body", "upper_lower", "ppl", "arnold", "ppl_upper_lower"]
+
+MESSAGE_SPLIT_REMPLACE = (
+    "Split '{exclu}' écarté (programme exclu dans le questionnaire) : remplacé par "
+    "'{choisi}', réparti sur les {frequence} séance(s) demandées plutôt que sur le nombre "
+    "de jours natif de ce split."
+)
+MESSAGE_TOUS_SPLITS_EXCLUS = (
+    "Tous les types de programme disponibles ont été exclus dans le questionnaire : "
+    "impossible de respecter cette contrainte sans supprimer toute structure d'entraînement, "
+    "le split habituellement recommandé pour ta fréquence a donc été conservé."
+)
+
+
+def _splits_ordonnes_par_proximite(frequence):
+    """Ordonne les clés de `SPLITS` par proximité entre leur nombre de jours
+    natif et `frequence` (le split le plus proche minimise le cyclage/
+    troncature appliqué ensuite par `_repartir_seances` sur un split mal
+    adapté à cette fréquence) ; `ORDRE_SPLITS_STABLE` ne sert qu'à départager
+    les ex-aequo de façon déterministe."""
+    return sorted(
+        SPLITS.keys(),
+        key=lambda k: (abs(len(SPLITS[k]["jours"]) - frequence), ORDRE_SPLITS_STABLE.index(k)),
+    )
+
+
+def _split_key_selectionne(frequence, objectif, niveau, split_preference=None, splits_exclus=None):
+    """Détermine le split à utiliser pour la semaine -> (split_key, avertissement_ou_None).
+
+    Comportement par défaut, STRICTEMENT INCHANGÉ si `splits_exclus` est vide
+    (retour Samy : "seulement et uniquement dans ce cas là le nombre de jours
+    d'entraînement choisi ne dépend plus du programme" -- donc dans tous les
+    autres cas, il continue à en dépendre comme avant) : split explicitement
+    choisi par l'utilisateur (`split_preference`, hors "auto"/valeur inconnue)
+    sinon split déterminé par fréquence/objectif/niveau (`_split_key_auto`) --
+    la fréquence dicte rigidement le split, exactement comme avant l'ajout de
+    ce paramètre.
+
+    Si `splits_exclus` (nouvelle question du questionnaire : "y a-t-il un ou
+    plusieurs programmes que tu ne souhaites PAS avoir ?") contient le split
+    ainsi retenu, on cesse de dépendre de la fréquence pour décider : on
+    choisit, parmi les splits NON exclus, celui dont le nombre de jours natif
+    est le plus proche de la fréquence demandée (`_splits_ordonnes_par_
+    proximite`), quel que soit son rang habituel pour cette fréquence --
+    `_repartir_seances` se charge ensuite de l'étaler/cycler sur le nombre de
+    séances réellement demandé, comme il le fait déjà pour toute fréquence
+    dépassant le nombre de jours natif d'un split (ex: 6j sur un PPL à 3
+    jours). Si TOUS les splits sont exclus (cas limite), l'exclusion est
+    ignorée (mieux vaut un programme cohérent qu'aucun programme) et un
+    avertissement explicite le signale plutôt qu'un échec silencieux."""
+    if split_preference and split_preference in SPLITS:
+        candidat = split_preference
+    else:
+        candidat = _split_key_auto(frequence, objectif, niveau)
+
+    splits_exclus = set(splits_exclus or []) & set(SPLITS.keys())
+    if not splits_exclus or candidat not in splits_exclus:
+        return candidat, None
+
+    ordre_repli = [s for s in _splits_ordonnes_par_proximite(frequence) if s not in splits_exclus]
+    if not ordre_repli:
+        return candidat, MESSAGE_TOUS_SPLITS_EXCLUS
+
+    choisi = ordre_repli[0]
+    if choisi == candidat:
+        return choisi, None
+    return choisi, MESSAGE_SPLIT_REMPLACE.format(
+        exclu=SPLITS[candidat]["label"], choisi=SPLITS[choisi]["label"], frequence=frequence,
+    )
+
+
 def _avoid_tags(blessures, exos_incapables):
     tags = set()
     for b in blessures or []:
@@ -569,6 +645,8 @@ def build_program(data):
     """
     data attendu :
       frequence_entrainement (int), split_preference ("auto"|"full_body"|"upper_lower"|"ppl"|"arnold"|"ppl_upper_lower"),
+      splits_exclus (list[str] parmi les mêmes clés, facultatif -- prompt hors
+      24 phases, cf. `_split_key_selectionne`),
       equipement (str), blessures (list[str]), exercices_incapables (list[str]),
       duree_seance (str), exos_par_muscle_pref ("auto"|"2"|"3"|"4"), niveau_musculation (str)
     """
@@ -578,10 +656,12 @@ def build_program(data):
     objectif_pour_split = data.get("objectif_principal", "Condition physique générale")
     niveau_pour_split = data.get("niveau_musculation", "Débutant complet")
 
-    split_key = (
-        _split_key_auto(frequence, objectif_pour_split, niveau_pour_split)
-        if split_pref == "auto" else split_pref
+    split_key, avertissement_split = _split_key_selectionne(
+        frequence, objectif_pour_split, niveau_pour_split,
+        split_preference=split_pref, splits_exclus=data.get("splits_exclus"),
     )
+    if avertissement_split:
+        warnings.append(avertissement_split)
     split = SPLITS[split_key]
 
     # Retour Samy (prompt hors 24 phases) : Arnold Split est désormais une

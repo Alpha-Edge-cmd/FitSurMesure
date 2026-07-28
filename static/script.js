@@ -265,6 +265,24 @@ const steps = [
           { value: "arnold", label: "Arnold Split" },
           { value: "ppl_upper_lower", label: "Push / Pull / Legs + Upper / Lower (5 jours)" },
         ] },
+      // Prompt hors 24 phases (retour Samy : "y a-t-il un ou plusieurs
+      // programmes que vous ne souhaitez pas avoir et seulement et
+      // uniquement dans ce cas là le nombre de jours d'entraînement choisi
+      // ne dépend plus du programme") : distinct de "split_preference"
+      // ci-dessus (qui choisit UN split précis) -- ici on exclut un ou
+      // plusieurs types de programme, l'algorithme choisit alors librement
+      // parmi ceux qui restent, sans être contraint par le barème habituel
+      // fréquence -> split (cf. logic/program_builder.py::_split_key_selectionne).
+      { id: "splits_exclus", label: "Y a-t-il un ou plusieurs types de programme que tu NE souhaites PAS avoir ? (facultatif)",
+        type: "checkbox-group",
+        showIf: d => d.formule !== "cardio",
+        options: [
+          { value: "full_body", label: "Full Body" },
+          { value: "upper_lower", label: "Upper / Lower" },
+          { value: "ppl", label: "Push / Pull / Legs" },
+          { value: "arnold", label: "Arnold Split" },
+          { value: "ppl_upper_lower", label: "Push / Pull / Legs + Upper / Lower (5 jours)" },
+        ] },
       // Prompt hors 24 phases (retour Samy, refonte du volume) : le nombre
       // d'exercices par muscle n'est plus demandé manuellement — l'algorithme
       // le détermine désormais lui-même (position de priorité du muscle +
