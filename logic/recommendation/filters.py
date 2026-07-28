@@ -73,12 +73,31 @@ def _blessure_exclusion_reason(profile, exercise):
 # (filtrage dur), au même titre qu'une contre-indication de blessure — pas
 # laissé à une simple pénalité de score (passe 2).
 TOUS_LES_EQUIPEMENTS = {"barre", "haltere", "machine", "poids_du_corps", "elastique"}
+# Retour Samy (prompt hors 24 phases, "les exercices poids de corps doivent
+# être facultatifs et à part, pas pris en compte dans la séance") : pour un
+# profil qui a accès à une salle (les 3 profils ci-dessous), le poids du
+# corps est retiré du programme PRINCIPAL et proposé à part dans une section
+# bonus facultative (cf. `logic.recommendation.program_builder.
+# _selectionner_bonus_poids_du_corps`) — même règle que le moteur legacy
+# (`logic.program_builder._equip_allowed`, `set(ALL_EQUIP) -
+# {"poids_du_corps"}` pour ces 3 profils), jamais portée jusqu'ici : le
+# moteur V2 traitait le poids du corps comme n'importe quel autre équipement
+# toujours autorisé, un exercice au poids du corps pouvait donc se
+# retrouver mélangé aux exercices classiques dans le tableau principal.
+# "Matériel limité à domicile" reste inchangé : le poids du corps y est un
+# équipement PRINCIPAL, pas un bonus (l'utilisateur n'a souvent que ça).
 EQUIPEMENT_AUTORISE_PAR_ACCES = {
-    "Salle complète": TOUS_LES_EQUIPEMENTS,
-    "Surtout machines guidées": TOUS_LES_EQUIPEMENTS,
-    "Surtout poids libres": TOUS_LES_EQUIPEMENTS,
+    "Salle complète": TOUS_LES_EQUIPEMENTS - {"poids_du_corps"},
+    "Surtout machines guidées": TOUS_LES_EQUIPEMENTS - {"poids_du_corps"},
+    "Surtout poids libres": TOUS_LES_EQUIPEMENTS - {"poids_du_corps"},
     "Matériel limité à domicile": {"haltere", "poids_du_corps", "elastique"},
 }
+
+# Profils pour lesquels le poids du corps est retiré du programme principal
+# (et donc éligible à la section bonus facultative ci-dessous) — mêmes 3
+# profils "salle" que `EQUIPEMENT_AUTORISE_PAR_ACCES` ci-dessus, jamais
+# "Matériel limité à domicile".
+PROFILS_BONUS_POIDS_DU_CORPS = {"Salle complète", "Surtout machines guidées", "Surtout poids libres"}
 
 
 def _equipement_indisponible_reason(profile, exercise):
@@ -99,6 +118,65 @@ def _equipement_indisponible_reason(profile, exercise):
         return None  # exercice sans équipement déclaré -> jamais exclu ici (donnée incomplète, pas une décision)
     if not (equipement_exercice & autorise):
         return f"equipement_indisponible_{acces} : exercice nécessite {sorted(equipement_exercice)}"
+    return None
+
+
+# Retour Samy (prompt hors 24 phases, BUG CRITIQUE : "ma copine s'est faite un
+# programme elle à mis que elle ne savait pas faire certains exercices mais
+# ont apparus quand même dans le programme") : `exercices_incapables`
+# (questionnaire, cases à cocher "Tractions"/"Dips"/"Squat barre libre"/
+# "Soulevé de terre barre", cf. static/script.js) n'était lu QUE par le
+# moteur legacy (`logic.program_builder._avoid_tags` +
+# `logic.exercises_db.EXO_INCAPABLE_TAGS`) — jamais par le moteur V2 réellement
+# utilisé en production. Même bug de fond que l'accès matériel ci-dessus
+# (`_equipement_indisponible_reason`) : champ vivant seulement dans
+# `variables_json`, jamais promu en colonne dédiée ni lu par ce module.
+#
+# Exclusion par mots-clés sur le NOM de l'exercice (le catalogue V2 n'a pas de
+# tags "avoid" par variante comme l'ancien moteur) : plus fiable qu'un
+# filtrage par `pattern`/`movement_type`, qui regrouperait des mouvements non
+# concernés (ex : Hip Thrust et Good Morning partagent le pattern "hinge"
+# avec le soulevé de terre, mais l'utilisateur n'a coché QUE le soulevé de
+# terre). Les variantes "à la Smith machine"/machine-guidée ne sont PAS
+# exclues : la machine guide la trajectoire de la barre, ce n'est plus le
+# même geste ("barre libre") que celui déclaré non maîtrisé.
+def _critere_squat_barre_libre(nom, equip):
+    return "squat" in nom and "barre" in equip and "machine" not in equip
+
+
+def _critere_souleve_de_terre_barre(nom, equip):
+    return "soulev" in nom and "terre" in nom and "barre" in equip and "machine" not in equip
+
+
+EXERCICE_INCAPABLE_CRITERES = {
+    "Tractions": lambda nom, equip: "traction" in nom,
+    "Dips": lambda nom, equip: "dips" in nom,
+    "Squat barre libre": _critere_squat_barre_libre,
+    "Soulevé de terre barre": _critere_souleve_de_terre_barre,
+}
+
+
+def _exercices_incapables_exclusion_reason(profile, exercise):
+    """Exclut un exercice si son nom correspond à l'un des mouvements que
+    l'utilisateur a explicitement déclaré ne pas savoir/pouvoir faire au
+    questionnaire (`variables_json["exercices_incapables"]`, liste de 0 à 4
+    valeurs parmi `EXERCICE_INCAPABLE_CRITERES`). Filtrage dur (passe 1), pas
+    une simple pénalité de score : un exercice qu'on ne sait pas exécuter
+    n'est pas "moins pertinent", il est IRRÉALISABLE en toute sécurité, même
+    principe que `_equipement_indisponible_reason`/`_blessure_exclusion_
+    reason` ci-dessus."""
+    variables_json = getattr(profile, "variables_json", None) or {}
+    declares = variables_json.get("exercices_incapables") or []
+    if not declares:
+        return None
+
+    nom = (getattr(exercise, "name", None) or "").lower()
+    equip = {str(e).lower() for e in (getattr(exercise, "equipment", None) or [])}
+
+    for declare in declares:
+        critere = EXERCICE_INCAPABLE_CRITERES.get(declare)
+        if critere and critere(nom, equip):
+            return f"exercice_incapable_declare_{declare}"
     return None
 
 
@@ -128,6 +206,10 @@ def exclusion_reason(profile, exercise, feedback_repository=None):
         return reason
 
     reason = _equipement_indisponible_reason(profile, exercise)
+    if reason:
+        return reason
+
+    reason = _exercices_incapables_exclusion_reason(profile, exercise)
     if reason:
         return reason
 

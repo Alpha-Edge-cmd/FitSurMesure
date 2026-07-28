@@ -13,9 +13,11 @@ en lisant les clés effectivement utilisées par `pdf_generator.py` :
   - `warnings` (liste, requise, peut être vide).
   - `programme` (liste de séances), chacune :
       `nom` (str), `duree_estimee_min` (int), `muscles` (liste de blocs),
-      `bonus_poids_du_corps` (optionnel, toujours [] ici — le moteur V2 ne
-      génère pas encore cette section facultative, hors périmètre de cette
-      phase).
+      `bonus_poids_du_corps` (optionnel, liste de {"nom","muscle","series",
+      "reps"} ; toujours [] dans `program_to_pdf_data` ci-dessous — non
+      persisté en base pour l'instant, cf. sa docstring — mais bien peuplé
+      dans `raw_result_to_pdf_data`, propagé depuis `logic.recommendation.
+      program_builder.build_program`, prompt hors 24 phases).
     chaque bloc "muscles" : `muscle` (label FR), `exercices` (liste de
       `{"nom", "series", "reps"}`, seules clés lues par pdf_generator.py).
   - `objectif_note`/`niveau_note`/`equipement`/`prioritaires_labels`/
@@ -82,6 +84,11 @@ def program_to_pdf_data(program):
             "nom": session.nom_seance,
             "muscles": _regrouper_par_muscle(session.exercises),
             "duree_estimee_min": session.duree_estimee_minutes or 0,
+            # Non persisté en base pour l'instant (le bonus poids du corps
+            # n'a pas encore de table/colonne ProgramSession dédiée) -> []
+            # ici uniquement ; le chemin réellement utilisé pour le PDF
+            # client (/generate-preview, /download) est
+            # `raw_result_to_pdf_data` ci-dessous, qui le peuple bien.
             "bonus_poids_du_corps": [],
         })
 
@@ -183,7 +190,14 @@ def raw_result_to_pdf_data(result, exercises_catalog, questionnaire_data=None, p
             "nom": session.get("name"),
             "muscles": _regrouper_exercices_par_muscle_v2(session.get("exercises", []), exercises_by_id),
             "duree_estimee_min": _parse_duree_minutes(session.get("duration")) or 0,
-            "bonus_poids_du_corps": [],
+            # Additif (prompt hors 24 phases, retour Samy : "les exercices
+            # poids de corps doivent être facultatifs et à part") : propagé
+            # tel quel depuis `logic.recommendation.program_builder.
+            # build_program` (clé additive "bonus_poids_du_corps", cf. sa
+            # docstring) — le moteur V2 génère désormais bien cette section,
+            # ce n'est plus un stub [] fixe.
+            "bonus_poids_du_corps": session.get("bonus_poids_du_corps") or [],
+            "bonus_poids_du_corps_duree_min": session.get("bonus_poids_du_corps_duree_min") or 0,
         })
 
     split_label = (result.get("program_name") or "Programme").replace("Programme ", "", 1) or "Programme"

@@ -653,10 +653,20 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
             bonus = jour.get("bonus_poids_du_corps")
             if bonus:
                 bonus_rows = [[f"{e['nom']} ({e['muscle']})", f"{e['series']} x {e['reps']}"] for e in bonus]
+                # Retour Samy (prompt hors 24 phases : "une petite section où
+                # c'est écrit poids de corps facultatif en début ou fin de
+                # séance + X minutes") : estimation de temps affichée dans le
+                # titre de la section (cf. `bonus_poids_du_corps_duree_min`,
+                # logic/recommendation/program_builder.py), et rappel que ça
+                # se fait en DÉBUT ou en FIN de séance, au choix.
+                duree_bonus = jour.get("bonus_poids_du_corps_duree_min") or 0
+                titre_bonus = "Bonus poids du corps — facultatif"
+                if duree_bonus:
+                    titre_bonus += f" (+ {duree_bonus} min)"
                 story.append(KeepTogether([
-                    _p("Bonus poids du corps — facultatif", h3_style),
-                    _p("À ajouter en fin de séance si tu as un peu de temps et d'énergie en plus — "
-                       "aucune obligation, ton programme principal ci-dessus est déjà complet sans ça.",
+                    _p(titre_bonus, h3_style),
+                    _p("À ajouter en début OU en fin de séance, selon ce qui t'arrange — aucune "
+                       "obligation, ton programme principal ci-dessus est déjà complet sans ça.",
                        note_style),
                     _exo_table(bonus_rows),
                 ]))

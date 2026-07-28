@@ -157,6 +157,41 @@ def run():
         assert scores6 == sorted(scores6, reverse=True), "les scores retournés doivent être triés décroissants"
         print(f"OK 6 — profil extrême : aucun exercice dangereux, résultat cohérent (niveau {result6['fallback_level']})")
 
+        # --------------------------------------------------------------
+        # 7) BUG CRITIQUE (retour Samy, prompt hors 24 phases) : un exercice
+        # déclaré "je ne sais pas faire" au questionnaire (exercices_incapables)
+        # ne doit JAMAIS revenir, même en dernier recours. Root cause du bug
+        # observé : ce champ n'était lu QUE par le moteur legacy, jamais par
+        # le moteur V2 (cf. logic/recommendation/filters.py,
+        # _exercices_incapables_exclusion_reason). Les variantes "à la Smith
+        # machine"/guidées, elles, doivent rester utilisables (mouvement
+        # différent d'un "barre libre").
+        # --------------------------------------------------------------
+        p7 = profil(variables_json={
+            "duree_seance": "1h - 1h30",
+            "exercices_incapables": ["Squat barre libre", "Soulevé de terre barre"],
+        })
+        catalogue_incapable = [
+            exo("squat_barre_libre", "squat_family", "squat", muscle="quadriceps",
+                equipment=["barre"], name="Squat arrière à la barre (Back Squat)"),
+            exo("squat_smith", "squat_family", "squat", muscle="quadriceps",
+                equipment=["barre", "machine"], name="Squat à la Smith machine"),
+            exo("dl_barre", "hinge_family", "hinge", muscle="dos",
+                equipment=["barre"], name="Soulevé de terre traditionnel (Deadlift) à la barre"),
+            exo("dl_haltere", "hinge_family", "hinge", muscle="dos",
+                equipment=["haltere"], name="Soulevé de terre roumain aux haltères"),
+        ]
+        res7_quad = run_fallback_cascade(p7, catalogue_incapable, "quadriceps", 2)
+        ids7_quad = {e["exercise_id"] for e in res7_quad["exercises"]}
+        assert "squat_barre_libre" not in ids7_quad, "squat barre libre déclaré non maîtrisé doit être exclu"
+        assert "squat_smith" in ids7_quad, "le Smith machine (guidé) doit rester proposé"
+
+        res7_dos = run_fallback_cascade(p7, catalogue_incapable, "dos", 2)
+        ids7_dos = {e["exercise_id"] for e in res7_dos["exercises"]}
+        assert "dl_barre" not in ids7_dos, "soulevé de terre à la barre déclaré non maîtrisé doit être exclu"
+        assert "dl_haltere" in ids7_dos, "la variante haltères doit rester proposée"
+        print("OK 7 — exercices_incapables (questionnaire) bien exclus par le moteur V2, variantes guidées/haltères conservées")
+
     print("\nTOUS LES TESTS DU SÉLECTEUR SONT PASSÉS")
 
 

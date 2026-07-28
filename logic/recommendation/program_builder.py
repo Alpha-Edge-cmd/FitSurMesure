@@ -35,7 +35,8 @@ from logic.program_personalization import (
     generate_program_explanation,
     reorder_session_by_equipment_preference,
 )
-from logic.recommendation import exercise_order
+from logic.exercises_db import MUSCLE_LABELS
+from logic.recommendation import exercise_order, filters
 from logic.recommendation.prescription import generate_prescription
 from logic.recommendation.workout_generator import generate_workout
 
@@ -71,6 +72,97 @@ def _resoudre_duree_seance(profile_snapshot, options):
         return options["duree_seance"]
     variables = getattr(profile_snapshot, "variables_json", None) or {}
     return variables.get("duree_seance", DUREE_SEANCE_DEFAUT)
+
+
+# Retour Samy (prompt hors 24 phases : "les exercices poids de corps
+# doivent être facultatifs et à part, pas pris en compte dans la séance...
+# une petite section où c'est écrit poids de corps facultatif en début ou
+# fin de séance + X minutes") : le moteur V2 excluait déjà le poids du corps
+# du programme principal pour les profils salle (cf. filters.py,
+# EQUIPEMENT_AUTORISE_PAR_ACCES ci-dessus) mais ne proposait plus RIEN à la
+# place — jamais porté depuis le moteur legacy (`logic.program_builder.
+# _select_bodyweight_bonus`), qui construisait cette section facultative.
+# Même plancher (3 exercices max, 1 par muscle) et même dosage (3 séries,
+# 12-15 répétitions, dosage accessoire/finisher) que legacy, avec un tri
+# déterministe par exercise_id plutôt que les tags "priority"/jitter par
+# signature du legacy (bonus facultatif : un classement fin n'apporte rien).
+BONUS_POIDS_DU_CORPS_MAX = 3
+BONUS_POIDS_DU_CORPS_SERIES = 3
+BONUS_POIDS_DU_CORPS_REPS = "12-15"
+# Estimation forfaitaire du temps ajouté par exercice bonus (2-3 courtes
+# séries + repos entre séries, mouvement au poids du corps sans changement de
+# charge) : non calculée via `estimate_exercise_fatigue_cost`/le budget de
+# fatigue de séance (le bonus est volontairement HORS budget, facultatif) —
+# simple repère indicatif affiché dans le PDF, à recalibrer si besoin.
+BONUS_POIDS_DU_CORPS_MINUTES_PAR_EXERCICE = 3
+
+
+def _selectionner_bonus_poids_du_corps(profile_snapshot, target_muscles, exercises_catalog):
+    """Retourne (bonus, duree_estimee_min). `bonus` : liste de
+    {"nom", "muscle", "series", "reps"} (même clés que lues par
+    `logic.pdf_generator._exo_table`/section bonus), au plus un exercice par
+    muscle de la séance et au plus `BONUS_POIDS_DU_CORPS_MAX` au total.
+    `duree_estimee_min` : 0 si aucun bonus."""
+    variables = getattr(profile_snapshot, "variables_json", None) or {}
+    equipement = variables.get("equipement", "Salle complète")
+    if equipement not in filters.PROFILS_BONUS_POIDS_DU_CORPS:
+        # "Matériel limité à domicile" (ou valeur non reconnue) : le poids du
+        # corps est un équipement PRINCIPAL, pas un bonus -> déjà dans le
+        # programme principal, rien à ajouter à part.
+        return [], 0
+
+    # Un seul balayage du catalogue (coût de performance : cette fonction est
+    # appelée une fois par séance, potentiellement des dizaines de fois par
+    # génération de programme) plutôt qu'un balayage complet PAR MUSCLE
+    # ci-dessous (ce qui multipliait le coût par le nombre de muscles de la
+    # séance et faisait significativement dépasser le budget de temps des
+    # tests de régression E2E).
+    candidats_par_muscle = {}
+    for ex in exercises_catalog:
+        if not getattr(ex, "actif", True):
+            continue
+        if set(getattr(ex, "equipment", None) or []) != {"poids_du_corps"}:
+            continue
+        candidats_par_muscle.setdefault(getattr(ex, "muscle_principal", None), []).append(ex)
+
+    bonus = []
+    for muscle in target_muscles:
+        if len(bonus) >= BONUS_POIDS_DU_CORPS_MAX:
+            break
+        # Note : n'utilise PAS `filters.exclusion_reason` tel quel (celui-ci
+        # exclurait systématiquement CES exercices via
+        # `_equipement_indisponible_reason` — c'est justement cette règle,
+        # ci-dessus, qui retire le poids du corps du programme PRINCIPAL pour
+        # ces profils. Seules les exclusions de SÉCURITÉ (blessure, exercice
+        # non maîtrisé déclaré, amplitude, douleur remontée en feedback)
+        # s'appliquent encore ici : un exercice bonus reste un exercice, pas
+        # une exception aux règles de sécurité.
+        candidats = [
+            ex for ex in candidats_par_muscle.get(muscle, [])
+            if filters._blessure_exclusion_reason(profile_snapshot, ex) is None
+            and filters._exercices_incapables_exclusion_reason(profile_snapshot, ex) is None
+            and filters.biomechanics.amplitude_hard_exclusion_reason(profile_snapshot, ex) is None
+        ]
+        if not candidats:
+            continue
+        # Pas de `scoring.score_exercise` ici : celui-ci rappelle
+        # `filters.exclusion_reason` en interne, qui exclurait ces mêmes
+        # candidats via `_equipement_indisponible_reason` (cf. commentaire
+        # ci-dessus) et retournerait systématiquement `score_final=None`.
+        # Tri simple et déterministe par `exercise_id` (le bonus est
+        # facultatif, un classement fin n'apporte rien ici) plutôt que de
+        # dupliquer une notion de score parallèle.
+        candidats.sort(key=lambda ex: ex.exercise_id)
+        choisi = candidats[0]
+        bonus.append({
+            "nom": choisi.name,
+            "muscle": MUSCLE_LABELS.get(muscle, muscle),
+            "series": BONUS_POIDS_DU_CORPS_SERIES,
+            "reps": BONUS_POIDS_DU_CORPS_REPS,
+        })
+
+    duree = len(bonus) * BONUS_POIDS_DU_CORPS_MINUTES_PAR_EXERCICE
+    return bonus, duree
 
 
 def _repartir_seances(jours_split, frequence):
@@ -236,10 +328,20 @@ def build_program(profile_snapshot, exercises_catalog, options=None):
             })
 
         total_exercices += len(exercices_seance)
+        bonus_poids_du_corps, bonus_duree_min = _selectionner_bonus_poids_du_corps(
+            profile_snapshot, jour["muscles"], exercises_catalog
+        )
         sessions.append({
             "name": jour["nom"],
             "duration": workout["estimated_duration"],
             "exercises": exercices_seance,
+            # Additif (prompt hors 24 phases, section bonus poids du corps
+            # facultative) : jamais lu par program_repository.py/program_
+            # validation.py (clés précises ignorées silencieusement, même
+            # garantie que "explanation" plus haut dans ce fichier) ; consommé
+            # uniquement par pdf_program_adapter.raw_result_to_pdf_data.
+            "bonus_poids_du_corps": bonus_poids_du_corps,
+            "bonus_poids_du_corps_duree_min": bonus_duree_min,
         })
         seances_detail.append({"nom": jour["nom"], "exercices": exercices_detail_seance})
         warnings.extend(workout["warnings"])
