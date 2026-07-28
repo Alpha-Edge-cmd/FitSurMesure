@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Programme Musculation, Nutrition et Cardio Personnalisé en Ligne | FitSurMesure</title>
-<meta name="description" content="Génère en 2 minutes ton programme 100% personnalisé : musculation (Full Body, Upper/Lower, Push Pull Legs, Arnold Split), plan alimentaire sur mesure (calcul BMR, TDEE, macros), programme cardio et conseils adaptés à ton objectif, ton matériel et tes blessures. Programme Cardio dès {{ prices.cardio }}, Musculation dès {{ prices.musculation }}, Complet à {{ prices.les_deux }}, ou abonnement annuel illimité à {{ prices.abonnement }}.">
+<meta name="description" content="Génère en 2 minutes ton programme 100% personnalisé : musculation (Full Body, Upper/Lower, Push Pull Legs, Arnold Split), plan alimentaire sur mesure (calcul BMR, TDEE, macros), programme cardio et conseils adaptés à ton objectif, ton matériel et tes blessures. Programme Nutrition dès {{ prices.nutrition }}, Cardio dès {{ prices.cardio }}, Musculation dès {{ prices.musculation }}, Complet à {{ prices.les_deux }}, ou abonnement annuel illimité à {{ prices.abonnement }}.">
 <meta name="keywords" content="programme musculation personnalisé, programme alimentaire personnalisé, plan nutrition sur mesure, calculateur calories macros, calcul métabolisme de base, calcul BMR TDEE, programme cardio personnalisé, coach sportif en ligne, coaching musculation pas cher, programme perte de gras, programme prise de muscle, programme recomposition corporelle, programme musculation débutant, programme Full Body, programme Upper Lower, programme Push Pull Legs, programme Arnold Split, générateur de programme musculation, PDF programme musculation sur mesure, plan alimentaire calories macros, application programme sportif personnalisé, abonnement coaching sportif annuel">
 <meta property="og:title" content="Programme Musculation, Nutrition et Cardio Personnalisé en Ligne | FitSurMesure">
 <meta property="og:description" content="Ton programme de musculation, ton plan alimentaire et ton programme cardio personnalisés, générés instantanément en PDF selon ton objectif, ton matériel et tes contraintes physiques.">
@@ -209,16 +209,26 @@
     <span class="eyebrow">Tarifs</span>
     <h2>Choisis ta formule</h2>
     <p class="lead" style="max-width:640px; margin:-1rem auto 2rem;">
-      Un plan alimentaire personnalisé (BMR, TDEE, macros) et des conseils sont inclus dans toutes
-      les formules.
+      Des conseils personnalisés sont inclus dans toutes les formules. Le plan alimentaire
+      personnalisé (BMR, TDEE, macros) est inclus dans Nutrition, Complet et l'Abonnement.
     </p>
     <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Nutrition</h3>
+        <div class="amount">{{ prices.nutrition }}<span> une fois</span></div>
+        <ul>
+          <li>Plan alimentaire complet et personnalisé (BMR, TDEE, macros, aliments, compléments)</li>
+          <li>Conseils personnalisés</li>
+          <li>PDF immédiat</li>
+        </ul>
+        <a href="/questionnaire?formule=nutrition" class="cta-primary">Choisir Nutrition →</a>
+      </div>
       <div class="price-card">
         <h3>Cardio</h3>
         <div class="amount">{{ prices.cardio }}<span> une fois</span></div>
         <ul>
           <li>Programme cardio adapté à ton objectif (endurance, fractionné, sprints)</li>
-          <li>Plan alimentaire + conseils personnalisés</li>
+          <li>Conseils personnalisés</li>
           <li>PDF immédiat</li>
         </ul>
         <a href="/questionnaire?formule=cardio" class="cta-primary">Choisir Cardio →</a>
@@ -228,7 +238,7 @@
         <div class="amount">{{ prices.musculation }}<span> une fois</span></div>
         <ul>
           <li>Programme de musculation complet et varié (Full Body, PPL, Arnold...)</li>
-          <li>Plan alimentaire + conseils personnalisés</li>
+          <li>Conseils personnalisés</li>
           <li>PDF immédiat</li>
         </ul>
         <a href="/questionnaire?formule=musculation" class="cta-primary">Choisir Musculation →</a>
@@ -265,7 +275,7 @@
     <h2>Questions fréquentes</h2>
     <div class="faq-item">
       <h3>Combien coûte un programme musculation et nutrition personnalisé sur FitSurMesure ?</h3>
-      <p>Quatre formules au choix : Programme Cardio seul à {{ prices.cardio }}, Programme Musculation seul à {{ prices.musculation }}, Programme Complet (Musculation + Cardio) à {{ prices.les_deux }}, tous en paiement unique, ou un Abonnement annuel à {{ prices.abonnement }} pour régénérer un nouveau programme aussi souvent que nécessaire.</p>
+      <p>Cinq formules au choix : Programme Nutrition seul à {{ prices.nutrition }}, Programme Cardio seul à {{ prices.cardio }}, Programme Musculation seul à {{ prices.musculation }}, Programme Complet (Musculation + Cardio) à {{ prices.les_deux }}, tous en paiement unique, ou un Abonnement annuel à {{ prices.abonnement }} pour régénérer un nouveau programme aussi souvent que nécessaire.</p>
     </div>
     <div class="faq-item">
       <h3>Comment est calculé mon métabolisme de base et mes besoins caloriques ?</h3>

@@ -298,7 +298,7 @@ def _build_blocked_pdf(story, profile, nutrition):
         story.append(Spacer(1, 0.5 * cm))
 
 
-def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
+def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include_nutrition=True):
     """
     output      : chemin fichier ou objet BytesIO
     profile     : dict prenom, sexe, poids, taille, age, niveau_musculation, objectif_principal
@@ -309,6 +309,18 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
                   sommeil, tabac, cannabis, alcool, complements, blessures, exercices_incapables,
                   condition_medicale, cardio_type, cardio_frequence, precisions,
                   autre_sport, autre_sport_type, autre_sport_sessions
+    include_nutrition : bool (par défaut True, rétrocompatible avec tout appelant
+                  existant -- scripts/production_check.py notamment) -- retour
+                  Samy (prompt hors 24 phases) : "dans le programme musculation
+                  seul ne mets pas de programme alimentation et dans le
+                  programme cardio pareil". `app.py` passe désormais False pour
+                  les formules "musculation" et "cardio" (seules), True pour
+                  "nutrition" (nouvelle offre), "les_deux" et "abonnement".
+                  N'affecte QUE la partie 1 (Alimentation) ; le calcul
+                  `nutrition` lui-même reste toujours fait en amont (BMR/TDEE
+                  utilisés ailleurs -- âge affiché en page de garde, sécurité
+                  grossesse/condition médicale -- même si cette partie n'est
+                  pas imprimée).
     """
     doc = SimpleDocTemplate(
         output, pagesize=A4,
@@ -327,7 +339,8 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
     # ---------------- PAGE DE GARDE ----------------
     story.append(Spacer(1, 2.5 * cm))
     story.append(_p("PROGRAMME PERSONNALISÉ", title_style))
-    sections_incluses = ["Alimentation"] + (["Musculation"] if program else []) + \
+    sections_incluses = (["Alimentation"] if include_nutrition else []) + \
+                        (["Musculation"] if program else []) + \
                         (["Cardio"] if cardio else []) + ["Conseils"]
     story.append(_p(" • ".join(sections_incluses), subtitle_style))
     story.append(Spacer(1, 0.8 * cm))
@@ -359,206 +372,207 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
     ]))
     story.append(t)
 
-    if nutrition["warnings"]:
+    if include_nutrition and nutrition["warnings"]:
         story.append(Spacer(1, 0.5 * cm))
         for w in nutrition["warnings"]:
             story.append(_p("⚠ " + w, warn_style))
 
     story.append(PageBreak())
 
-    # ================= 1. ALIMENTATION =================
-    story.append(_p("1. PARTIE ALIMENTAIRE", section_style))
+    if include_nutrition:
+        # ================= 1. ALIMENTATION =================
+        story.append(_p("1. PARTIE ALIMENTAIRE", section_style))
 
-    story.append(_p("Calcul du métabolisme de base (formule de Mifflin-St Jeor)", h2_style))
-    signe = "+" if profile["sexe"] == "Homme" else "-"
-    story.append(_p(f"BMR = 10 × poids(kg) + 6,25 × taille(cm) − 5 × âge(ans) {signe} "
-                     f"{'5' if profile['sexe']=='Homme' else '161'}"))
-    story.append(_p(f"BMR = <b>{nutrition['bmr']} kcal</b>"))
+        story.append(_p("Calcul du métabolisme de base (formule de Mifflin-St Jeor)", h2_style))
+        signe = "+" if profile["sexe"] == "Homme" else "-"
+        story.append(_p(f"BMR = 10 × poids(kg) + 6,25 × taille(cm) − 5 × âge(ans) {signe} "
+                         f"{'5' if profile['sexe']=='Homme' else '161'}"))
+        story.append(_p(f"BMR = <b>{nutrition['bmr']} kcal</b>"))
 
-    story.append(_p("Besoin énergétique journalier (TDEE)", h2_style))
-    story.append(_p(f"TDEE = BMR × facteur d'activité ({nutrition['facteur_activite']}, combinant ton "
-                     f"activité quotidienne, ta fréquence d'entraînement, ton cardio et un éventuel "
-                     f"autre sport)"))
-    story.append(_p(f"TDEE = <b>{nutrition['tdee']} kcal/jour</b> (maintien du poids actuel)"))
-    story.append(_p(f"IMC actuel : <b>{nutrition['imc']}</b>"))
+        story.append(_p("Besoin énergétique journalier (TDEE)", h2_style))
+        story.append(_p(f"TDEE = BMR × facteur d'activité ({nutrition['facteur_activite']}, combinant ton "
+                         f"activité quotidienne, ta fréquence d'entraînement, ton cardio et un éventuel "
+                         f"autre sport)"))
+        story.append(_p(f"TDEE = <b>{nutrition['tdee']} kcal/jour</b> (maintien du poids actuel)"))
+        story.append(_p(f"IMC actuel : <b>{nutrition['imc']}</b>"))
 
-    story.append(_p("Objectif calorique", h2_style))
-    ajustement = nutrition["ajustement_kcal"]
-    sens = "déficit" if ajustement < 0 else ("surplus" if ajustement > 0 else "maintien")
-    story.append(_p(f"Objectif « {profile['objectif_principal']} » → {sens} de {abs(ajustement)} kcal "
-                     f"par rapport au TDEE."))
-    story.append(_p(f"Ton IMC actuel ({nutrition['imc']}) te place dans la catégorie "
-                     f"<b>{nutrition['imc_categorie']}</b> — ça a orienté le calcul ci-dessus."))
+        story.append(_p("Objectif calorique", h2_style))
+        ajustement = nutrition["ajustement_kcal"]
+        sens = "déficit" if ajustement < 0 else ("surplus" if ajustement > 0 else "maintien")
+        story.append(_p(f"Objectif « {profile['objectif_principal']} » → {sens} de {abs(ajustement)} kcal "
+                         f"par rapport au TDEE."))
+        story.append(_p(f"Ton IMC actuel ({nutrition['imc']}) te place dans la catégorie "
+                         f"<b>{nutrition['imc_categorie']}</b> — ça a orienté le calcul ci-dessus."))
 
-    # Retour Samy (prompt hors 24 phases : "ajoutes combien tu mets par poids
-    # de corps exactement") : 3e colonne explicite en g/kg de poids de corps
-    # (cf. logic/calculations.py, `macros()` -> `*_g_par_kg`), plutôt que de
-    # laisser ce calcul invisible derrière le total en grammes.
-    macro_data = [
-        ["", "Quantité", "g / kg de poids de corps"],
-        ["Objectif calorique", f"≈ {nutrition['kcal_objectif']} kcal / jour", "—"],
-        ["Protéines", f"{nutrition['proteines_g']} g", f"{nutrition['proteines_g_par_kg']:.1f} g/kg"],
-        ["Lipides", f"{nutrition['lipides_g']} g", f"{nutrition['lipides_g_par_kg']:.1f} g/kg"],
-        ["Glucides", f"{nutrition['glucides_g']} g", f"{nutrition['glucides_g_par_kg']:.1f} g/kg"],
-    ]
-    macro_table = Table(macro_data, colWidths=[5 * cm, 5 * cm, 5 * cm])
-    macro_table.setStyle(TableStyle([
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("BACKGROUND", (0, 0), (-1, 0), NAVY),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("ALIGN", (1, 0), (-1, 0), "CENTER"),
-        ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
-        ("BACKGROUND", (0, 1), (0, -1), NAVY),
-        ("TEXTCOLOR", (0, 1), (0, -1), colors.white),
-        ("BACKGROUND", (1, 1), (-1, -1), LIGHT_BLUE),
-        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
-        ("TOPPADDING", (0, 0), (-1, -1), 7),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.white),
-    ]))
-    story.append(Spacer(1, 4))
-    story.append(macro_table)
-    story.append(Spacer(1, 4))
-
-    poids_min_valide = round(profile["poids"] * 0.95)
-    poids_max_valide = round(profile["poids"] * 1.05)
-    story.append(_p(f"Ces valeurs sont calculées pour ton poids actuel ({profile['poids']} kg) et restent "
-                     f"fiables tant que celui-ci reste entre <b>{poids_min_valide} et {poids_max_valide} kg</b> "
-                     f"environ (± 5%), et pour les <b>6 à 8 prochaines semaines</b> à peu près — au-delà, ton "
-                     f"métabolisme de base et tes besoins caloriques changent avec le poids, il faut "
-                     f"recalculer un nouveau programme.", note_style))
-    story.append(Spacer(1, 6))
-
-    # Retour Samy (prompt hors 24 phases : "pourquoi tu as choisi ça") :
-    # justification explicite du g/kg retenu pour CE profil précis (objectif/
-    # niveau pour les protéines, bornes de sécurité pour les lipides,
-    # enveloppe calorique restante pour les glucides) — cf. `_justification_*`
-    # dans logic/calculations.py, jamais recalculées ici (une seule source de
-    # vérité pour cette logique).
-    story.append(_p("Pourquoi ces quantités précisément", h2_style))
-    story.append(_bullet(f"<b>Protéines</b> : {nutrition['proteines_justification']}"))
-    story.append(_bullet(f"<b>Lipides</b> : {nutrition['lipides_justification']}"))
-    story.append(_bullet(f"<b>Glucides</b> : {nutrition['glucides_justification']}"))
-    story.append(Spacer(1, 6))
-
-    story.append(_p("À quoi servent tes macronutriments, et où les trouver", h2_style))
-    story.append(_bullet("<b>Protéines</b> : réparent et construisent le muscle après l'entraînement, "
-                          "et rassasient bien. On les trouve dans la viande, le poisson, les œufs, les "
-                          "produits laitiers, ainsi que dans le tofu, les légumineuses (lentilles, pois "
-                          "chiches) et le seitan côté végétal."))
-    story.append(_bullet("<b>Glucides</b> : ta principale source d'énergie, en particulier pour "
-                          "l'intensité en musculation et en cardio ; ils rechargent aussi les réserves "
-                          "musculaires (glycogène). On les trouve dans le riz, les pâtes, le pain, "
-                          "l'avoine, la patate douce, les légumineuses, mais aussi les fruits et légumes."))
-    story.append(_bullet("<b>Lipides</b> : indispensables à la production hormonale (dont la "
-                          "testostérone) et à l'absorption de certaines vitamines. On les trouve dans "
-                          "l'huile d'olive, l'avocat, les oléagineux (amandes, noix), les poissons gras, "
-                          "et en plus petite quantité dans les œufs et les produits laitiers."))
-    story.append(_p("Ne cherche pas à supprimer une catégorie : les trois sont nécessaires, seules les "
-                     "quantités changent selon ton objectif.", note_style))
-
-    story.append(_p("Aliments recommandés, par catégorie", h2_style))
-    food = get_food_recommendations(
-        lifestyle.get("restriction_alimentaire"),
-        lifestyle.get("aliments_non_apprecies"),
-        lifestyle.get("aliments_apprecies"),
-        profile["objectif_principal"],
-    )
-    if lifestyle.get("restriction_alimentaire") and lifestyle["restriction_alimentaire"] != "Aucune":
-        story.append(_p(f"Adapté à ta restriction déclarée : <b>{lifestyle['restriction_alimentaire']}</b>.",
-                         note_style))
-    if lifestyle.get("restriction_alimentaire") == "Allergie" and lifestyle.get("allergie_details"):
-        story.append(_p(f"⚠ Allergie déclarée : <b>{lifestyle['allergie_details']}</b> — vérifie "
-                         f"systématiquement les étiquettes (y compris les mentions de traces éventuelles) "
-                         f"avant de consommer un produit nouveau.", warn_style))
-    for cat in food["categories"]:
-        story.append(KeepTogether([
-            _p(cat["nom"], h3_style),
-            _p(", ".join(cat["aliments"]) + "."),
+        # Retour Samy (prompt hors 24 phases : "ajoutes combien tu mets par poids
+        # de corps exactement") : 3e colonne explicite en g/kg de poids de corps
+        # (cf. logic/calculations.py, `macros()` -> `*_g_par_kg`), plutôt que de
+        # laisser ce calcul invisible derrière le total en grammes.
+        macro_data = [
+            ["", "Quantité", "g / kg de poids de corps"],
+            ["Objectif calorique", f"≈ {nutrition['kcal_objectif']} kcal / jour", "—"],
+            ["Protéines", f"{nutrition['proteines_g']} g", f"{nutrition['proteines_g_par_kg']:.1f} g/kg"],
+            ["Lipides", f"{nutrition['lipides_g']} g", f"{nutrition['lipides_g_par_kg']:.1f} g/kg"],
+            ["Glucides", f"{nutrition['glucides_g']} g", f"{nutrition['glucides_g_par_kg']:.1f} g/kg"],
+        ]
+        macro_table = Table(macro_data, colWidths=[5 * cm, 5 * cm, 5 * cm])
+        macro_table.setStyle(TableStyle([
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("BACKGROUND", (0, 0), (-1, 0), NAVY),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("ALIGN", (1, 0), (-1, 0), "CENTER"),
+            ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
+            ("BACKGROUND", (0, 1), (0, -1), NAVY),
+            ("TEXTCOLOR", (0, 1), (0, -1), colors.white),
+            ("BACKGROUND", (1, 1), (-1, -1), LIGHT_BLUE),
+            ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+            ("FONTSIZE", (0, 0), (-1, -1), 10),
+            ("TOPPADDING", (0, 0), (-1, -1), 7),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.white),
         ]))
+        story.append(Spacer(1, 4))
+        story.append(macro_table)
+        story.append(Spacer(1, 4))
 
-    story.append(_p("Aliments à limiter", h3_style))
-    story.append(_p(", ".join(food["a_limiter"]) + ".", body_style))
+        poids_min_valide = round(profile["poids"] * 0.95)
+        poids_max_valide = round(profile["poids"] * 1.05)
+        story.append(_p(f"Ces valeurs sont calculées pour ton poids actuel ({profile['poids']} kg) et restent "
+                         f"fiables tant que celui-ci reste entre <b>{poids_min_valide} et {poids_max_valide} kg</b> "
+                         f"environ (± 5%), et pour les <b>6 à 8 prochaines semaines</b> à peu près — au-delà, ton "
+                         f"métabolisme de base et tes besoins caloriques changent avec le poids, il faut "
+                         f"recalculer un nouveau programme.", note_style))
+        story.append(Spacer(1, 6))
 
-    story.append(_p("Structure des repas", h2_style))
-    story.append(_bullet("Assiette type : un quart à un tiers de féculents, une portion de protéines, "
-                          "des légumes à volonté, une source de bonnes graisses."))
-    story.append(_bullet(f"{lifestyle.get('repas_par_jour', '3 à 4')} repas par jour, pour bien répartir "
-                          f"les protéines."))
-    story.append(_bullet("Une prise de protéines dans l'heure ou deux après l'entraînement."))
-    story.append(_bullet("Base de l'alimentation sur des aliments à un seul ingrédient ; garde "
-                          "l'ultra-transformé occasionnel plutôt que de le bannir totalement."))
-    if lifestyle.get("temps_cuisine") == "Peu de temps (recettes rapides)":
-        story.append(_bullet("Vu ton peu de temps pour cuisiner : privilégie la cuisson vapeur/poêle "
-                              "rapide, les œufs, les conserves de qualité (thon, légumineuses, maïs) et "
-                              "le batch cooking le week-end (cuire féculents et protéines en grande "
-                              "quantité pour plusieurs repas d'un coup)."))
-    if lifestyle.get("budget_alimentaire") == "Serré":
-        story.append(_bullet("Vu ton budget, mise sur les protéines les moins chères au gramme : œufs, "
-                              "poulet en cuisses/gros conditionnement, légumineuses en sec ou en boîte, "
-                              "thon en conserve, fromage blanc, et les légumes surgelés (aussi nutritifs "
-                              "que le frais, souvent moins chers)."))
+        # Retour Samy (prompt hors 24 phases : "pourquoi tu as choisi ça") :
+        # justification explicite du g/kg retenu pour CE profil précis (objectif/
+        # niveau pour les protéines, bornes de sécurité pour les lipides,
+        # enveloppe calorique restante pour les glucides) — cf. `_justification_*`
+        # dans logic/calculations.py, jamais recalculées ici (une seule source de
+        # vérité pour cette logique).
+        story.append(_p("Pourquoi ces quantités précisément", h2_style))
+        story.append(_bullet(f"<b>Protéines</b> : {nutrition['proteines_justification']}"))
+        story.append(_bullet(f"<b>Lipides</b> : {nutrition['lipides_justification']}"))
+        story.append(_bullet(f"<b>Glucides</b> : {nutrition['glucides_justification']}"))
+        story.append(Spacer(1, 6))
 
-    story.append(_p("Hydratation", h3_style))
-    story.append(_bullet("2,5 à 3 L d'eau par jour, davantage les jours d'entraînement."))
+        story.append(_p("À quoi servent tes macronutriments, et où les trouver", h2_style))
+        story.append(_bullet("<b>Protéines</b> : réparent et construisent le muscle après l'entraînement, "
+                              "et rassasient bien. On les trouve dans la viande, le poisson, les œufs, les "
+                              "produits laitiers, ainsi que dans le tofu, les légumineuses (lentilles, pois "
+                              "chiches) et le seitan côté végétal."))
+        story.append(_bullet("<b>Glucides</b> : ta principale source d'énergie, en particulier pour "
+                              "l'intensité en musculation et en cardio ; ils rechargent aussi les réserves "
+                              "musculaires (glycogène). On les trouve dans le riz, les pâtes, le pain, "
+                              "l'avoine, la patate douce, les légumineuses, mais aussi les fruits et légumes."))
+        story.append(_bullet("<b>Lipides</b> : indispensables à la production hormonale (dont la "
+                              "testostérone) et à l'absorption de certaines vitamines. On les trouve dans "
+                              "l'huile d'olive, l'avocat, les oléagineux (amandes, noix), les poissons gras, "
+                              "et en plus petite quantité dans les œufs et les produits laitiers."))
+        story.append(_p("Ne cherche pas à supprimer une catégorie : les trois sont nécessaires, seules les "
+                         "quantités changent selon ton objectif.", note_style))
 
-    story.append(_p("Règle du 80/20", h3_style))
-    story.append(_bullet("80% du temps une alimentation propre et structurée, 20% flexible. La constance "
-                          "sur la durée compte plus que la perfection sur une semaine."))
+        story.append(_p("Aliments recommandés, par catégorie", h2_style))
+        food = get_food_recommendations(
+            lifestyle.get("restriction_alimentaire"),
+            lifestyle.get("aliments_non_apprecies"),
+            lifestyle.get("aliments_apprecies"),
+            profile["objectif_principal"],
+        )
+        if lifestyle.get("restriction_alimentaire") and lifestyle["restriction_alimentaire"] != "Aucune":
+            story.append(_p(f"Adapté à ta restriction déclarée : <b>{lifestyle['restriction_alimentaire']}</b>.",
+                             note_style))
+        if lifestyle.get("restriction_alimentaire") == "Allergie" and lifestyle.get("allergie_details"):
+            story.append(_p(f"⚠ Allergie déclarée : <b>{lifestyle['allergie_details']}</b> — vérifie "
+                             f"systématiquement les étiquettes (y compris les mentions de traces éventuelles) "
+                             f"avant de consommer un produit nouveau.", warn_style))
+        for cat in food["categories"]:
+            story.append(KeepTogether([
+                _p(cat["nom"], h3_style),
+                _p(", ".join(cat["aliments"]) + "."),
+            ]))
 
-    story.append(_p("Exemples de repas (à titre indicatif)", h2_style))
-    story.append(_p("Ce ne sont que 2-3 exemples parmi de très nombreuses combinaisons possibles avec les "
-                     "aliments recommandés ci-dessus — l'idée n'est pas de manger exactement ça tous les "
-                     "jours, mais de piocher librement dans les catégories pour varier tes assiettes.",
-                     note_style))
-    exemples_repas, style_note = _meal_examples(
-        food, profile.get("objectif_principal", ""), profile.get("signature", "")
-    )
-    story.append(_p(style_note, note_style))
-    for nom_repas, contenu in exemples_repas:
-        story.append(_bullet(f"<b>{nom_repas}</b> : {contenu}"))
+        story.append(_p("Aliments à limiter", h3_style))
+        story.append(_p(", ".join(food["a_limiter"]) + ".", body_style))
 
-    story.append(_p("Comment compter tes valeurs nutritionnelles", h3_style))
-    story.append(_bullet("Utilise une application de suivi (Yazio, MyFitnessPal, FatSecret...) : elle "
-                          "calcule kcal et macros automatiquement à partir du poids d'un aliment ou d'un "
-                          "scan de code-barres."))
-    story.append(_bullet("Pèse tes aliments crus (avant cuisson) les premières semaines, le temps de "
-                          "connaître tes portions ; avec l'habitude tu pourras estimer à l'œil."))
-    story.append(_bullet("Sur un emballage, repère la ligne « pour 100 g » du tableau des valeurs "
-                          "nutritionnelles, puis ramène-la au poids réel de ta portion (règle de trois : "
-                          "poids réel ÷ 100 × valeur pour 100 g)."))
-    story.append(_bullet("Tu n'as pas besoin de peser à vie : quelques semaines de suivi rigoureux "
-                          "suffisent en général pour bien connaître tes portions et pouvoir ensuite "
-                          "estimer sans applications."))
+        story.append(_p("Structure des repas", h2_style))
+        story.append(_bullet("Assiette type : un quart à un tiers de féculents, une portion de protéines, "
+                              "des légumes à volonté, une source de bonnes graisses."))
+        story.append(_bullet(f"{lifestyle.get('repas_par_jour', '3 à 4')} repas par jour, pour bien répartir "
+                              f"les protéines."))
+        story.append(_bullet("Une prise de protéines dans l'heure ou deux après l'entraînement."))
+        story.append(_bullet("Base de l'alimentation sur des aliments à un seul ingrédient ; garde "
+                              "l'ultra-transformé occasionnel plutôt que de le bannir totalement."))
+        if lifestyle.get("temps_cuisine") == "Peu de temps (recettes rapides)":
+            story.append(_bullet("Vu ton peu de temps pour cuisiner : privilégie la cuisson vapeur/poêle "
+                                  "rapide, les œufs, les conserves de qualité (thon, légumineuses, maïs) et "
+                                  "le batch cooking le week-end (cuire féculents et protéines en grande "
+                                  "quantité pour plusieurs repas d'un coup)."))
+        if lifestyle.get("budget_alimentaire") == "Serré":
+            story.append(_bullet("Vu ton budget, mise sur les protéines les moins chères au gramme : œufs, "
+                                  "poulet en cuisses/gros conditionnement, légumineuses en sec ou en boîte, "
+                                  "thon en conserve, fromage blanc, et les légumes surgelés (aussi nutritifs "
+                                  "que le frais, souvent moins chers)."))
 
-    supplements = recommend_supplements({
-        "complements": lifestyle.get("complements", []),
-        "blessures": lifestyle.get("blessures", []),
-        "sommeil": lifestyle.get("sommeil"),
-        "sexe": profile["sexe"],
-        "imc": nutrition["imc"],
-        "objectif_principal": profile["objectif_principal"],
-        "niveau_musculation": profile["niveau_musculation"],
-        "restriction_alimentaire": lifestyle.get("restriction_alimentaire"),
-        "niveau_activite_quotidien": lifestyle.get("niveau_activite_quotidien"),
-    })
-    if supplements["choisis"] or supplements["suggestions"]:
-        story.append(_p("Compléments", h2_style))
-    if supplements["choisis"]:
-        story.append(_p("Ceux que tu as choisis", h3_style))
-        for s in supplements["choisis"]:
-            story.append(_bullet(f"<b>{s['nom']}</b> ({s['dosage']}) : {s['explication']}"))
-            story.append(_bullet(f"&nbsp;&nbsp;→ Forme : {s['forme']}. Quand la prendre : {s['moment']}."))
-    if supplements["suggestions"]:
-        story.append(_p("Suggestions supplémentaires selon ton profil", h3_style))
-        for s in supplements["suggestions"]:
-            story.append(_bullet(f"<b>{s['nom']}</b> ({s['dosage']}) : {s['explication']}"))
-            story.append(_bullet(f"&nbsp;&nbsp;→ Forme : {s['forme']}. Quand la prendre : {s['moment']}."))
-        story.append(_p("Ces suggestions découlent de ton profil (blessures, sommeil, sexe, objectif, "
-                         "restriction alimentaire...) ; elles restent facultatives.", note_style))
+        story.append(_p("Hydratation", h3_style))
+        story.append(_bullet("2,5 à 3 L d'eau par jour, davantage les jours d'entraînement."))
 
-    story.append(PageBreak())
+        story.append(_p("Règle du 80/20", h3_style))
+        story.append(_bullet("80% du temps une alimentation propre et structurée, 20% flexible. La constance "
+                              "sur la durée compte plus que la perfection sur une semaine."))
+
+        story.append(_p("Exemples de repas (à titre indicatif)", h2_style))
+        story.append(_p("Ce ne sont que 2-3 exemples parmi de très nombreuses combinaisons possibles avec les "
+                         "aliments recommandés ci-dessus — l'idée n'est pas de manger exactement ça tous les "
+                         "jours, mais de piocher librement dans les catégories pour varier tes assiettes.",
+                         note_style))
+        exemples_repas, style_note = _meal_examples(
+            food, profile.get("objectif_principal", ""), profile.get("signature", "")
+        )
+        story.append(_p(style_note, note_style))
+        for nom_repas, contenu in exemples_repas:
+            story.append(_bullet(f"<b>{nom_repas}</b> : {contenu}"))
+
+        story.append(_p("Comment compter tes valeurs nutritionnelles", h3_style))
+        story.append(_bullet("Utilise une application de suivi (Yazio, MyFitnessPal, FatSecret...) : elle "
+                              "calcule kcal et macros automatiquement à partir du poids d'un aliment ou d'un "
+                              "scan de code-barres."))
+        story.append(_bullet("Pèse tes aliments crus (avant cuisson) les premières semaines, le temps de "
+                              "connaître tes portions ; avec l'habitude tu pourras estimer à l'œil."))
+        story.append(_bullet("Sur un emballage, repère la ligne « pour 100 g » du tableau des valeurs "
+                              "nutritionnelles, puis ramène-la au poids réel de ta portion (règle de trois : "
+                              "poids réel ÷ 100 × valeur pour 100 g)."))
+        story.append(_bullet("Tu n'as pas besoin de peser à vie : quelques semaines de suivi rigoureux "
+                              "suffisent en général pour bien connaître tes portions et pouvoir ensuite "
+                              "estimer sans applications."))
+
+        supplements = recommend_supplements({
+            "complements": lifestyle.get("complements", []),
+            "blessures": lifestyle.get("blessures", []),
+            "sommeil": lifestyle.get("sommeil"),
+            "sexe": profile["sexe"],
+            "imc": nutrition["imc"],
+            "objectif_principal": profile["objectif_principal"],
+            "niveau_musculation": profile["niveau_musculation"],
+            "restriction_alimentaire": lifestyle.get("restriction_alimentaire"),
+            "niveau_activite_quotidien": lifestyle.get("niveau_activite_quotidien"),
+        })
+        if supplements["choisis"] or supplements["suggestions"]:
+            story.append(_p("Compléments", h2_style))
+        if supplements["choisis"]:
+            story.append(_p("Ceux que tu as choisis", h3_style))
+            for s in supplements["choisis"]:
+                story.append(_bullet(f"<b>{s['nom']}</b> ({s['dosage']}) : {s['explication']}"))
+                story.append(_bullet(f"&nbsp;&nbsp;→ Forme : {s['forme']}. Quand la prendre : {s['moment']}."))
+        if supplements["suggestions"]:
+            story.append(_p("Suggestions supplémentaires selon ton profil", h3_style))
+            for s in supplements["suggestions"]:
+                story.append(_bullet(f"<b>{s['nom']}</b> ({s['dosage']}) : {s['explication']}"))
+                story.append(_bullet(f"&nbsp;&nbsp;→ Forme : {s['forme']}. Quand la prendre : {s['moment']}."))
+            story.append(_p("Ces suggestions découlent de ton profil (blessures, sommeil, sexe, objectif, "
+                             "restriction alimentaire...) ; elles restent facultatives.", note_style))
+
+        story.append(PageBreak())
 
     # ================= 2. MUSCULATION =================
     if program:

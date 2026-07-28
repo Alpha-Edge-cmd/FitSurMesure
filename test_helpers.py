@@ -15,7 +15,7 @@ le PDF directement via les fonctions internes (les mêmes que celles utilisées 
 flux HTTP de paiement."""
 import io
 
-from app import app as flask_app, _build_everything
+from app import app as flask_app, _build_everything, _include_nutrition, _normalize_formule
 from logic.pdf_generator import generate_pdf
 
 
@@ -56,6 +56,13 @@ def generate_via_payment(client, payload, code_promo=None):
             return _FakeResponse(code, resp.get_data())
 
         buffer = io.BytesIO()
-        generate_pdf(buffer, profile, nutrition, program, cardio, lifestyle)
+        # Même logique que /download/<order_id> (app.py) : la partie
+        # Alimentation du PDF dépend de la formule (retour Samy, prompt hors
+        # 24 phases : "dans le programme musculation seul ne mets pas de
+        # programme alimentation et dans le programme cardio pareil").
+        generate_pdf(
+            buffer, profile, nutrition, program, cardio, lifestyle,
+            include_nutrition=_include_nutrition(_normalize_formule(payload)),
+        )
         buffer.seek(0)
         return _FakeResponse(200, buffer.getvalue())

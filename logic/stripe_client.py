@@ -28,6 +28,7 @@ stripe.api_key = STRIPE_SECRET_KEY
 PRICES_CENTS = {
     "musculation": 1499,
     "cardio": 1299,
+    "nutrition": 999,
     "les_deux": 2299,
     "abonnement": 5900,
 }
@@ -35,6 +36,7 @@ PRICES_CENTS = {
 PRODUCT_NAMES = {
     "musculation": "FitSurMesure — Programme Musculation",
     "cardio": "FitSurMesure — Programme Cardio",
+    "nutrition": "FitSurMesure — Programme Alimentation",
     "les_deux": "FitSurMesure — Programme Complet (Musculation + Cardio)",
     "abonnement": "FitSurMesure — Abonnement annuel",
 }

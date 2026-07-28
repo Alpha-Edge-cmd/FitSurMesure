@@ -11,7 +11,7 @@ import sys
 import pdfplumber
 
 sys.path.insert(0, ".")
-from app import app
+from app import app, _include_nutrition
 from test_helpers import ensure_test_promo_code, generate_via_payment
 
 OBJECTIFS = [
@@ -91,19 +91,27 @@ for i in range(N):
         errors.append((i, payload, "pdf_parse_error", str(e)))
         continue
 
-    # -- Vérifs meal variety --
-    style = "leger" if objectif == "Perte de gras" else ("genereux" if objectif == "Prise de muscle" else "equilibre")
-    # extract the "Déjeuner" line roughly
-    if "Déjeuner :" in text:
-        idx = text.index("Déjeuner :")
-        snippet = text[idx:idx+150]
-        meal_texts_by_style[style].add(snippet)
+    # Retour Samy (prompt hors 24 phases, #148) : "dans le programme
+    # musculation seul ne mets pas de programme alimentation et dans le
+    # programme cardio pareil" -- les vérifs ci-dessous portent sur le
+    # contenu de la partie Alimentation (note de validité, forme des
+    # compléments, exemples de repas), donc uniquement pertinentes/attendues
+    # quand cette partie est effectivement incluse dans le PDF (même règle
+    # que `app._include_nutrition`, jamais pour "musculation"/"cardio" seuls).
+    if _include_nutrition(formule):
+        # -- Vérifs meal variety --
+        style = "leger" if objectif == "Perte de gras" else ("genereux" if objectif == "Prise de muscle" else "equilibre")
+        # extract the "Déjeuner" line roughly
+        if "Déjeuner :" in text:
+            idx = text.index("Déjeuner :")
+            snippet = text[idx:idx+150]
+            meal_texts_by_style[style].add(snippet)
 
-    if "restent fiables tant que celui-ci reste entre" not in text:
-        errors.append((i, payload, "missing_nutrition_validity_note", ""))
+        if "restent fiables tant que celui-ci reste entre" not in text:
+            errors.append((i, payload, "missing_nutrition_validity_note", ""))
 
-    if payload["complements"] and "Forme :" not in text:
-        errors.append((i, payload, "missing_supplement_form", ""))
+        if payload["complements"] and "Forme :" not in text:
+            errors.append((i, payload, "missing_supplement_form", ""))
 
     # -- Split / full body A/B/C variety check --
     if formule in ("musculation", "les_deux", "abonnement") and freq == 3:

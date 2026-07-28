@@ -54,9 +54,14 @@ OWNER_ACCESS_CODE = os.environ.get("OWNER_ACCESS_CODE", "SAMY-ACCES-ILLIMITE")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 # Offres et tarifs (affichage uniquement, pas de paiement réel intégré pour l'instant)
+# Retour Samy (prompt hors 24 phases) : "créer un programme alimentation
+# moins cher que le programme cardio" -- nutrition seule strictement en
+# dessous du prix du cardio seul (12,99€), cohérent avec le fait qu'elle
+# demande moins de travail de génération (pas de séances à construire).
 PRICES = {
     "musculation": "14,99€",
     "cardio": "12,99€",
+    "nutrition": "9,99€",
     "les_deux": "22,99€",
     "abonnement": "59€ / an",
 }
@@ -101,9 +106,20 @@ def _autre_sport_type_affiche(data):
 
 def _normalize_formule(data):
     formule = data.get("formule", "les_deux")
-    if formule not in ("musculation", "cardio", "les_deux", "abonnement"):
+    if formule not in ("musculation", "cardio", "nutrition", "les_deux", "abonnement"):
         formule = "les_deux"
     return formule
+
+
+def _include_nutrition(formule):
+    """Retour Samy (prompt hors 24 phases) : "dans le programme musculation
+    seul ne mets pas de programme alimentation et dans le programme cardio
+    pareil" -- la partie Alimentation du PDF (`pdf_generator.generate_pdf`,
+    paramètre `include_nutrition`) n'est incluse que pour les formules qui
+    l'ont explicitement vendue : "nutrition" (nouvelle offre dédiée),
+    "les_deux" et "abonnement" (les 2/tout compris). Jamais pour
+    "musculation" ou "cardio" seuls."""
+    return formule not in ("musculation", "cardio")
 
 
 def _preview_json(nutrition, program, cardio):
@@ -717,7 +733,10 @@ def download_order(order_id):
     _record_commission_if_needed(order_id, order, data)
 
     buffer = io.BytesIO()
-    generate_pdf(buffer, profile, nutrition, program, cardio, lifestyle)
+    generate_pdf(
+        buffer, profile, nutrition, program, cardio, lifestyle,
+        include_nutrition=_include_nutrition(_normalize_formule(data)),
+    )
     buffer.seek(0)
 
     filename = "programme_personnalise.pdf"
