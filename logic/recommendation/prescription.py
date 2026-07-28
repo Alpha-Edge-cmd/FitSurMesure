@@ -35,26 +35,87 @@ from logic.recommendation.rest_time import calculate_rest_time
 from logic.recommendation.scoring import _mastered_patterns  # noqa: F401 (réutilisé indirectement via intensity.py)
 
 # --- Séries (section 3) -------------------------------------------------------
-# Bornes fournies par la consigne pour Débutant/Intermédiaire/Avancé.
-# "Quelques mois d'expérience" n'est pas listé explicitement (questionnaire
-# réel à 4 paliers, cf. scoring.NIVEAU_ORDINAL) : interpolé entre les deux
-# paliers voisins, comme dans volume.py (phase 8) — non validé, à calibrer.
-NIVEAU_SETS_RANGE = {
-    "Débutant complet": (3, 4),
-    "Quelques mois d'expérience": (3, 4),
-    "Intermédiaire": (3, 4),
-    "Avancé": (3, 5),
+# Retour Samy (prompt hors 24 phases, test en conditions réelles : "toute tes
+# séances sont à 3 série, parfois tu peux mettre 4 et 5, renseigne toi bien
+# quand et pourquoi les mettre, mais 3 c'est le minimum pas le plafond").
+#
+# Diagnostic du bug corrigé ici : depuis le relèvement du plancher d'exercices
+# par muscle (#132 : min 3 exercices/muscle, 4 pour le muscle prioritaire),
+# une séance complète contient désormais 10 à 16 exercices. L'ancienne version
+# assignait bien 4-5 séries de base aux mouvements principaux/secondaires,
+# MAIS comparait ensuite le coût total de la séance ENTIÈRE à
+# `fatigue.calculate_fatigue_budget(profile)` (un budget calibré à l'époque où
+# les séances comptaient beaucoup moins d'exercices) : ce total dépassait
+# systématiquement ce budget, donc la réduction ramenait TOUT le monde à 3
+# séries avant même d'envisager le bonus — y compris pour des profils bien
+# reposés, sans aucune raison sport-science. Double-comptage : le nombre
+# d'exercices de la séance est déjà correctement dimensionné en amont
+# (workout_generator.py/volume.py, #132) ; ce n'est pas au budget de séries de
+# re-limiter, en plus, le nombre de séries de chaque exercice déjà retenu
+# selon ce même total déjà budgété une fois.
+#
+# Nouvelle règle (recherche : littérature volume/force-hypertrophie usuelle,
+# type NSCA/Renaissance Periodization/travaux de Schoenfeld sur la relation
+# dose-volume) : le nombre de séries dépend du PALIER du mouvement (le
+# mouvement principal mérite plus de volume que les accessoires) et du niveau
+# (un pratiquant avancé a la capacité de récupération pour absorber plus de
+# volume sur son mouvement principal ; un débutant/intermédiaire progresse
+# déjà très bien à 3-4 séries et n'a rien à gagner à en faire plus — juste
+# plus de fatigue/risque technique) :
+#   - mouvement PRINCIPAL (le plus structurant pour ce muscle) : 4 séries la
+#     plupart des niveaux, 5 en Avancé (capacité de récupération plus élevée,
+#     dernier levier de progression restant une fois la technique acquise) ;
+#   - mouvement SECONDAIRE (second mouvement composé) : reste à 3 séries pour
+#     Débutant/Quelques mois/Intermédiaire (volume déjà couvert par le
+#     principal), 4 en Avancé (légèrement en dessous du principal, jamais à
+#     égalité) ;
+#   - isolation/finisseur : toujours 3 (le plancher) — l'isolation ne gagne
+#     rien à un volume plus élevé par séance dans un cadre généraliste, et
+#     multiplier ce bonus par les nombreux exercices d'isolation d'une séance
+#     ferait exploser la fatigue totale sans bénéfice.
+NIVEAU_SETS_PRINCIPAL = {
+    "Débutant complet": 4,
+    "Quelques mois d'expérience": 4,
+    "Intermédiaire": 4,
+    "Avancé": 5,
 }
-NIVEAU_SETS_RANGE_DEFAUT = NIVEAU_SETS_RANGE["Intermédiaire"]
+NIVEAU_SETS_PRINCIPAL_DEFAUT = NIVEAU_SETS_PRINCIPAL["Intermédiaire"]
 
-# Retour Samy (prompt hors 24 phases, test en conditions réelles : "minimum 3
-# série de 6 à 15 répétition selon si c'est de la force, de l'hypertrophie, à
-# l'échec etc") : plancher relevé de 2 à 3 séries, quel que soit le niveau
-# (bornes basses de `NIVEAU_SETS_RANGE` ci-dessus alignées en conséquence) —
-# en dessous, mieux vaut retirer l'exercice de la séance que le vider de son
-# intérêt (cf. `_retirer_exercices_si_besoin` ci-dessous, appelé quand 3
-# séries partout dépasse encore le budget).
+NIVEAU_SETS_SECONDAIRE = {
+    "Débutant complet": 3,
+    "Quelques mois d'expérience": 3,
+    "Intermédiaire": 3,
+    "Avancé": 4,
+}
+NIVEAU_SETS_SECONDAIRE_DEFAUT = NIVEAU_SETS_SECONDAIRE["Intermédiaire"]
+
+# Plancher absolu (Retour Samy : "3 c'est le minimum") : jamais en dessous,
+# quel que soit le palier/niveau — en dessous, mieux vaut retirer l'exercice
+# de la séance que le vider de son intérêt (cf. `_retirer_exercices_si_besoin`
+# ci-dessous, toujours utilisé comme filet de sécurité pour le seul cas où la
+# récupération réelle du profil est dégradée, cf. `_recuperation_degradee`).
 MIN_SETS_FLOOR = 3
+
+# Retour Samy (mêmes travaux) : la récupération réelle du profil (sommeil/
+# stress déclarés) reste un frein légitime au volume, contrairement au nombre
+# d'exercices de la séance (déjà pris en charge ailleurs, cf. ci-dessus) :
+# sommeil très réduit et/ou stress élevé -> tout le monde reste au plancher
+# (3 séries), quel que soit le palier/niveau, plutôt que d'ajouter du volume
+# à un profil qui récupère déjà mal.
+SOMMEIL_RECUPERATION_DEGRADEE = "Moins de 6h"
+STRESS_RECUPERATION_DEGRADEE = "Élevé"
+
+
+def _recuperation_degradee(profile):
+    """True si le profil déclare une récupération dégradée (mauvais sommeil
+    et/ou stress élevé) : dans ce cas, aucun bonus de séries au-delà du
+    plancher (3), quel que soit le palier du mouvement/niveau — cohérent avec
+    le principe sport-science "réduire le volume, pas l'intensité ni la
+    fréquence, quand la récupération est mauvaise"."""
+    return (
+        getattr(profile, "sommeil", None) == SOMMEIL_RECUPERATION_DEGRADEE
+        or getattr(profile, "stress", None) == STRESS_RECUPERATION_DEGRADEE
+    )
 
 # --- Répétitions (section 4) --------------------------------------------------
 # Retour Samy (prompt hors 24 phases) : fourchettes resserrées entre 6 et 15
@@ -163,28 +224,34 @@ def determine_rep_range(profile, exercise):
     return f"{low}-{high}"
 
 
-def _sets_de_base(profile, exercise, dominant):
-    """Bornes de niveau (section 3) + modulation par type d'exercice :
-    mouvement composé (principal/secondaire) -> borne haute (le "+1 série
-    possible" est un bonus conditionnel, appliqué séparément si le budget de
-    fatigue le permet, cf. `_ajuster_series_selon_budget`) ; isolation/
-    finisseur -> borne basse.
+def _sets_de_base(profile, exercise, dominant, recuperation_degradee=False):
+    """Nombre de séries selon le PALIER du mouvement (principal > secondaire
+    > isolation/finisseur) et le niveau (cf. `NIVEAU_SETS_PRINCIPAL`/
+    `NIVEAU_SETS_SECONDAIRE` ci-dessus pour le raisonnement complet) — plus
+    aucune comparaison à un budget de fatigue SESSION-WIDE ici (cf. diagnostic
+    ci-dessus : ce total est structurellement dépassé dès qu'une séance
+    respecte le plancher d'exercices par muscle #132, ce qui écrasait tout le
+    monde à 3 séries sans distinction).
 
-    Règle additionnelle (dérivée du scénario de test "explosivité -> faible
-    volume", section 8) : quand l'objectif dominant est l'explosivité, le
-    volume reste sciemment bas (qualité du geste > quantité, cohérent avec le
-    principe d'entraînement de la puissance) -> borne basse quel que soit le
-    palier, et pas de bonus "+1 série" pour ce cas (cf. generate_prescription)."""
-    niveau = getattr(profile, "niveau_musculation", None)
-    borne_min, borne_max = NIVEAU_SETS_RANGE.get(niveau, NIVEAU_SETS_RANGE_DEFAUT)
+    Deux cas ramènent tout le monde au plancher (3), quel que soit le
+    palier/niveau :
+      - objectif dominant = explosivité (scénario de test "explosivité ->
+        faible volume", section 8 : qualité du geste > quantité, cohérent
+        avec le principe d'entraînement de la puissance) ;
+      - récupération dégradée déclarée (`_recuperation_degradee`, sommeil
+        très réduit et/ou stress élevé) : on réduit le volume, pas
+        l'intensité ni la fréquence, quand la récupération est mauvaise."""
     tier = exercise_order.classify_exercise(exercise)
 
-    if dominant == "explosivite":
-        return borne_min, tier
+    if dominant == "explosivite" or recuperation_degradee:
+        return MIN_SETS_FLOOR, tier
 
-    if tier in (exercise_order.TIER_PRINCIPAL, exercise_order.TIER_SECONDAIRE):
-        return borne_max, tier
-    return borne_min, tier
+    niveau = getattr(profile, "niveau_musculation", None)
+    if tier == exercise_order.TIER_PRINCIPAL:
+        return NIVEAU_SETS_PRINCIPAL.get(niveau, NIVEAU_SETS_PRINCIPAL_DEFAUT), tier
+    if tier == exercise_order.TIER_SECONDAIRE:
+        return NIVEAU_SETS_SECONDAIRE.get(niveau, NIVEAU_SETS_SECONDAIRE_DEFAUT), tier
+    return MIN_SETS_FLOOR, tier
 
 
 def _cout_fatigue_par_serie(exercise):
@@ -255,54 +322,6 @@ def _retirer_exercices_si_besoin(items, budget, warnings, planchers=None):
     return items
 
 
-def _ajuster_series_selon_budget(items, budget, autoriser_bonus, warnings, planchers=None):
-    """"Ne jamais dépasser le budget fatigue de séance" (section 3). Réduit
-    d'abord les paliers les moins prioritaires (finisseur puis isolation puis
-    secondaire puis, en dernier recours, principal) jusqu'au plancher
-    réaliste `MIN_SETS_FLOOR` (3 séries, cf. retour Samy : "1x3-6 c'est
-    complètement incohérent" puis "minimum 3 série" — en dessous, une
-    prescription n'a plus de valeur d'entraînement documentée). Si le budget
-    est encore dépassé à ce plancher, retire des exercices entiers
-    (`_retirer_exercices_si_besoin`, jamais en dessous du plancher par muscle
-    `planchers`) plutôt que de continuer à dégrader les séries. Accorde
-    ensuite le "+1 série possible" aux mouvements composés (un seul palier de
-    bonus, jamais cumulatif) si de la marge reste, principal d'abord."""
-
-    def total():
-        return sum(
-            it["sets"] * _cout_fatigue_par_serie(it["exercise"])
-            for it in items if not it.get("retire")
-        )
-
-    ordre_reduction = [
-        exercise_order.TIER_FINISSEUR,
-        exercise_order.TIER_ISOLATION,
-        exercise_order.TIER_SECONDAIRE,
-        exercise_order.TIER_PRINCIPAL,
-    ]
-    for tier_a_reduire in ordre_reduction:
-        while total() > budget:
-            candidats = [it for it in items if it["tier"] == tier_a_reduire and it["sets"] > MIN_SETS_FLOOR]
-            if not candidats:
-                break
-            candidats[0]["sets"] -= 1
-        if total() <= budget:
-            break
-
-    if total() > budget:
-        _retirer_exercices_si_besoin(items, budget, warnings, planchers=planchers)
-
-    if autoriser_bonus:
-        for it in items:
-            if it.get("retire"):
-                continue
-            if it["tier"] in (exercise_order.TIER_PRINCIPAL, exercise_order.TIER_SECONDAIRE):
-                if total() + _cout_fatigue_par_serie(it["exercise"]) <= budget:
-                    it["sets"] += 1
-
-    return items
-
-
 def _note_automatique(dominant, tier):
     if dominant == "explosivite" and tier in (exercise_order.TIER_PRINCIPAL, exercise_order.TIER_SECONDAIRE):
         return NOTE_EXPLOSIVITE
@@ -326,14 +345,16 @@ def generate_prescription(profile, workout, available_exercises=None):
     "rest_seconds", "intensity", "notes"}], "warnings": [...]} — "warnings"
     (clé ADDITIVE, prompt hors 24 phases) n'est renseignée que si des
     exercices ont dû être retirés faute de budget de fatigue suffisant même
-    au plancher de séries (cf. `_retirer_exercices_si_besoin`) ; vide sinon,
-    rétrocompatible avec tout appelant qui ignorait déjà cette clé."""
+    au plancher de séries, UNIQUEMENT quand la récupération du profil est
+    dégradée (cf. `_recuperation_degradee`/`_retirer_exercices_si_besoin`) ;
+    vide sinon, rétrocompatible avec tout appelant qui ignorait déjà cette
+    clé."""
     lookup = {}
     if available_exercises:
         lookup = {getattr(ex, "exercise_id", None): ex for ex in available_exercises}
 
-    budget = calculate_fatigue_budget(profile)
     dominant = _dominant_objective(profile)
+    recuperation_degradee = _recuperation_degradee(profile)
 
     items = []
     for entree in workout.get("exercises", []):
@@ -348,9 +369,9 @@ def generate_prescription(profile, workout, available_exercises=None):
             # Catalogue introuvable pour cet exercice (ni fourni, ni en base) :
             # prescription minimale neutre plutôt qu'un plantage (même
             # principe "jamais d'exception silencieuse" que tout le moteur).
-            it["sets"], it["tier"] = NIVEAU_SETS_RANGE_DEFAUT[0], exercise_order.TIER_ISOLATION
+            it["sets"], it["tier"] = MIN_SETS_FLOOR, exercise_order.TIER_ISOLATION
         else:
-            it["sets"], it["tier"] = _sets_de_base(profile, it["exercise"], dominant)
+            it["sets"], it["tier"] = _sets_de_base(profile, it["exercise"], dominant, recuperation_degradee)
 
     items_reels = [it for it in items if it["exercise"] is not None]
     warnings = []
@@ -361,10 +382,23 @@ def generate_prescription(profile, workout, available_exercises=None):
     # budget de fatigue par les séries. Absent -> {} (plancher 1 par défaut
     # dans `_retirer_exercices_si_besoin`, comportement historique préservé).
     planchers = workout.get("muscle_floors") or {}
-    _ajuster_series_selon_budget(
-        items_reels, budget, autoriser_bonus=(dominant != "explosivite"),
-        warnings=warnings, planchers=planchers,
-    )
+    # Le budget de fatigue de séance (`fatigue.calculate_fatigue_budget`) ne
+    # sert plus qu'au SEUL cas où la récupération est dégradée (cf. diagnostic
+    # détaillé au-dessus de `NIVEAU_SETS_PRINCIPAL`) : dans ce cas, tout le
+    # monde est déjà au plancher (3) via `_sets_de_base` ci-dessus ; si même ce
+    # plancher dépasse encore le budget (catalogue trop pauvre en alternatives
+    # pour ce muscle), on retire des exercices entiers plutôt que de descendre
+    # sous la dose minimale efficace (comportement inchangé de
+    # `_retirer_exercices_si_besoin`). Hors récupération dégradée, le nombre
+    # d'exercices de la séance est déjà budgété correctement en amont
+    # (workout_generator.py/volume.py) : aucune re-vérification ici.
+    if recuperation_degradee:
+        budget = calculate_fatigue_budget(profile)
+        total_au_plancher = sum(
+            it["sets"] * _cout_fatigue_par_serie(it["exercise"]) for it in items_reels
+        )
+        if total_au_plancher > budget:
+            _retirer_exercices_si_besoin(items_reels, budget, warnings, planchers=planchers)
 
     resultats = []
     for it in items:
