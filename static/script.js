@@ -151,22 +151,93 @@ const steps = [
       { id: "pratique_cardio", label: "Pratique déjà un cardio en plus (course, vélo...)", type: "select",
         options: ["Non", "Oui"],
         showIf: d => d.formule === "musculation" },
+      // Prompt hors 24 phases (retour Samy : "adapte le questionnaire pour
+      // le cardio (course à pied, natation, vélo, circuit training cardio
+      // en salle)") : "Circuit training" ajouté comme discipline explicite
+      // (auparavant fondu dans "Autre", jamais distingué -- même erreur que
+      // celle déjà commise avec la nutrition non séparée, à ne pas répéter).
       { id: "cardio_types", label: "Type(s) de cardio (plusieurs choix possibles)", type: "checkbox-group",
         showIf: d => ["cardio", "les_deux", "abonnement"].includes(d.formule) || d.pratique_cardio === "Oui",
-        options: ["Course", "Vélo", "Natation", "Autre"] },
+        options: ["Course", "Vélo", "Natation", "Circuit training (cardio en salle)", "Autre"] },
       { id: "cardio_frequence", label: "Fréquence du cardio souhaitée", type: "select",
-        options: ["1x / semaine", "2x / semaine", "3x / semaine ou plus"],
+        options: ["1x / semaine", "2x / semaine", "3x / semaine ou plus", "4x / semaine", "5x / semaine"],
         showIf: d => ["cardio", "les_deux", "abonnement"].includes(d.formule) || d.pratique_cardio === "Oui" },
       { id: "objectif_cardio", label: "Objectif cardio spécifique", type: "select", required: true,
         showIf: d => ["cardio", "les_deux", "abonnement"].includes(d.formule),
         options: ["Perdre du poids / sécher", "Améliorer mon endurance générale",
                    "Me préparer à une course (5km, 10km, semi, marathon)", "Santé cardiovasculaire générale"] },
-      { id: "temps_1km", label: "Temps estimé sur 1 km de course (en minutes, ex : 5.5) — aide à mieux calibrer ton niveau",
-        type: "number", placeholder: "Ex : 5.5",
-        showIf: d => (d.cardio_types || []).includes("Course") },
       { id: "niveau_cardio", label: "Ton niveau actuel en cardio", type: "select", required: true,
         showIf: d => ["cardio", "les_deux", "abonnement"].includes(d.formule),
         options: ["Débutant", "Intermédiaire", "Confirmé"] },
+
+      // ---- Sous-questions par discipline (prompt hors 24 phases, retour
+      // Samy : "ajoute question type objectif dans course à pied, natation
+      // ou vélo... quel objectif, par exemple la personne choisit course à
+      // pied, pose des questions sur la course, dans combien de temps,
+      // objectif d'allure ou autre, quels sont les records sur 5km, 10km,
+      // 20km, 40km, laisse une possibilité aucun record") : chaque bloc n'est
+      // visible que si la discipline correspondante est cochée ci-dessus.
+      // Les records sont des nombres LIBRES (minutes) : un champ laissé vide
+      // équivaut explicitement à "aucun record" (pas besoin d'une case à
+      // part), demandé tel quel par Samy.
+      { id: "objectif_course", label: "Course à pied — quel est ton objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Course"),
+        options: ["Courir plus longtemps sans m'arrêter", "Aller plus vite sur une distance donnée",
+                   "Tenir une allure cible régulière", "Préparer une course (5km/10km/semi/marathon)",
+                   "Perte de poids par la course", "Santé cardiovasculaire générale"] },
+      { id: "delai_objectif_course", label: "Dans combien de temps veux-tu atteindre cet objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Course"),
+        options: ["Pas de délai précis", "1 mois", "2 à 3 mois", "6 mois", "1 an ou plus"] },
+      { id: "allure_cible_course", label: "Allure cible visée, ou autre précision (facultatif)", type: "text",
+        placeholder: "Ex : 5:30/km, ou \"tenir 10km sans marcher\"",
+        showIf: d => (d.cardio_types || []).includes("Course") },
+      { id: "temps_1km", label: "Temps estimé sur 1 km de course (en minutes, ex : 5.5) — aide à mieux calibrer ton niveau",
+        type: "number", placeholder: "Ex : 5.5",
+        showIf: d => (d.cardio_types || []).includes("Course") },
+      { id: "record_5km", label: "Ton record (temps) sur 5 km, en minutes — laisse vide si aucun record", type: "number",
+        placeholder: "Ex : 25", showIf: d => (d.cardio_types || []).includes("Course") },
+      { id: "record_10km", label: "Ton record (temps) sur 10 km, en minutes — laisse vide si aucun record", type: "number",
+        placeholder: "Ex : 52", showIf: d => (d.cardio_types || []).includes("Course") },
+      { id: "record_20km", label: "Ton record (temps) sur 20 km, en minutes — laisse vide si aucun record", type: "number",
+        placeholder: "Ex : 115", showIf: d => (d.cardio_types || []).includes("Course") },
+      { id: "record_40km", label: "Ton record (temps) sur 40 km (marathon), en minutes — laisse vide si aucun record",
+        type: "number", placeholder: "Ex : 240", showIf: d => (d.cardio_types || []).includes("Course") },
+
+      { id: "objectif_natation", label: "Natation — quel est ton objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Natation"),
+        options: ["Nager plus longtemps sans m'arrêter", "Aller plus vite sur une distance donnée",
+                   "Améliorer ma technique / aisance dans l'eau", "Perte de poids par la natation",
+                   "Santé cardiovasculaire générale"] },
+      { id: "delai_objectif_natation", label: "Dans combien de temps veux-tu atteindre cet objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Natation"),
+        options: ["Pas de délai précis", "1 mois", "2 à 3 mois", "6 mois", "1 an ou plus"] },
+      { id: "record_500m_natation", label: "Ton record (temps) sur 500 m, en minutes — laisse vide si aucun record",
+        type: "number", placeholder: "Ex : 10", showIf: d => (d.cardio_types || []).includes("Natation") },
+      { id: "record_1km_natation", label: "Ton record (temps) sur 1 km, en minutes — laisse vide si aucun record",
+        type: "number", placeholder: "Ex : 22", showIf: d => (d.cardio_types || []).includes("Natation") },
+
+      { id: "objectif_velo", label: "Vélo — quel est ton objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Vélo"),
+        options: ["Rouler plus longtemps", "Aller plus vite sur une distance donnée",
+                   "Tenir une cadence / allure cible", "Perte de poids par le vélo",
+                   "Santé cardiovasculaire générale"] },
+      { id: "delai_objectif_velo", label: "Dans combien de temps veux-tu atteindre cet objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Vélo"),
+        options: ["Pas de délai précis", "1 mois", "2 à 3 mois", "6 mois", "1 an ou plus"] },
+      { id: "record_20km_velo", label: "Ton record (temps) sur 20 km, en minutes — laisse vide si aucun record",
+        type: "number", placeholder: "Ex : 40", showIf: d => (d.cardio_types || []).includes("Vélo") },
+      { id: "record_40km_velo", label: "Ton record (temps) sur 40 km, en minutes — laisse vide si aucun record",
+        type: "number", placeholder: "Ex : 80", showIf: d => (d.cardio_types || []).includes("Vélo") },
+
+      { id: "objectif_circuit", label: "Circuit training (cardio en salle) — quel est ton objectif ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Circuit training (cardio en salle)"),
+        options: ["Perte de poids", "Endurance générale", "Santé cardiovasculaire générale",
+                   "Diversifier mon cardio (éviter la monotonie)"] },
+      { id: "type_circuit_prefere", label: "Machines/formats que tu préfères (plusieurs choix possibles, facultatif)",
+        type: "checkbox-group",
+        showIf: d => (d.cardio_types || []).includes("Circuit training (cardio en salle)"),
+        options: ["Tapis de course", "Vélo elliptique / spinning", "Rameur", "Stepper / escalier",
+                   "Cours collectif (HIIT, step...)", "Mix de machines cardio"] },
     ],
   },
   // ---- Catégorie 3/7 : Morphologie ------------------------------------------

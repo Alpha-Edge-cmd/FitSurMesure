@@ -6,11 +6,17 @@ sprints) selon l'objectif, puis un protocole concret selon le type de cardio
 pratiqué (course, vélo, natation, autre).
 """
 
+# Retour Samy (prompt hors 24 phases : "adapte le questionnaire pour le
+# cardio (course à pied, natation, vélo, circuit training cardio en salle)") :
+# "Circuit training" est désormais une discipline à part entière (auparavant
+# fondue dans "Autre", jamais distinguée dans les protocoles ci-dessous).
 PROTOCOLS = {
     "Endurance fondamentale": {
         "Course": "30 à 45 min à allure conversationnelle (60-70% FCmax), en continu.",
         "Vélo": "40 à 50 min à intensité modérée (60-70% FCmax), cadence régulière.",
         "Natation": "30 à 40 min à allure régulière, technique fluide, sans forcer.",
+        "Circuit training": "30 à 40 min de machines cardio enchaînées (tapis, elliptique, rameur) "
+                             "à intensité modérée (60-70% FCmax), en continu ou en rotation entre machines.",
         "Autre": "30 à 45 min d'activité continue à intensité modérée (60-70% FCmax).",
     },
     "Fractionné": {
@@ -19,6 +25,9 @@ PROTOCOLS = {
         "Vélo": "10 min d'échauffement, puis 8 à 10 x 1 min effort intense (85-90% FCmax) / 2 min "
                 "récupération légère, puis 10 min de retour au calme.",
         "Natation": "10 min d'échauffement, puis 8 x 50m rapide / 30 sec de repos, puis retour au calme.",
+        "Circuit training": "10 min d'échauffement, puis circuit de 5-6 machines/exercices cardio "
+                             "(tapis, rameur, vélo, corde à sauter...) 45 sec effort intense / 15 sec "
+                             "transition, 3 à 4 tours, puis retour au calme.",
         "Autre": "10 min d'échauffement, puis 8 à 10 x 30-45 sec effort intense / 1-2 min "
                  "récupération, puis retour au calme.",
     },
@@ -29,6 +38,8 @@ PROTOCOLS = {
                 "récupération, puis retour au calme.",
         "Natation": "10-15 min d'échauffement, puis 6 à 8 x 25m sprint maximal / 2 min "
                     "récupération complète.",
+        "Circuit training": "10-15 min d'échauffement, puis 6 à 8 x 20 sec effort maximal sur "
+                             "machine cardio (tapis rapide, vélo, rameur) / 2-3 min récupération complète.",
         "Autre": "10-15 min d'échauffement, puis 6 à 10 x 15-20 sec effort maximal / 2-3 min "
                  "récupération complète.",
     },
@@ -36,6 +47,7 @@ PROTOCOLS = {
         "Course": "20 à 25 min à intensité légère, juste pour la santé cardiovasculaire.",
         "Vélo": "20 à 25 min à intensité légère, cadence tranquille.",
         "Natation": "20 à 25 min à allure détente.",
+        "Circuit training": "20 à 25 min de machine(s) cardio au choix à intensité légère, cadence tranquille.",
         "Autre": "20 à 25 min d'activité à intensité légère.",
     },
 }
@@ -185,7 +197,14 @@ def build_cardio_program(data):
     cardio_types_raw = data.get("cardio_types") or ([data["cardio_type"]] if data.get("cardio_type") else [])
     cardio_types = []
     for t in cardio_types_raw:
-        t = t if t in ("Course", "Vélo", "Natation") else "Autre"
+        # "Circuit training (cardio en salle)" (libellé complet du
+        # questionnaire, static/script.js) -> "Circuit training" (clé interne
+        # courte, cohérente avec "Course"/"Vélo"/"Natation" ci-dessous et avec
+        # les clés de PROTOCOLS ci-dessus).
+        if t == "Circuit training (cardio en salle)":
+            t = "Circuit training"
+        elif t not in ("Course", "Vélo", "Natation", "Circuit training"):
+            t = "Autre"
         if t not in cardio_types:
             cardio_types.append(t)
     if not cardio_types:
@@ -305,4 +324,100 @@ def build_cardio_program(data):
         "objectif_cardio_note": OBJECTIF_CARDIO_NOTES.get(objectif_cardio),
         "niveau_cardio": niveau_cardio,
         "niveau_cardio_note": NIVEAU_CARDIO_NOTES.get(niveau_cardio),
+        # Prompt hors 24 phases (retour Samy : "questionnaire adapté par
+        # discipline course/natation/vélo/circuit training") : une phrase
+        # personnalisée par discipline choisie, résumant l'objectif propre à
+        # cette discipline (délai, allure, records déclarés) -- additif,
+        # n'affecte ni le mix de séances ni les protocoles ci-dessus (repris
+        # tel quel de `_session_mix`/`PROTOCOLS`).
+        "notes_par_discipline": _notes_par_discipline(data, cardio_types),
     }
+
+
+DELAI_LABELS = {
+    "Pas de délai précis": "sans délai précis",
+    "1 mois": "d'ici 1 mois",
+    "2 à 3 mois": "d'ici 2 à 3 mois",
+    "6 mois": "d'ici 6 mois",
+    "1 an ou plus": "d'ici 1 an ou plus",
+}
+
+
+def _format_record_minutes(valeur_minutes):
+    """Convertit un temps en minutes (float, ex: 25.5) en texte lisible
+    "25 min 30 s" (ou "25 min" si rond). Utilisé pour afficher les records
+    déclarés au questionnaire (5/10/20/40km course, distances natation/vélo)."""
+    minutes = int(valeur_minutes)
+    secondes = round((valeur_minutes - minutes) * 60)
+    if secondes >= 60:
+        minutes += 1
+        secondes = 0
+    return f"{minutes} min {secondes} s" if secondes else f"{minutes} min"
+
+
+def _phrase_records(records, labels_distances):
+    """records : dict {clé_distance: minutes_ou_None}. Ne mentionne QUE les
+    distances pour lesquelles un record a été déclaré (retour Samy : "laisse
+    une possibilité aucun record" -- un champ vide/absent n'est jamais
+    mentionné, jamais affiché comme "0" ou "aucun record" intrusif)."""
+    parties = []
+    for cle, valeur in records.items():
+        if valeur is not None and valeur > 0:
+            parties.append(f"{labels_distances.get(cle, cle)} en {_format_record_minutes(valeur)}")
+    if not parties:
+        return ""
+    return " Record(s) déclaré(s) : " + ", ".join(parties) + "."
+
+
+def _notes_par_discipline(data, cardio_types):
+    """Construit une phrase personnalisée par discipline PRÉSENTE dans
+    `cardio_types`, à partir des questions spécifiques du questionnaire
+    (objectif/délai/allure/records par discipline, cf. static/script.js) --
+    absente/vide pour une discipline sans objectif renseigné (rétrocompatible
+    avec les anciens questionnaires qui n'avaient pas ces champs)."""
+    notes = {}
+
+    if "Course" in cardio_types and data.get("objectif_course"):
+        delai = DELAI_LABELS.get(data.get("delai_objectif_course"), "")
+        phrase = f"Course à pied — objectif : {data['objectif_course']}"
+        if delai:
+            phrase += f", {delai}"
+        phrase += "."
+        if data.get("allure_cible_course"):
+            phrase += f" Allure/précision visée : {data['allure_cible_course']}."
+        phrase += _phrase_records(
+            data.get("records_course") or {},
+            {"5km": "5 km", "10km": "10 km", "20km": "20 km", "40km": "40 km (marathon)"},
+        )
+        notes["Course"] = phrase
+
+    if "Natation" in cardio_types and data.get("objectif_natation"):
+        delai = DELAI_LABELS.get(data.get("delai_objectif_natation"), "")
+        phrase = f"Natation — objectif : {data['objectif_natation']}"
+        if delai:
+            phrase += f", {delai}"
+        phrase += "."
+        phrase += _phrase_records(
+            data.get("records_natation") or {}, {"500m": "500 m", "1km": "1 km"},
+        )
+        notes["Natation"] = phrase
+
+    if "Vélo" in cardio_types and data.get("objectif_velo"):
+        delai = DELAI_LABELS.get(data.get("delai_objectif_velo"), "")
+        phrase = f"Vélo — objectif : {data['objectif_velo']}"
+        if delai:
+            phrase += f", {delai}"
+        phrase += "."
+        phrase += _phrase_records(
+            data.get("records_velo") or {}, {"20km": "20 km", "40km": "40 km"},
+        )
+        notes["Vélo"] = phrase
+
+    if "Circuit training" in cardio_types and data.get("objectif_circuit"):
+        phrase = f"Circuit training (cardio en salle) — objectif : {data['objectif_circuit']}."
+        machines = data.get("type_circuit_prefere") or []
+        if machines:
+            phrase += f" Machines/formats préférés : {', '.join(machines)}."
+        notes["Circuit training"] = phrase
+
+    return notes

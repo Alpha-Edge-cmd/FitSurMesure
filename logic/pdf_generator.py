@@ -701,6 +701,13 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include
             story.append(_p(cardio["objectif_cardio_note"], note_style))
         if cardio.get("niveau_cardio_note"):
             story.append(_p(cardio["niveau_cardio_note"], note_style))
+        # Prompt hors 24 phases (retour Samy : "questionnaire adapté par
+        # discipline") : une phrase par discipline choisie, dans le même
+        # ordre que `cardio_types` (déjà dédupliqué/ordonné en amont).
+        for discipline in cardio.get("cardio_types") or []:
+            note_discipline = (cardio.get("notes_par_discipline") or {}).get(discipline)
+            if note_discipline:
+                story.append(_p(note_discipline, note_style))
         story.append(Spacer(1, 4))
 
         story.append(_p("Mini-cours : comprendre tes séances de cardio", h3_style))

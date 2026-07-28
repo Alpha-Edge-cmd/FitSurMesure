@@ -80,6 +80,20 @@ def _parse_sessions(text):
     return int(match.group(1)) if match else 1
 
 
+def _parse_optional_float(raw):
+    """Convertit une valeur de champ numérique facultatif (temps en minutes,
+    record...) en float, ou None si absente/invalide -- jamais d'exception.
+    Un champ laissé vide au questionnaire (`raw` vaut None ou "") donne
+    explicitement None, interprété en aval comme "aucun record" (retour Samy :
+    "laisse une possibilité aucun record")."""
+    if raw in (None, ""):
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
+
+
 def _cardio_sessions(data):
     if data.get("pratique_cardio") != "Oui":
         return 0
@@ -425,11 +439,7 @@ def _build_everything(data):
             program = build_program(program_input)
 
     if not nutrition["blocked"] and veut_cardio:
-        temps_1km_raw = data.get("temps_1km")
-        try:
-            temps_1km = float(temps_1km_raw) if temps_1km_raw not in (None, "") else None
-        except (TypeError, ValueError):
-            temps_1km = None
+        temps_1km = _parse_optional_float(data.get("temps_1km"))
         cardio_input = {
             "pratique_cardio": "Oui",
             "cardio_types": data.get("cardio_types", []),
@@ -445,6 +455,36 @@ def _build_everything(data):
             "blessures": data.get("blessures", []),
             # Retours "je n'aime pas cette séance" : [{ "seance_nom": "...", "raison": "..." }, ...]
             "cardio_rejets": data.get("cardio_rejets", []),
+            # Prompt hors 24 phases (retour Samy : "questionnaire adapté par
+            # discipline" + questions objectif/délai/allure/records par
+            # discipline) : transmis tel quel à build_cardio_program, qui les
+            # utilise pour personnaliser objectif/notes/records par discipline
+            # (cf. logic/cardio_builder.py, additif -- aucune règle existante
+            # modifiée). Un champ record laissé vide au questionnaire ->
+            # None ici -> interprété comme "aucun record" en aval.
+            "objectif_course": data.get("objectif_course", ""),
+            "delai_objectif_course": data.get("delai_objectif_course", ""),
+            "allure_cible_course": data.get("allure_cible_course", ""),
+            "records_course": {
+                "5km": _parse_optional_float(data.get("record_5km")),
+                "10km": _parse_optional_float(data.get("record_10km")),
+                "20km": _parse_optional_float(data.get("record_20km")),
+                "40km": _parse_optional_float(data.get("record_40km")),
+            },
+            "objectif_natation": data.get("objectif_natation", ""),
+            "delai_objectif_natation": data.get("delai_objectif_natation", ""),
+            "records_natation": {
+                "500m": _parse_optional_float(data.get("record_500m_natation")),
+                "1km": _parse_optional_float(data.get("record_1km_natation")),
+            },
+            "objectif_velo": data.get("objectif_velo", ""),
+            "delai_objectif_velo": data.get("delai_objectif_velo", ""),
+            "records_velo": {
+                "20km": _parse_optional_float(data.get("record_20km_velo")),
+                "40km": _parse_optional_float(data.get("record_40km_velo")),
+            },
+            "objectif_circuit": data.get("objectif_circuit", ""),
+            "type_circuit_prefere": data.get("type_circuit_prefere", []),
         }
         cardio = build_cardio_program(cardio_input)
 
