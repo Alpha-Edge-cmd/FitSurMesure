@@ -1,6 +1,6 @@
 # PRODUCTION_READY.md
 
-Audit généré le 2026-07-28 19:58 par `scripts/production_check.py` (Phase 24/24).
+Audit généré le 2026-07-28 20:39 par `scripts/production_check.py` (Phase 24/24).
 
 ## Verdict : 🔴 BLOQUÉ — au moins un BLOCKER à corriger avant lancement
 
@@ -33,7 +33,7 @@ render.yaml déclare un disque persistant
 
 **✅ OK — Installation vierge**
 
-9 tables créées ; données utilisateur toutes vides, catalogue d'exercices pré-chargé (365 exercices) — dossier isolé /sessions/epic-affectionate-shannon/tmp/fitsurmesure_audit_nm7nboio
+9 tables créées ; données utilisateur toutes vides, catalogue d'exercices pré-chargé (365 exercices) — dossier isolé /sessions/epic-affectionate-shannon/tmp/fitsurmesure_audit_535648ms
 
 **✅ OK — Migration douce**
 
@@ -91,7 +91,7 @@ UserAccessToken.token_hash indexé/unique (recherche de jeton en O(1))
 
 **✅ OK — Temps d'exécution — import_catalogue**
 
-0.17s (sous le seuil indicatif 5.0s)
+0.18s (sous le seuil indicatif 5.0s)
 
 **✅ OK — Temps d'exécution — generation_programme**
 
@@ -106,7 +106,7 @@ UserAccessToken.token_hash indexé/unique (recherche de jeton en O(1))
 
 **✅ OK — Commande simulée**
 
-Commande 4f6ade9e08f54b93a5ff8ad120168fdc créée et marquée payée
+Commande 9254cea3db9440aeacd17e37c8539dd6 créée et marquée payée
 
 **✅ OK — Indépendance paiement/programme**
 
@@ -133,7 +133,7 @@ signature invalide correctement rejetée (400)
 
 **✅ OK — Import du catalogue**
 
-365 exercices importés (créés=0, maj=365, invalides ignorés=0) en 0.17s
+365 exercices importés (créés=0, maj=365, invalides ignorés=0) en 0.18s
 
 **✅ OK — Exercices approuvés**
 
@@ -171,7 +171,7 @@ paiement -> jeton -> connexion -> /my-program -> action -> /mon-compte -> décon
 
 **✅ OK — Génération PDF**
 
-PDF valide généré (21435 octets) en 0.09s
+PDF valide généré (21295 octets) en 0.09s
 
 
 ## Questionnaire

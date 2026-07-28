@@ -83,25 +83,58 @@ def _rejected_sets(exercices_rejetes):
     return excluded_names, excluded_patterns
 
 
+def _choisir_ppl_ou_arnold(niveau, objectif):
+    """Départage explicite entre Push/Pull/Legs et Arnold Split quand les deux
+    sont valables pour la fréquence demandée (retour Samy, prompt hors 24
+    phases : "3j = PPL ou Arnold Split", "6j = double PPL, double Arnold...
+    ou PPL x Arnold" — le moteur doit trancher lui-même, sans nouvelle
+    question au questionnaire, en s'appuyant sur les réponses déjà
+    collectées). PPL sépare les mouvements par fonction (pousser/tirer/
+    jambes) : plus lisible pour qui découvre encore les grands schémas de
+    mouvement. Arnold Split regroupe des muscles antagonistes dans la même
+    séance (pecs/dos, épaules/bras) : format qui se prête à des supersets
+    antagonistes et tire davantage parti d'une technique déjà solide ->
+    réservé aux profils intermédiaire/avancé en recherche de volume (Prise
+    de muscle / Recomposition), PPL sinon (même critère que l'ancien
+    arbitrage Full Body/PPL à 3j, transposé ici)."""
+    if niveau in ("Intermédiaire", "Avancé") and objectif in (
+        "Prise de muscle", "Recomposition (sec + muscle)"
+    ):
+        return "arnold"
+    return "ppl"
+
+
 def _split_key_auto(frequence, objectif=None, niveau=None):
-    if frequence <= 2:
+    """Retour Samy (prompt hors 24 phases, "l'algorithme est censé être
+    expert en anatomie et en biomécanique") : barème par fréquence explicité
+    à partir de ses propres critères de coach, avec le départage PPL/Arnold
+    laissé au moteur (`_choisir_ppl_ou_arnold`) plutôt qu'à une nouvelle
+    question au questionnaire.
+      1j/semaine -> Full Body (seule structure cohérente à cette fréquence,
+        chaque muscle travaillé une fois).
+      2j/semaine -> Upper/Lower (un Full Body à 2x/semaine dilue trop le
+        volume par séance ; Upper/Lower isole mieux haut/bas du corps).
+      3j/semaine -> PPL ou Arnold Split (à cette fréquence, une structure
+        dédiée au pratiquant de musculation permet plus de volume par séance
+        qu'un Full Body, cf. `_choisir_ppl_ou_arnold`).
+      4j/semaine -> Upper/Lower (répété sur 4 jours : chaque muscle 2x/
+        semaine, fréquence de référence pour l'hypertrophie).
+      5j/semaine -> Push/Pull/Legs + Upper/Lower (5 jours dédiés combinant
+        les deux logiques : chaque muscle touché ~2x/semaine).
+      6j/semaine et plus -> PPL ou Arnold Split, cyclé deux fois dans la
+        semaine par `_repartir_seances` (double PPL ou double Arnold selon
+        le même critère qu'à 3j/semaine)."""
+    if frequence <= 1:
         return "full_body"
+    if frequence == 2:
+        return "upper_lower"
     if frequence == 3:
-        # À 3 séances/semaine, le Full Body reste la référence pour la plupart des
-        # profils (chaque muscle travaillé 3x/semaine). Mais pour un pratiquant
-        # intermédiaire/avancé cherchant du volume (prise de muscle/recomposition),
-        # un Push/Pull/Legs propose plus d'exercices par muscle par séance : c'est
-        # une alternative tout aussi valable que beaucoup préfèrent à ce niveau.
-        if niveau in ("Intermédiaire", "Avancé") and objectif in (
-            "Prise de muscle", "Recomposition (sec + muscle)"
-        ):
-            return "ppl"
-        return "full_body"
+        return _choisir_ppl_ou_arnold(niveau, objectif)
     if frequence == 4:
         return "upper_lower"
     if frequence == 5:
-        return "ppl"
-    return "arnold"
+        return "ppl_upper_lower"
+    return _choisir_ppl_ou_arnold(niveau, objectif)
 
 
 def _avoid_tags(blessures, exos_incapables):
@@ -535,7 +568,7 @@ NIVEAU_NOTES = {
 def build_program(data):
     """
     data attendu :
-      frequence_entrainement (int), split_preference ("auto"|"full_body"|"upper_lower"|"ppl"|"arnold"),
+      frequence_entrainement (int), split_preference ("auto"|"full_body"|"upper_lower"|"ppl"|"arnold"|"ppl_upper_lower"),
       equipement (str), blessures (list[str]), exercices_incapables (list[str]),
       duree_seance (str), exos_par_muscle_pref ("auto"|"2"|"3"|"4"), niveau_musculation (str)
     """
@@ -551,12 +584,19 @@ def build_program(data):
     )
     split = SPLITS[split_key]
 
-    if split_key == "arnold" and frequence < 5:
+    # Retour Samy (prompt hors 24 phases) : Arnold Split est désormais une
+    # structure valable dès 3 séances/semaine (cf. `_choisir_ppl_ou_arnold`),
+    # plus seulement à 5-6. Le seuil d'avertissement descend donc à 3 : en
+    # dessous (1-2 séances/semaine), Arnold Split n'a plus assez de jours
+    # pour couvrir ses 3 groupes musculaires dans la semaine, quel que soit
+    # le profil — cas qui ne peut désormais survenir que via un choix
+    # manuel (`split_preference`), jamais via l'auto-sélection.
+    if split_key == "arnold" and frequence < 3:
         warnings.append(
-            "Arnold Split choisi avec moins de 5 séances/semaine : chaque muscle sera "
-            "travaillé moins souvent que ce que ce split permet idéalement (5-6x/semaine). "
-            "Un Push/Pull/Legs serait plus efficace à cette fréquence, mais le programme "
-            "ci-dessous respecte ton choix."
+            "Arnold Split choisi avec moins de 3 séances/semaine : ses 3 groupes "
+            "musculaires (Torse/Dos, Épaules/Bras, Jambes) ne peuvent pas être couverts "
+            "dans la semaine à cette fréquence. Un Full Body ou un Upper/Lower serait plus "
+            "efficace, mais le programme ci-dessous respecte ton choix."
         )
 
     avoid_tags = _avoid_tags(data.get("blessures"), data.get("exercices_incapables"))

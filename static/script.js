@@ -263,6 +263,7 @@ const steps = [
           { value: "upper_lower", label: "Upper / Lower" },
           { value: "ppl", label: "Push / Pull / Legs" },
           { value: "arnold", label: "Arnold Split" },
+          { value: "ppl_upper_lower", label: "Push / Pull / Legs + Upper / Lower (5 jours)" },
         ] },
       // Prompt hors 24 phases (retour Samy, refonte du volume) : le nombre
       // d'exercices par muscle n'est plus demandé manuellement — l'algorithme

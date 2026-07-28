@@ -219,6 +219,26 @@ SPLITS = {
         ],
         "exos_par_muscle_defaut": 3,
     },
+    # Retour Samy (prompt hors 24 phases, "4 et 5 jours je ne sais pas" +
+    # "l'algorithme est censé être expert en anatomie et en biomécanique") :
+    # à 5 séances/semaine, ni Full Body/Upper-Lower/PPL/Arnold seuls ne
+    # couvrent bien la semaine (PPL laisse 2 jours sans structure dédiée,
+    # Arnold Split pareil). Ce split dédié combine Push/Pull/Legs et
+    # Upper/Lower sur 5 jours fixes : chaque muscle est retravaillé dans un
+    # second jour (pecs en Push ET en Upper, quadriceps en Legs ET en Lower,
+    # etc.) -> fréquence ~2x/semaine par muscle, cohérent avec le repère
+    # généralement admis en hypertrophie pour cette fréquence d'entraînement.
+    "ppl_upper_lower": {
+        "label": "Push / Pull / Legs + Upper / Lower",
+        "jours": [
+            {"nom": "Push", "muscles": ["pecs", "epaules", "triceps"]},
+            {"nom": "Pull", "muscles": ["dos", "biceps"]},
+            {"nom": "Legs", "muscles": ["quadriceps", "ischio", "fessiers", "mollets", "abdos"]},
+            {"nom": "Upper", "muscles": ["pecs", "dos", "epaules", "biceps", "triceps"]},
+            {"nom": "Lower", "muscles": ["quadriceps", "ischio", "fessiers", "mollets", "abdos"]},
+        ],
+        "exos_par_muscle_defaut": 3,
+    },
 }
 
 MUSCLE_LABELS = {
