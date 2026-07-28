@@ -42,7 +42,7 @@
     padding: 1rem; margin-bottom: 0.8rem;
   }
   .exo-card h3 { font-size: 0.95rem; margin: 0 0 0.5rem; }
-  .exo-portion { font-weight: 400; font-size: 0.85em; color: #9aa2b8; }
+  .exo-portion { display: block; font-weight: 400; font-size: 0.82rem; color: #9aa2b8; margin: -0.25rem 0 0.5rem; }
   .exo-meta {
     display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 0.6rem;
     font-size: 0.82rem; color: #cbd1db;
@@ -103,7 +103,8 @@
 
       {% for pe in session.exercises %}
       <div class="exo-card">
-        <h3>{{ pe.exercise.name if pe.exercise else pe.exercise_id }}{% if pe.exercise and pe.exercise.portion_anatomique %} <span class="exo-portion">({{ pe.exercise.portion_anatomique }})</span>{% endif %}</h3>
+        <h3>{{ pe.exercise.name if pe.exercise else pe.exercise_id }}</h3>
+        {% if pe.exercise and pe.exercise.portion_anatomique %}<span class="exo-portion">Muscle ciblé : {{ pe.exercise.portion_anatomique }}</span>{% endif %}
         <div class="exo-meta">
           <span><strong>{{ pe.series }}</strong> séries</span>
           <span><strong>{{ pe.reps }}</strong> répétitions</span>

@@ -90,6 +90,75 @@ def kcal_adjustment(objectif, imc_val, niveau_musculation, age):
     return adj, warnings
 
 
+# Retour Samy (prompt hors 24 phases : "ajoutes combien tu mets par poids de
+# corps exactement et pourquoi tu as choisi ça") : chaque macro expose
+# désormais un g/kg de poids de corps EXPLICITE (`*_g_par_kg`) et un texte de
+# justification (`*_justification`), affichés dans le PDF (cf.
+# logic/pdf_generator.py) plutôt que de rester des calculs internes opaques.
+def _justification_proteines(objectif, proteine_par_kg, niveau_musculation):
+    """Texte expliquant pourquoi CE g/kg de protéines a été retenu pour ce
+    profil précis (objectif dominant + niveau, les deux seuls facteurs qui
+    font varier `proteine_par_kg`, cf. ci-dessous)."""
+    if objectif == "Prise de muscle":
+        if niveau_musculation == "Débutant complet":
+            return (
+                f"{proteine_par_kg:.1f} g par kg de poids de corps : chez un débutant en prise de "
+                f"muscle, un apport protéique plus généreux sécurise la récupération pendant que la "
+                f"technique et le pilotage de l'effort ne sont pas encore optimaux."
+            )
+        return (
+            f"{proteine_par_kg:.1f} g par kg de poids de corps : la fourchette haute généralement "
+            f"retenue pour maximiser la construction musculaire en phase de prise de muscle, "
+            f"au-delà de laquelle aucun bénéfice supplémentaire n'est démontré."
+        )
+    if objectif == "Perte de gras":
+        return (
+            f"{proteine_par_kg:.1f} g par kg de poids de corps : en déficit calorique, un apport "
+            f"protéique élevé est ce qui protège le mieux ta masse musculaire pendant la perte de "
+            f"gras, et améliore la satiété (utile en restriction calorique)."
+        )
+    if objectif == "Recomposition (sec + muscle)":
+        return (
+            f"{proteine_par_kg:.1f} g par kg de poids de corps : un compromis entre les besoins de "
+            f"prise de muscle et de perte de gras, cohérent avec un objectif de recomposition "
+            f"corporelle (perdre du gras tout en construisant du muscle)."
+        )
+    return (
+        f"{proteine_par_kg:.1f} g par kg de poids de corps : un apport standard, suffisant pour "
+        f"couvrir la récupération et l'entretien musculaire sans objectif spécifique de prise de "
+        f"muscle ou de perte de gras."
+    )
+
+
+def _justification_lipides(lipides_g_par_kg):
+    """Le g/kg CIBLE est toujours 0.9 (cf. `macros()`) ; `lipides_g_par_kg`
+    ici est le g/kg RÉELLEMENT obtenu après les bornes de sécurité 20-35% des
+    calories totales (peut donc différer légèrement de 0.9 si la borne a dû
+    s'appliquer) — le texte reste correct dans les deux cas."""
+    return (
+        f"≈ {lipides_g_par_kg:.1f} g par kg de poids de corps (ciblés à 0,9 g/kg, ajustés pour "
+        f"rester entre 20% et 35% de tes calories totales) : les lipides sont indispensables à la "
+        f"production hormonale (dont la testostérone, utile pour la prise de muscle) et à "
+        f"l'absorption des vitamines liposolubles, sans dépasser un seuil qui laisserait trop peu "
+        f"de calories pour les glucides et les protéines."
+    )
+
+
+def _justification_glucides(glucides_g_par_kg):
+    """Les glucides n'ont pas de g/kg CIBLE (contrairement aux protéines et
+    lipides) : ils comblent ce qu'il reste de l'enveloppe calorique une fois
+    protéines et lipides fixés. Le g/kg affiché ici est donc informatif
+    (combien ça représente concrètement pour ce poids), pas un objectif fixé
+    en amont."""
+    return (
+        f"≈ {glucides_g_par_kg:.1f} g par kg de poids de corps : les glucides comblent le reste de "
+        f"tes calories quotidiennes une fois protéines et lipides fixés — c'est ta principale "
+        f"source d'énergie pour la performance à l'entraînement, donc plus ton enveloppe "
+        f"calorique est grande (objectif de prise de masse, beaucoup de séances par semaine), plus "
+        f"il t'en reste."
+    )
+
+
 def macros(objectif, poids_kg, kcal_objectif, niveau_musculation):
     warnings = []
 
@@ -126,10 +195,19 @@ def macros(objectif, poids_kg, kcal_objectif, niveau_musculation):
 
     glucides_g = round(glucides_kcal / 4)
 
+    lipides_g_par_kg = round(lipides_g / poids_kg, 2) if poids_kg else 0.0
+    glucides_g_par_kg = round(glucides_g / poids_kg, 2) if poids_kg else 0.0
+
     return {
         "proteines_g": proteines_g,
+        "proteines_g_par_kg": proteine_par_kg,
+        "proteines_justification": _justification_proteines(objectif, proteine_par_kg, niveau_musculation),
         "lipides_g": lipides_g,
+        "lipides_g_par_kg": lipides_g_par_kg,
+        "lipides_justification": _justification_lipides(lipides_g_par_kg),
         "glucides_g": glucides_g,
+        "glucides_g_par_kg": glucides_g_par_kg,
+        "glucides_justification": _justification_glucides(glucides_g_par_kg),
     }, warnings
 
 

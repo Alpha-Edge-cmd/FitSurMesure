@@ -218,20 +218,24 @@ CONSEIL_EXECUTION_STYLE = ParagraphStyle("ConseilExecution", parent=cell_style, 
 
 
 def _nom_avec_conseil(nom, conseil, portion=None):
-    """Cellule "Exercice" : nom + (optionnel) portion anatomique ciblée juste
-    à côté du nom + (optionnel) conseil d'exécution en sous-ligne plus
-    petite/grisée, dans le MÊME Paragraph que le nom (pas de colonne/ligne
-    supplémentaire dans le tableau) — pour ne pas retoucher la structure de
-    `_exo_table` (déjà corrigée pour des bugs de chevauchement de texte, cf.
-    historique du projet). Additif (prompt hors 24 phases, conseils
-    d'exécution puis portion musculaire, retour Samy) : absents -> comportement
-    strictement inchangé."""
+    """Cellule "Exercice" : nom + (optionnel) sous-ligne "Muscle ciblé : ..."
+    explicitant la portion anatomique travaillée + (optionnel) conseil
+    d'exécution en sous-ligne plus petite/grisée, dans le MÊME Paragraph que
+    le nom (pas de colonne/ligne supplémentaire dans le tableau) — pour ne
+    pas retoucher la structure de `_exo_table` (déjà corrigée pour des bugs
+    de chevauchement de texte, cf. historique du projet). Additif (prompt
+    hors 24 phases, conseils d'exécution puis portion musculaire, retour
+    Samy) : absents -> comportement strictement inchangé."""
     if not conseil and not portion:
         return _cell(nom)
     from xml.sax.saxutils import escape
     texte = f"<b>{escape(str(nom))}</b>"
     if portion:
-        texte += f" <font size=8 color='#2e5aac'>({escape(str(portion))})</font>"
+        # Retour Samy (prompt hors 24 phases, réitéré : "n'oublie pas de dire
+        # quelle partie du muscle l'exercice travaille") : sous-ligne dédiée
+        # et explicite ("Muscle ciblé : ...") plutôt qu'un simple ajout entre
+        # parenthèses juste après le nom, facile à ne pas remarquer.
+        texte += f"<br/><font size=8 color='#2e5aac'>Muscle ciblé : {escape(str(portion))}</font>"
     if conseil:
         texte += f"<br/><font size=8 color='#555555'><i>{escape(str(conseil))}</i></font>"
     return Paragraph(texte, cell_style)
@@ -386,18 +390,28 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
     story.append(_p(f"Ton IMC actuel ({nutrition['imc']}) te place dans la catégorie "
                      f"<b>{nutrition['imc_categorie']}</b> — ça a orienté le calcul ci-dessus."))
 
+    # Retour Samy (prompt hors 24 phases : "ajoutes combien tu mets par poids
+    # de corps exactement") : 3e colonne explicite en g/kg de poids de corps
+    # (cf. logic/calculations.py, `macros()` -> `*_g_par_kg`), plutôt que de
+    # laisser ce calcul invisible derrière le total en grammes.
     macro_data = [
-        ["Objectif calorique", f"≈ {nutrition['kcal_objectif']} kcal / jour"],
-        ["Protéines", f"{nutrition['proteines_g']} g"],
-        ["Lipides", f"{nutrition['lipides_g']} g"],
-        ["Glucides", f"{nutrition['glucides_g']} g"],
+        ["", "Quantité", "g / kg de poids de corps"],
+        ["Objectif calorique", f"≈ {nutrition['kcal_objectif']} kcal / jour", "—"],
+        ["Protéines", f"{nutrition['proteines_g']} g", f"{nutrition['proteines_g_par_kg']:.1f} g/kg"],
+        ["Lipides", f"{nutrition['lipides_g']} g", f"{nutrition['lipides_g_par_kg']:.1f} g/kg"],
+        ["Glucides", f"{nutrition['glucides_g']} g", f"{nutrition['glucides_g_par_kg']:.1f} g/kg"],
     ]
-    macro_table = Table(macro_data, colWidths=[5 * cm, 10 * cm])
+    macro_table = Table(macro_data, colWidths=[5 * cm, 5 * cm, 5 * cm])
     macro_table.setStyle(TableStyle([
-        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("BACKGROUND", (0, 0), (0, -1), NAVY),
-        ("TEXTCOLOR", (0, 0), (0, -1), colors.white),
-        ("BACKGROUND", (1, 0), (1, -1), LIGHT_BLUE),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("BACKGROUND", (0, 0), (-1, 0), NAVY),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("ALIGN", (1, 0), (-1, 0), "CENTER"),
+        ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
+        ("BACKGROUND", (0, 1), (0, -1), NAVY),
+        ("TEXTCOLOR", (0, 1), (0, -1), colors.white),
+        ("BACKGROUND", (1, 1), (-1, -1), LIGHT_BLUE),
+        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
         ("FONTSIZE", (0, 0), (-1, -1), 10),
         ("TOPPADDING", (0, 0), (-1, -1), 7),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
@@ -414,6 +428,18 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
                      f"environ (± 5%), et pour les <b>6 à 8 prochaines semaines</b> à peu près — au-delà, ton "
                      f"métabolisme de base et tes besoins caloriques changent avec le poids, il faut "
                      f"recalculer un nouveau programme.", note_style))
+    story.append(Spacer(1, 6))
+
+    # Retour Samy (prompt hors 24 phases : "pourquoi tu as choisi ça") :
+    # justification explicite du g/kg retenu pour CE profil précis (objectif/
+    # niveau pour les protéines, bornes de sécurité pour les lipides,
+    # enveloppe calorique restante pour les glucides) — cf. `_justification_*`
+    # dans logic/calculations.py, jamais recalculées ici (une seule source de
+    # vérité pour cette logique).
+    story.append(_p("Pourquoi ces quantités précisément", h2_style))
+    story.append(_bullet(f"<b>Protéines</b> : {nutrition['proteines_justification']}"))
+    story.append(_bullet(f"<b>Lipides</b> : {nutrition['lipides_justification']}"))
+    story.append(_bullet(f"<b>Glucides</b> : {nutrition['glucides_justification']}"))
     story.append(Spacer(1, 6))
 
     story.append(_p("À quoi servent tes macronutriments, et où les trouver", h2_style))
