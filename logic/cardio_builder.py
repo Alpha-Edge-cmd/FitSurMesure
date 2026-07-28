@@ -3,54 +3,230 @@
 Moteur de génération du programme cardio, séparé du programme de musculation.
 Détermine un mix de types de séance (endurance fondamentale / fractionné /
 sprints) selon l'objectif, puis un protocole concret selon le type de cardio
-pratiqué (course, vélo, natation, autre).
+pratiqué (course, vélo, natation, circuit training, autre).
+
+Retour Samy (prompt hors 24 phases, #150) : "Pour le programme cardio propose
+jusqu'à 5 séances doit y être intégré du sprint 8-12 x 400m, 4-6 x 800m, 3-5
+1000-1200m-2000m, course allure objectif(8-10-12-15-20), 2x6km, 2x8km,
+Endurance fondamentale selon objectif etc fais des recherches mais je veux
+vraiment une gamme diversifiée de séance cardio... il en faut vraiment
+beaucoup pour pouvoir personnaliser la séance."
+
+Chaque combinaison (type de séance x discipline) dispose donc de PLUSIEURS
+variantes concrètes (au lieu d'un protocole unique et toujours identique),
+choisies parmi une bibliothèque construite à partir de principes
+d'entraînement établis (sources consultées lors de ce round : la méthode des
+5 allures de Jack Daniels -- E/M/T/I/R et la répartition ~80% aisé / ~20%
+intense qui en découle --, le repère "sortie longue = 20-30% du volume
+hebdomadaire, +10%/semaine max" pour la course à pied, les structures de
+séances fractionnées natation (ex: 10x50m/15s repos, 5x100m/20-30s repos) et
+les zones d'entraînement cyclisme (endurance/sweet-spot/seuil/VO2max/sprint),
+adaptées ici en %FCmax et ressenti d'effort car le questionnaire ne collecte
+pas de données de puissance (FTP/capteur)) :
+- Course : sprints 400m/800m/1000-2000m, séance à allure objectif, sortie
+  longue progressive (échelle "2x6km, 2x8km" calibrée par niveau), côtes,
+  lignes droites.
+- Vélo : sweet-spot, seuil, VO2max, sprints, sortie longue.
+- Natation : séries 50m/100m/200m à repos croissant selon l'intensité visée.
+- Circuit training : rotation de machines, format Tabata, circuit poids du
+  corps/cardio mixte.
+Une variante est choisie de façon stable par profil (même principe que
+`program_builder.py::_signature_jitter` pour la diversité Séance A/B/C en
+musculation) : un même profil obtient toujours la même variante pour une
+séance donnée (déterminisme préservé), mais des séances différentes de la
+même semaine -- et des profils différents -- ont des variantes différentes.
 """
+import hashlib
+
+
+def _variante_jitter(signature, cle):
+    """Nombre stable dérivé de la signature du profil + d'une clé (nom de
+    séance/discipline). Même principe que `_signature_jitter` dans
+    `program_builder.py` : garantit qu'un même profil régénère toujours la
+    même variante de séance cardio (déterminisme), tout en variant réellement
+    d'une séance à l'autre dans la semaine (clé différente) et d'un profil à
+    l'autre (signature différente)."""
+    if not signature:
+        return 0
+    digest = hashlib.md5(f"{signature}::{cle}".encode("utf-8")).hexdigest()
+    return int(digest[:4], 16)
+
+
+def _sortie_longue_course(niveau_cardio):
+    """Retour Samy : "2x6km, 2x8km" -- interprété comme une sortie longue
+    progressive par paliers plutôt qu'une distance fixe et unique pour tout le
+    monde, calibrée par niveau (principe reconnu : la sortie longue représente
+    environ 20-30% du volume hebdomadaire, progression +10%/semaine max pour
+    limiter le risque de blessure)."""
+    if niveau_cardio == "Débutant":
+        return (
+            "Sortie longue à allure conversationnelle : 4 à 5 km, en augmentant "
+            "d'environ 500 m à 1 km toutes les 1 à 2 semaines si la séance reste "
+            "confortable (règle des +10%/semaine pour limiter le risque de blessure)."
+        )
+    if niveau_cardio == "Confirmé":
+        return (
+            "Sortie longue à allure conversationnelle : 8 à 12 km. Progresse par "
+            "paliers (ex : 2 sorties à 8 km, puis 2 sorties à 10 km, puis 2 à "
+            "12 km) plutôt que d'augmenter la distance à chaque séance."
+        )
+    return (
+        "Sortie longue à allure conversationnelle : 6 à 8 km. Progresse par "
+        "paliers (ex : 2 sorties à 6 km, puis 2 sorties à 8 km) plutôt que "
+        "d'augmenter la distance à chaque séance, pour laisser le corps s'adapter."
+    )
+
 
 # Retour Samy (prompt hors 24 phases : "adapte le questionnaire pour le
 # cardio (course à pied, natation, vélo, circuit training cardio en salle)") :
 # "Circuit training" est désormais une discipline à part entière (auparavant
 # fondue dans "Autre", jamais distinguée dans les protocoles ci-dessous).
-PROTOCOLS = {
+#
+# Chaque valeur est une fonction (niveau_cardio) -> list[str] : la liste des
+# variantes concrètes disponibles pour cette combinaison type x discipline.
+PROTOCOLS_VARIANTS = {
     "Endurance fondamentale": {
-        "Course": "30 à 45 min à allure conversationnelle (60-70% FCmax), en continu.",
-        "Vélo": "40 à 50 min à intensité modérée (60-70% FCmax), cadence régulière.",
-        "Natation": "30 à 40 min à allure régulière, technique fluide, sans forcer.",
-        "Circuit training": "30 à 40 min de machines cardio enchaînées (tapis, elliptique, rameur) "
-                             "à intensité modérée (60-70% FCmax), en continu ou en rotation entre machines.",
-        "Autre": "30 à 45 min d'activité continue à intensité modérée (60-70% FCmax).",
+        "Course": lambda niveau: [
+            "30 à 45 min à allure conversationnelle (60-70% FCmax), en continu.",
+            _sortie_longue_course(niveau),
+            "35 à 40 min à allure conversationnelle, avec 4 à 6 accélérations "
+            "(« lignes droites ») de 15 à 20 sec à allure vive toutes les 5 à "
+            "8 min, retour au calme progressif après chacune.",
+        ],
+        "Vélo": lambda niveau: [
+            "40 à 50 min à intensité modérée (60-70% FCmax), cadence régulière.",
+            "Sortie longue : 60 à 90 min à allure d'endurance (65-75% FCmax), "
+            "cadence fluide (80-90 tr/min), en augmentant la durée progressivement.",
+        ],
+        "Natation": lambda niveau: [
+            "30 à 40 min à allure régulière, technique fluide, sans forcer.",
+            "200 m d'échauffement facile, puis 6 à 8 x 100 m à allure régulière "
+            "/ 20 sec de repos, puis 200 m de retour au calme.",
+        ],
+        "Circuit training": lambda niveau: [
+            "30 à 40 min de machines cardio enchaînées (tapis, elliptique, "
+            "rameur) à intensité modérée (60-70% FCmax), en continu ou en "
+            "rotation entre machines.",
+        ],
+        "Autre": lambda niveau: [
+            "30 à 45 min d'activité continue à intensité modérée (60-70% FCmax).",
+        ],
     },
     "Fractionné": {
-        "Course": "10 min d'échauffement, puis 8 à 12 x 400m rapide (80-90% FCmax) / 90 sec "
-                  "récupération trottinée, puis 10 min de retour au calme.",
-        "Vélo": "10 min d'échauffement, puis 8 à 10 x 1 min effort intense (85-90% FCmax) / 2 min "
-                "récupération légère, puis 10 min de retour au calme.",
-        "Natation": "10 min d'échauffement, puis 8 x 50m rapide / 30 sec de repos, puis retour au calme.",
-        "Circuit training": "10 min d'échauffement, puis circuit de 5-6 machines/exercices cardio "
-                             "(tapis, rameur, vélo, corde à sauter...) 45 sec effort intense / 15 sec "
-                             "transition, 3 à 4 tours, puis retour au calme.",
-        "Autre": "10 min d'échauffement, puis 8 à 10 x 30-45 sec effort intense / 1-2 min "
-                 "récupération, puis retour au calme.",
+        "Course": lambda niveau: [
+            "10 à 15 min d'échauffement, puis 8 à 12 x 400 m à allure vive (un "
+            "peu plus rapide que ton allure 5 km) / 90 sec récupération "
+            "trottinée ou marchée, puis 10 min de retour au calme.",
+            "10 à 15 min d'échauffement, puis 4 à 6 x 800 m à allure soutenue "
+            "(proche de ton allure 10 km) / 2 à 3 min récupération trottinée, "
+            "puis retour au calme.",
+            "10 à 15 min d'échauffement, puis 3 à 5 x (1000 m, 1200 m, 1500 m, "
+            "2000 m -- distances croissantes) à allure seuil (un peu plus lente "
+            "que ton allure 10 km, tenable environ 1h) / 2 à 3 min récupération, "
+            "puis retour au calme.",
+            "10 min d'échauffement, puis une portion à allure objectif (ex : 3 "
+            "à 6 km selon ta distance visée -- 8, 10, 12, 15 ou 20 km) courue à "
+            "l'allure que tu vises pour ton objectif, pour habituer ton corps "
+            "au rythme de course visé, puis retour au calme.",
+        ],
+        "Vélo": lambda niveau: [
+            "10 min d'échauffement, puis 8 à 10 x 1 min effort intense (85-90% "
+            "FCmax) / 2 min récupération légère, puis 10 min de retour au calme.",
+            "10 min d'échauffement, puis 3 à 4 x 8 à 10 min à intensité "
+            "« confortablement dure » (80-85% FCmax) / 4 à 5 min récupération "
+            "facile, puis retour au calme.",
+            "10 min d'échauffement, puis 2 x 15 à 20 min à allure seuil (85-90% "
+            "FCmax, tenable environ 1h) / 5 min récupération facile, puis "
+            "retour au calme.",
+        ],
+        "Natation": lambda niveau: [
+            "10 x 50 m à allure vive / 15 sec repos, technique soignée sur "
+            "chaque longueur.",
+            "5 x 100 m à allure soutenue / 20 à 30 sec repos entre chaque.",
+            "4 x 200 m à allure seuil (tenable environ 15-20 min) / 30 à 40 sec "
+            "repos.",
+        ],
+        "Circuit training": lambda niveau: [
+            "10 min d'échauffement, puis circuit de 5 à 6 machines/exercices "
+            "cardio (tapis, rameur, vélo, corde à sauter...) 45 sec effort "
+            "intense / 15 sec transition, 3 à 4 tours, puis retour au calme.",
+            "10 min d'échauffement, puis circuit de 6 à 8 exercices "
+            "cardio/poids du corps enchaînés (30 sec effort / 15 sec "
+            "transition), 3 tours, avec 2 min de repos entre chaque tour.",
+        ],
+        "Autre": lambda niveau: [
+            "10 min d'échauffement, puis 8 à 10 x 30-45 sec effort intense / "
+            "1 à 2 min récupération, puis retour au calme.",
+        ],
     },
     "Sprints / explosivité": {
-        "Course": "10-15 min d'échauffement complet, puis 6 à 10 x 15-20 sec sprint maximal / "
-                  "2-3 min récupération complète (marche), puis retour au calme.",
-        "Vélo": "10-15 min d'échauffement, puis 6 à 8 x 15-20 sec sprint à fond / 3 min "
-                "récupération, puis retour au calme.",
-        "Natation": "10-15 min d'échauffement, puis 6 à 8 x 25m sprint maximal / 2 min "
-                    "récupération complète.",
-        "Circuit training": "10-15 min d'échauffement, puis 6 à 8 x 20 sec effort maximal sur "
-                             "machine cardio (tapis rapide, vélo, rameur) / 2-3 min récupération complète.",
-        "Autre": "10-15 min d'échauffement, puis 6 à 10 x 15-20 sec effort maximal / 2-3 min "
-                 "récupération complète.",
+        "Course": lambda niveau: [
+            "10 à 15 min d'échauffement complet, puis 6 à 10 x 15-20 sec "
+            "sprint maximal / 2 à 3 min récupération complète (marche), puis "
+            "retour au calme.",
+            "10 à 15 min d'échauffement, puis 8 à 10 x 100 m lancés "
+            "(accélération progressive puis vitesse maximale) / 2 min "
+            "récupération marchée.",
+            "10 à 15 min d'échauffement, puis 8 à 10 x 20-30 sec en côte à "
+            "intensité maximale (pente 4-8%) / descente en trottinant comme "
+            "récupération.",
+        ],
+        "Vélo": lambda niveau: [
+            "10 à 15 min d'échauffement, puis 6 à 8 x 15-20 sec sprint à fond "
+            "/ 3 min récupération, puis retour au calme.",
+            "10 à 15 min d'échauffement, puis 5 à 6 x 3 min à intensité très "
+            "élevée (90-95% FCmax) / 3 min récupération facile, puis retour "
+            "au calme.",
+        ],
+        "Natation": lambda niveau: [
+            "10 à 15 min d'échauffement, puis 6 à 8 x 25 m sprint maximal / "
+            "2 min récupération complète.",
+            "10 à 15 min d'échauffement, puis 8 x 25 m départ dans l'eau à "
+            "vitesse maximale / retour nagé tranquille comme récupération.",
+        ],
+        "Circuit training": lambda niveau: [
+            "10 à 15 min d'échauffement, puis 6 à 8 x 20 sec effort maximal "
+            "sur machine cardio (tapis rapide, vélo, rameur) / 2 à 3 min "
+            "récupération complète.",
+            "10 à 15 min d'échauffement, puis format Tabata : 8 x 20 sec "
+            "effort maximal / 10 sec repos (un bloc de 4 min), répété 2 à 3 "
+            "fois avec 2 min de récupération entre les blocs, sur la machine "
+            "de ton choix.",
+        ],
+        "Autre": lambda niveau: [
+            "10 à 15 min d'échauffement, puis 6 à 10 x 15-20 sec effort "
+            "maximal / 2 à 3 min récupération complète.",
+        ],
     },
     "Endurance légère": {
-        "Course": "20 à 25 min à intensité légère, juste pour la santé cardiovasculaire.",
-        "Vélo": "20 à 25 min à intensité légère, cadence tranquille.",
-        "Natation": "20 à 25 min à allure détente.",
-        "Circuit training": "20 à 25 min de machine(s) cardio au choix à intensité légère, cadence tranquille.",
-        "Autre": "20 à 25 min d'activité à intensité légère.",
+        "Course": lambda niveau: [
+            "20 à 25 min à intensité légère, juste pour la santé cardiovasculaire.",
+        ],
+        "Vélo": lambda niveau: [
+            "20 à 25 min à intensité légère, cadence tranquille.",
+        ],
+        "Natation": lambda niveau: [
+            "20 à 25 min à allure détente.",
+        ],
+        "Circuit training": lambda niveau: [
+            "20 à 25 min de machine(s) cardio au choix à intensité légère, "
+            "cadence tranquille.",
+        ],
+        "Autre": lambda niveau: [
+            "20 à 25 min d'activité à intensité légère.",
+        ],
     },
 }
+
+
+def _choisir_protocole(type_seance, discipline, niveau_cardio, signature, cle_variete):
+    """Choisit une variante concrète parmi celles disponibles pour ce type de
+    séance x discipline, de façon stable par profil (cf. `_variante_jitter`)."""
+    variantes = PROTOCOLS_VARIANTS[type_seance][discipline](niveau_cardio)
+    if len(variantes) == 1:
+        return variantes[0]
+    idx = _variante_jitter(signature, cle_variete) % len(variantes)
+    return variantes[idx]
 
 
 OBJECTIF_CARDIO_NOTES = {
@@ -285,7 +461,10 @@ def build_cardio_program(data):
                 f"un ajustement sur mesure."
             )
 
-        protocole = PROTOCOLS[type_seance][discipline]
+        protocole = _choisir_protocole(
+            type_seance, discipline, niveau_cardio,
+            data.get("signature", ""), f"{seance_nom}::{discipline}",
+        )
         seances.append({
             "nom": seance_nom,
             "type": type_seance,

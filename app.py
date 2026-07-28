@@ -442,6 +442,12 @@ def _build_everything(data):
         temps_1km = _parse_optional_float(data.get("temps_1km"))
         cardio_input = {
             "pratique_cardio": "Oui",
+            # Retour Samy (prompt hors 24 phases, #150 : "gamme diversifiée
+            # de séances cardio") : transmis à build_cardio_program pour
+            # choisir une variante de protocole stable par profil (même
+            # principe que la signature déjà utilisée pour la musculation),
+            # cf. logic/cardio_builder.py::_variante_jitter.
+            "signature": signature,
             "cardio_types": data.get("cardio_types", []),
             "cardio_sessions": cardio_sessions,
             "objectif_principal": data.get("objectif_principal", "Condition physique générale"),
