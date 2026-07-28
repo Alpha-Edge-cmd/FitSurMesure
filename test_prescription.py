@@ -3,19 +3,21 @@
 Tests de la prescription d'entraînement (phase 9/16) —
 logic/recommendation/prescription.py, intensity.py, rest_time.py.
 
-Prompt hors 24 phases (bascule du PDF payant sur le moteur V2) : les tests
-1 à 5 utilisent désormais "1h" (plutôt que "1h - 1h30") comme durée passée à
-`generate_workout` — volontairement HORS du plancher explicite de volume
-total par séance ajouté à `workout_generator._completer_volume_minimum`
-(SESSION_MIN_EXOS, plancher déjà testé au niveau séance réelle dans
-test_min_exos_and_families.py). Ce plancher, sur les catalogues synthétiques
-minuscules (4 exercices/muscle) utilisés ici pour isoler la logique de
-prescription, forcerait l'ajout de TOUS les exercices disponibles (y compris
-isolation) et fausserait les assertions dédiées à une préoccupation
-différente (séries/repos/intensité selon niveau/objectif). Le test 6 reste
-en "1h30+" à dessein (scénario explicitement "fatigue élevée") : son
-assertion porte sur le budget de SÉRIES de `prescription.py` (mécanisme
-indépendant, en aval), pas sur le nombre d'exercices."""
+Retour Samy (composition corporelle / sport / volume) : la nouvelle règle de
+volume positionnel par muscle (`volume.calculer_repartition_seance`, voir
+`workout_generator.py`) ne s'applique qu'"à partir d'une heure" (durée >=
+`SEUIL_NOUVELLE_REPARTITION_MINUTES` = 60 min), selon la formulation exacte
+de Samy. Les tests 1 à 5 utilisent donc "45 min" comme durée passée à
+`generate_workout`, volontairement SOUS ce seuil, pour isoler la logique de
+prescription (séries/repos/intensité selon niveau/objectif) de la logique de
+volume par muscle (déjà testée séparément dans test_workout_generator.py et
+au niveau séance réelle dans test_min_exos_and_families.py). Sur les
+catalogues synthétiques minuscules (4 exercices/muscle) utilisés ici, une
+durée >= 1h forcerait l'ajout de TOUS les exercices disponibles (y compris
+isolation) et fausserait ces assertions. Le test 6 reste en "1h30+" à
+dessein (scénario explicitement "fatigue élevée") : son assertion porte sur
+le budget de SÉRIES de `prescription.py` (mécanisme indépendant, en aval),
+pas sur le nombre d'exercices."""
 import app as appmod
 from logic.models import ProfileSnapshot, Exercise
 from logic.recommendation.workout_generator import generate_workout
@@ -77,11 +79,16 @@ def run():
         # --------------------------------------------------------------
         p1 = profil(niveau_musculation="Débutant complet", objectif_principal="Prise de muscle")
         catalogue1 = catalogue_muscle("pecs", "push")
-        w1 = generate_workout(p1, ["pecs"], catalogue1, "1h")
+        w1 = generate_workout(p1, ["pecs"], catalogue1, "45 min")
         presc1 = generate_prescription(p1, w1, catalogue1)
         for e in presc1["exercises"]:
-            assert 2 <= e["sets"] <= 4, e
-            assert e["reps"] == "6-12", e  # dominant = hypertrophie pour "Prise de muscle"
+            # Retour Samy (prompt hors 24 phases, "minimum 3 série") : plancher
+            # relevé de 2 à 3 (NIVEAU_SETS_RANGE["Débutant complet"] = (3, 4)).
+            # Borne haute à 5 (pas 4) : mouvements composés (principal/secondaire)
+            # peuvent recevoir le "+1 série possible" si le budget de fatigue le
+            # permet (cf. _ajuster_series_selon_budget, mécanisme préexistant).
+            assert 3 <= e["sets"] <= 5, e
+            assert e["reps"] == "8-12", e  # dominant = hypertrophie pour "Prise de muscle" (retour Samy : 6-15 resserré)
             assert 60 <= e["rest_seconds"] <= 120, e
             assert e["intensity"] in ("faible", "modérée"), e  # débutant : jamais élevée
         print("OK 1 — débutant hypertrophie : séries/repos/intensité cohérents", presc1)
@@ -95,10 +102,10 @@ def run():
             objectif_secondaire="Gagner en force",
         )
         catalogue2 = catalogue_muscle("dos", "pull")
-        w2 = generate_workout(p2, ["dos"], catalogue2, "1h")
+        w2 = generate_workout(p2, ["dos"], catalogue2, "45 min")
         presc2 = generate_prescription(p2, w2, catalogue2)
         for e in presc2["exercises"]:
-            assert e["reps"] == "3-6", e  # dominant = force
+            assert e["reps"] == "6-8", e  # dominant = force (retour Samy : 6-15 resserré)
         rest_moyen_1 = sum(e["rest_seconds"] for e in presc1["exercises"]) / len(presc1["exercises"])
         rest_moyen_2 = sum(e["rest_seconds"] for e in presc2["exercises"]) / len(presc2["exercises"])
         assert rest_moyen_2 > rest_moyen_1, (rest_moyen_2, rest_moyen_1)
@@ -109,10 +116,10 @@ def run():
         # --------------------------------------------------------------
         p3 = profil(niveau_musculation="Intermédiaire", objectif_principal="Recomposition (sec + muscle)")
         catalogue3 = catalogue_muscle("quadriceps", "squat")
-        w3 = generate_workout(p3, ["quadriceps"], catalogue3, "1h")
+        w3 = generate_workout(p3, ["quadriceps"], catalogue3, "45 min")
         presc3 = generate_prescription(p3, w3, catalogue3)
         for e in presc3["exercises"]:
-            assert e["reps"] == "6-12", e  # dominant = hypertrophie (0.40, premier max ex-aequo avec perte_de_gras)
+            assert e["reps"] == "8-12", e  # dominant = hypertrophie (0.40, premier max ex-aequo avec perte_de_gras)
             assert e["intensity"] in ("faible", "modérée", "élevée"), e
             assert e["notes"], e
         print("OK 3 — recomposition : choix cohérent (reps 6-12, notes présentes)", presc3["exercises"][0])
@@ -122,10 +129,10 @@ def run():
         # --------------------------------------------------------------
         p4 = profil(niveau_musculation="Avancé", objectif_principal="Performance / explosivité")
         catalogue4 = catalogue_muscle("pecs", "push")
-        w4 = generate_workout(p4, ["pecs"], catalogue4, "1h")
+        w4 = generate_workout(p4, ["pecs"], catalogue4, "45 min")
         presc4 = generate_prescription(p4, w4, catalogue4)
         for e in presc4["exercises"]:
-            assert e["reps"] == "3-8", e
+            assert e["reps"] == "6-8", e  # retour Samy : 6-15 resserré
             assert e["rest_seconds"] >= 120, e
             assert e["sets"] <= 3, e  # faible volume attendu (borne basse, niveau avancé = 3)
         assert any(e["notes"] == "Recherche de vitesse maximale, arrêter si perte de qualité." for e in presc4["exercises"])
@@ -147,7 +154,7 @@ def run():
             tolerance_technique=1,
         )
         catalogue5 = catalogue_muscle("epaules", "push")
-        w5 = generate_workout(p5_normale, ["epaules"], catalogue5, "1h")
+        w5 = generate_workout(p5_normale, ["epaules"], catalogue5, "45 min")
         presc5_normale = generate_prescription(p5_normale, w5, catalogue5)
         presc5_faible = generate_prescription(p5_faible, w5, catalogue5)
         ordre = {"faible": 0, "modérée": 1, "élevée": 2}
@@ -175,14 +182,30 @@ def run():
         lookup6 = {ex.exercise_id: ex for ex in catalogue6}
         budget6 = calculate_fatigue_budget(p6)
 
-        from logic.recommendation.prescription import _cout_fatigue_par_serie
+        from logic.recommendation.prescription import _cout_fatigue_par_serie, MIN_SETS_FLOOR
         total_projete = sum(
             e["sets"] * _cout_fatigue_par_serie(lookup6[e["exercise_id"]]) for e in presc6["exercises"]
         )
-        assert total_projete <= budget6 + 1e-6, (total_projete, budget6)
+        # Retour Samy (prompt hors 24 phases, plancher de volume par muscle) :
+        # le budget de fatigue n'est plus un plafond ABSOLU — à partir d'1h de
+        # séance, le plancher positionnel par muscle (`w6["muscle_floors"]`,
+        # ici {"pecs": 4, "dos": 4} pour 2 muscles) prime dessus. Ici, le
+        # catalogue synthétique (4 exercices/muscle) correspond exactement au
+        # plancher : aucun exercice n'est retirable (`_retirer_exercices_si_
+        # besoin` ne retire jamais en dessous du plancher), donc le budget
+        # PEUT être dépassé une fois toutes les séries au plancher `MIN_SETS_
+        # FLOOR`. L'invariant réel à vérifier n'est donc plus "jamais de
+        # dépassement" mais : soit le budget est respecté, soit le
+        # dépassement est explicable par le plancher (séries toutes au
+        # plancher + avertissement dédié émis par `workout_generator` au
+        # niveau séance, cf. `MESSAGE_BUDGET_PLANCHER`).
+        if total_projete > budget6 + 1e-6:
+            assert all(e["sets"] == MIN_SETS_FLOOR for e in presc6["exercises"]), presc6["exercises"]
+            warnings_texte = " ".join(w6.get("warnings", []))
+            assert "plancher" in warnings_texte.lower(), w6.get("warnings")
         for e in presc6["exercises"]:
             assert e["sets"] >= 1, e
-        print(f"OK 6 — profil extrême (fatigue élevée) : {total_projete:.1f}/{budget6:.1f}, aucun dépassement, {len(presc6['exercises'])} exercices, tous sets>=1")
+        print(f"OK 6 — profil extrême (fatigue élevée) : {total_projete:.1f}/{budget6:.1f} (dépassement explicable par le plancher de volume), {len(presc6['exercises'])} exercices, tous sets>=1")
 
     print("\nTOUS LES TESTS DE LA PRESCRIPTION SONT PASSÉS")
 

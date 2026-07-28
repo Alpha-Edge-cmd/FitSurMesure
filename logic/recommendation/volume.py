@@ -112,3 +112,81 @@ def calculate_exercise_count(profile, muscle, available_time):
         count = min(count, borne_min + 1)
 
     return count
+
+
+# ==============================================================================
+# Prompt hors 24 phases (retour Samy, test en conditions réelles : "ça ne va
+# pas du tout une séance fait 4 exercices, minimum 3 exercice par muscle et 4
+# pour le muscle principal ou le muscle priorisé"). Après clarification
+# explicite de Samy sur le cas des séances courtes : la répartition ci-dessous
+# remplace `calculate_exercise_count` UNIQUEMENT à partir d'1h de séance
+# ("à partir d'une heure") ; en dessous (45 min), l'ancien barème
+# niveau/objectif/durée ci-dessus reste utilisé tel quel (moins d'exercices,
+# priorisation du plus important, cf. section courte de la consigne d'origine).
+#
+# Répartition demandée explicitement par Samy, par POSITION de priorité dans
+# la séance (position 0 = muscle principal de la séance ou muscle prioritaire
+# de l'utilisateur, après réordonnancement fait par l'appelant, cf.
+# `workout_generator._muscles_ordonnes_par_priorite`) : "si il y'a 3 muscles
+# tu fais 4 3 2 et si il y'en a deux 4 4" -> généralisé au-delà de 3 par une
+# dégression jusqu'à un plancher de 2 (pas de formule au-delà de 3 muscles
+# donnée explicitement par Samy, ce plancher est l'extrapolation la plus
+# directe de son exemple, à recalibrer si besoin).
+# ==============================================================================
+SEUIL_NOUVELLE_REPARTITION_MINUTES = 60  # "à partir d'une heure" (Samy)
+
+# Nombre d'exercices max qu'une seule "portion anatomique" peut faire monter
+# le compte d'un muscle à couvrir de portions différentes (cf.
+# `_portions_disponibles` ci-dessous) — plafond pour ne pas déséquilibrer une
+# séance juste parce qu'un muscle a beaucoup de portions cataloguées.
+PLANCHER_PORTIONS_MAX = 4
+
+
+def _repartition_positionnelle(nb_muscles):
+    """Nombre d'exercices "de base" par muscle selon sa position de priorité
+    dans la séance (0 = le plus prioritaire). Exemples donnés explicitement
+    par Samy : 1 muscle -> [4] ; 2 muscles -> [4, 4] (les deux restent
+    prioritaires, pas de raison de moins doser le second) ; 3 muscles ->
+    [4, 3, 2]. Au-delà de 3, dégression continue jusqu'au plancher 2."""
+    if nb_muscles <= 0:
+        return []
+    if nb_muscles == 1:
+        return [4]
+    if nb_muscles == 2:
+        return [4, 4]
+    return [max(2, 4 - i) for i in range(nb_muscles)]
+
+
+def _portions_disponibles(muscle, available_exercises):
+    """Ensemble des portions anatomiques distinctes (`Exercise.
+    portion_anatomique`, ex: "Haut des pecs"/"Milieu des pecs"/"Bas des pecs")
+    présentes au catalogue pour `muscle`. Approximation volontaire (ne tient
+    pas compte des exclusions équipement/blessure, qui restent gérées en aval
+    par `fallback.run_fallback_cascade`) : sert uniquement à DIMENSIONNER le
+    volume souhaité, pas à garantir sa disponibilité réelle."""
+    return {
+        getattr(ex, "portion_anatomique", None)
+        for ex in available_exercises
+        if getattr(ex, "muscle_principal", None) == muscle and getattr(ex, "portion_anatomique", None)
+    }
+
+
+def calculer_repartition_seance(target_muscles, available_exercises):
+    """Nombre d'exercices par muscle pour TOUTE la séance (>= 1h), en
+    combinant la position de priorité (`_repartition_positionnelle` ;
+    `target_muscles` est supposé DÉJÀ réordonné par priorité par l'appelant,
+    cf. `workout_generator._muscles_ordonnes_par_priorite`) et le nombre de
+    portions anatomiques distinctes à couvrir pour ce muscle précis (un
+    muscle à plusieurs portions, ex: pecs Haut/Milieu/Bas, mérite au moins
+    autant d'exercices que de portions à varier, dans la limite de
+    `PLANCHER_PORTIONS_MAX` pour ne pas déséquilibrer la séance). Retourne
+    {muscle: nombre}, jamais moins que la base positionnelle."""
+    base = _repartition_positionnelle(len(target_muscles))
+    resultat = {}
+    for muscle, compte_base in zip(target_muscles, base):
+        nb_portions = len(_portions_disponibles(muscle, available_exercises))
+        if nb_portions:
+            resultat[muscle] = max(compte_base, min(nb_portions, PLANCHER_PORTIONS_MAX))
+        else:
+            resultat[muscle] = compte_base
+    return resultat

@@ -40,32 +40,35 @@ from logic.recommendation.scoring import _mastered_patterns  # noqa: F401 (réut
 # réel à 4 paliers, cf. scoring.NIVEAU_ORDINAL) : interpolé entre les deux
 # paliers voisins, comme dans volume.py (phase 8) — non validé, à calibrer.
 NIVEAU_SETS_RANGE = {
-    "Débutant complet": (2, 3),
-    "Quelques mois d'expérience": (2, 4),
+    "Débutant complet": (3, 4),
+    "Quelques mois d'expérience": (3, 4),
     "Intermédiaire": (3, 4),
     "Avancé": (3, 5),
 }
 NIVEAU_SETS_RANGE_DEFAUT = NIVEAU_SETS_RANGE["Intermédiaire"]
 
-# Retour Samy (prompt hors 24 phases, test en conditions réelles) : le
-# mécanisme de réduction des séries face au budget de fatigue pouvait
-# auparavant descendre jusqu'à 1 série/exercice ("1 x 3-6"), une prescription
-# sans valeur d'entraînement documentée. Littérature force/hypertrophie
-# généraliste (ACSM Position Stand, NSCA Essentials of Strength Training) :
-# même pour un travail d'isolation/finisseur, la dose minimale efficace
-# communément admise est de 2 séries de travail — en dessous, mieux vaut
-# retirer l'exercice de la séance que le vider de son intérêt (cf.
-# `_retirer_exercices_si_besoin` ci-dessous, appelé quand 2 séries partout
-# dépasse encore le budget).
-MIN_SETS_FLOOR = 2
+# Retour Samy (prompt hors 24 phases, test en conditions réelles : "minimum 3
+# série de 6 à 15 répétition selon si c'est de la force, de l'hypertrophie, à
+# l'échec etc") : plancher relevé de 2 à 3 séries, quel que soit le niveau
+# (bornes basses de `NIVEAU_SETS_RANGE` ci-dessus alignées en conséquence) —
+# en dessous, mieux vaut retirer l'exercice de la séance que le vider de son
+# intérêt (cf. `_retirer_exercices_si_besoin` ci-dessous, appelé quand 3
+# séries partout dépasse encore le budget).
+MIN_SETS_FLOOR = 3
 
 # --- Répétitions (section 4) --------------------------------------------------
+# Retour Samy (prompt hors 24 phases) : fourchettes resserrées entre 6 et 15
+# répétitions (jamais en dessous de 6, jugé trop technique/risqué sans
+# supervision réelle sur une appli non encadrée ; jamais au-dessus de 15,
+# hors du champ hypertrophie/force qu'un programme généraliste doit couvrir),
+# tout en gardant des paliers distincts selon l'objectif dominant (force <
+# hypertrophie < perte de gras/endurance).
 REP_RANGES = {
-    "force": (3, 6),
-    "hypertrophie": (6, 12),
-    "endurance_musculaire": (12, 20),
-    "perte_de_gras": (8, 15),
-    "explosivite": (3, 8),
+    "force": (6, 8),
+    "hypertrophie": (8, 12),
+    "endurance_musculaire": (12, 15),
+    "perte_de_gras": (10, 15),
+    "explosivite": (6, 8),
 }
 REP_RANGE_DEFAUT = REP_RANGES["hypertrophie"]
 
@@ -75,10 +78,10 @@ NOTE_ISOLATION = "Contrôle du mouvement, amplitude complète."
 NOTE_EXPLOSIVITE = "Recherche de vitesse maximale, arrêter si perte de qualité."
 
 MESSAGE_EXERCICE_RETIRE_BUDGET = (
-    "Un ou plusieurs exercices ont été retirés de cette séance : même réduits à 2 séries "
+    "Un ou plusieurs exercices ont été retirés de cette séance : même réduits à 3 séries "
     "chacun (dose minimale pour rester utile), le total dépassait encore le budget de fatigue "
     "estimé pour ton profil. Mieux vaut une séance un peu plus courte mais correctement dosée "
-    "qu'un volume dilué à 1 série par exercice."
+    "qu'un volume dilué."
 )
 
 # --- Conseils d'exécution (prompt hors 24 phases, retour Samy : "j'aimerai
@@ -194,7 +197,7 @@ def _cout_fatigue_par_serie(exercise):
     return workout_generator.estimate_exercise_fatigue_cost(exercise) / 3.0
 
 
-def _retirer_exercices_si_besoin(items, budget, warnings):
+def _retirer_exercices_si_besoin(items, budget, warnings, planchers=None):
     """Appelé quand, même en réduisant toutes les séries jusqu'au plancher
     réaliste (`MIN_SETS_FLOOR` = 2), le total de fatigue estimé dépasse
     encore le budget du profil. Plutôt que de continuer à dégrader les
@@ -202,13 +205,15 @@ def _retirer_exercices_si_besoin(items, budget, warnings):
     l'ancienne version -> "1 x 3-6", cf. retour Samy), retire des EXERCICES
     ENTIERS de la séance, dans le même ordre de priorité que la réduction de
     séries (finisseur, puis isolation, puis secondaire, puis en tout dernier
-    recours principal) et JAMAIS le dernier exercice restant pour un muscle
-    donné (même garantie que `workout_generator._reduire_volume_si_besoin`,
-    phase 8 : un muscle ciblé garde toujours au moins un exercice). Marque
-    les éléments retirés (`it["retire"] = True`) plutôt que de les supprimer
-    de `items`, pour que l'appelant puisse les exclure du résultat final sans
-    perdre la correspondance avec `workout["exercises"]` (cf.
+    recours principal) et JAMAIS en dessous du plancher retenu pour ce muscle
+    (`planchers[muscle]`, cf. `workout_generator._muscles_ordonnes_par_
+    priorite`/`volume.calculer_repartition_seance` — 1 par défaut si absent,
+    même garantie minimale qu'avant). Marque les éléments retirés
+    (`it["retire"] = True`) plutôt que de les supprimer de `items`, pour que
+    l'appelant puisse les exclure du résultat final sans perdre la
+    correspondance avec `workout["exercises"]` (cf.
     `program_builder.build_program`)."""
+    planchers = planchers or {}
 
     def total():
         return sum(
@@ -234,7 +239,8 @@ def _retirer_exercices_si_besoin(items, budget, warnings):
                 comptes_par_muscle[muscle_de(it)] = comptes_par_muscle.get(muscle_de(it), 0) + 1
             candidats = [
                 it for it in restants
-                if it["tier"] == tier_a_retirer and comptes_par_muscle.get(muscle_de(it), 0) > 1
+                if it["tier"] == tier_a_retirer
+                and comptes_par_muscle.get(muscle_de(it), 0) > planchers.get(muscle_de(it), 1)
             ]
             if not candidats:
                 break
@@ -249,17 +255,18 @@ def _retirer_exercices_si_besoin(items, budget, warnings):
     return items
 
 
-def _ajuster_series_selon_budget(items, budget, autoriser_bonus, warnings):
+def _ajuster_series_selon_budget(items, budget, autoriser_bonus, warnings, planchers=None):
     """"Ne jamais dépasser le budget fatigue de séance" (section 3). Réduit
     d'abord les paliers les moins prioritaires (finisseur puis isolation puis
     secondaire puis, en dernier recours, principal) jusqu'au plancher
-    réaliste `MIN_SETS_FLOOR` (2 séries, cf. retour Samy : "1x3-6 c'est
-    complètement incohérent" — 1 série n'a pas de valeur d'entraînement
-    documentée). Si le budget est encore dépassé à ce plancher, retire des
-    exercices entiers (`_retirer_exercices_si_besoin`) plutôt que de
-    continuer à dégrader les séries. Accorde ensuite le "+1 série possible"
-    aux mouvements composés (un seul palier de bonus, jamais cumulatif) si de
-    la marge reste, principal d'abord."""
+    réaliste `MIN_SETS_FLOOR` (3 séries, cf. retour Samy : "1x3-6 c'est
+    complètement incohérent" puis "minimum 3 série" — en dessous, une
+    prescription n'a plus de valeur d'entraînement documentée). Si le budget
+    est encore dépassé à ce plancher, retire des exercices entiers
+    (`_retirer_exercices_si_besoin`, jamais en dessous du plancher par muscle
+    `planchers`) plutôt que de continuer à dégrader les séries. Accorde
+    ensuite le "+1 série possible" aux mouvements composés (un seul palier de
+    bonus, jamais cumulatif) si de la marge reste, principal d'abord."""
 
     def total():
         return sum(
@@ -283,7 +290,7 @@ def _ajuster_series_selon_budget(items, budget, autoriser_bonus, warnings):
             break
 
     if total() > budget:
-        _retirer_exercices_si_besoin(items, budget, warnings)
+        _retirer_exercices_si_besoin(items, budget, warnings, planchers=planchers)
 
     if autoriser_bonus:
         for it in items:
@@ -347,16 +354,26 @@ def generate_prescription(profile, workout, available_exercises=None):
 
     items_reels = [it for it in items if it["exercise"] is not None]
     warnings = []
-    _ajuster_series_selon_budget(items_reels, budget, autoriser_bonus=(dominant != "explosivite"), warnings=warnings)
+    # Additif (prompt hors 24 phases, retour Samy : plancher d'exercices par
+    # muscle) : `workout["muscle_floors"]` expose le plancher retenu par
+    # `workout_generator.generate_workout` (cf. sa docstring) -> jamais
+    # retirer un exercice en dessous de ce plancher lors de l'ajustement du
+    # budget de fatigue par les séries. Absent -> {} (plancher 1 par défaut
+    # dans `_retirer_exercices_si_besoin`, comportement historique préservé).
+    planchers = workout.get("muscle_floors") or {}
+    _ajuster_series_selon_budget(
+        items_reels, budget, autoriser_bonus=(dominant != "explosivite"),
+        warnings=warnings, planchers=planchers,
+    )
 
     resultats = []
     for it in items:
         if it.get("retire"):
             # Retiré par `_retirer_exercices_si_besoin` (budget de fatigue
-            # dépassé même au plancher de 2 séries) : absent du résultat
-            # plutôt que présent avec des séries vides (cf. correspondance
-            # attendue par `program_builder.build_program`, qui doit alors
-            # ignorer cet exercice au lieu de l'afficher sans dosage).
+            # dépassé même au plancher de séries) : absent du résultat plutôt
+            # que présent avec des séries vides (cf. correspondance attendue
+            # par `program_builder.build_program`, qui doit alors ignorer cet
+            # exercice au lieu de l'afficher sans dosage).
             continue
         entree, exo_obj, tier = it["entree"], it["exercise"], it["tier"]
         if exo_obj is None:

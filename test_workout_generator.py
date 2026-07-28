@@ -64,22 +64,20 @@ def run():
     with appmod.app.app_context():
 
         # --------------------------------------------------------------
-        # 1) Débutant full body : volume raisonnable
+        # 1) Débutant full body : volume raisonnable (séance COURTE, "45 min")
         # --------------------------------------------------------------
-        # Prompt hors 24 phases (bascule PDF payant sur le moteur V2) : durée
-        # "1h" plutôt que "1h - 1h30", volontairement HORS du plancher
-        # explicite de volume total par séance ajouté à `workout_generator.
-        # _completer_volume_minimum` (SESSION_MIN_EXOS) — ce plancher est une
-        # politique de SÉANCE RÉELLE à plusieurs muscles (Push/Pull/Legs,
-        # Upper/Lower...), déjà testée à ce niveau dans
-        # test_min_exos_and_families.py ; il contaminerait ici un test dédié
-        # à une préoccupation différente et orthogonale (l'échelle de volume
-        # PAR MUSCLE selon le niveau) sur un catalogue synthétique minuscule
-        # (4 exercices/muscle) qui n'a jamais eu vocation à représenter une
-        # vraie séance de split.
+        # Prompt hors 24 phases (retour Samy, refonte du volume : "minimum 3
+        # exercice par muscle et 4 pour le muscle principal") : à partir d'1h
+        # de séance, le volume par muscle est désormais fixé par la
+        # répartition positionnelle (`volume.calculer_repartition_seance`),
+        # PLUS le barème niveau/objectif d'avant (testé ici avec "45 min",
+        # explicitement laissé HORS de la nouvelle règle par Samy : "à partir
+        # d'une heure"). Ces 2 tests (débutant vs avancé) restent donc
+        # pertinents uniquement pour une séance courte ; le nouveau plancher
+        # positionnel (>= 1h) est testé séparément au test 7 ci-dessous.
         p_debutant = profil(niveau_musculation="Débutant complet")
         catalogue_full = catalogue_muscle("pecs", "push") + catalogue_muscle("dos", "pull")
-        w1 = generate_workout(p_debutant, ["pecs", "dos"], catalogue_full, "1h")
+        w1 = generate_workout(p_debutant, ["pecs", "dos"], catalogue_full, "45 min")
         assert set(w1["muscles"]) == {"pecs", "dos"}
         for ex in w1["exercises"]:
             assert set(ex.keys()) == {
@@ -90,20 +88,20 @@ def run():
         }
         for m, c in compte_par_muscle_debutant.items():
             assert 1 <= c <= 2, f"débutant : volume attendu 1-2 pour {m}, obtenu {c}"
-        print(f"OK 1 — débutant full body : volume raisonnable {compte_par_muscle_debutant}")
+        print(f"OK 1 — débutant full body (séance courte) : volume raisonnable {compte_par_muscle_debutant}")
 
         # --------------------------------------------------------------
-        # 2) Avancé salle complète : plus de volume
+        # 2) Avancé salle complète : plus de volume (séance COURTE, "45 min")
         # --------------------------------------------------------------
         p_avance = profil(niveau_musculation="Avancé")
-        w2 = generate_workout(p_avance, ["pecs", "dos"], catalogue_full, "1h")
+        w2 = generate_workout(p_avance, ["pecs", "dos"], catalogue_full, "45 min")
         compte_par_muscle_avance = {
             m: sum(1 for e in w2["exercises"] if e["muscle_principal"] == m) for m in ("pecs", "dos")
         }
         assert sum(compte_par_muscle_avance.values()) > sum(compte_par_muscle_debutant.values()), (
             compte_par_muscle_avance, compte_par_muscle_debutant
         )
-        print(f"OK 2 — avancé salle complète : volume supérieur au débutant {compte_par_muscle_avance}")
+        print(f"OK 2 — avancé salle complète (séance courte) : volume supérieur au débutant {compte_par_muscle_avance}")
 
         # --------------------------------------------------------------
         # 3) Séance 30 minutes : priorisation des exercices importants
@@ -185,6 +183,73 @@ def run():
             f"un avertissement de fallback est attendu pour quadriceps, obtenu {w6['warnings']}"
         )
         print(f"OK 6 — profil extrême : fallback actif dans la séance, avertissements={w6['warnings']}")
+
+        # --------------------------------------------------------------
+        # 7) Nouveau plancher positionnel (>= 1h) : 4/3/2 sans priorité déclarée
+        # --------------------------------------------------------------
+        # Prompt hors 24 phases (retour Samy) : "si il y'a 3 muscles tu fais
+        # 4 3 2" — sans priorité déclarée, l'ordre natif de la séance
+        # (target_muscles tel que fourni) fait foi ; le premier muscle est
+        # donc le "principal" et reçoit 4.
+        p7 = profil(niveau_musculation="Intermédiaire")
+        catalogue7 = (
+            catalogue_muscle("pecs", "push") + catalogue_muscle("epaules", "push")
+            + catalogue_muscle("triceps", "push")
+        )
+        w7 = generate_workout(p7, ["pecs", "epaules", "triceps"], catalogue7, "1h - 1h30")
+        comptes7 = {
+            m: sum(1 for e in w7["exercises"] if e["muscle_principal"] == m)
+            for m in ("pecs", "epaules", "triceps")
+        }
+        assert comptes7 == {"pecs": 4, "epaules": 3, "triceps": 2}, comptes7
+        assert w7["muscle_floors"] == {"pecs": 4, "epaules": 3, "triceps": 2}, w7["muscle_floors"]
+        print(f"OK 7 — plancher positionnel >= 1h, sans priorité déclarée : {comptes7} (4/3/2 attendu)")
+
+        # --------------------------------------------------------------
+        # 8) Nouveau plancher positionnel : le muscle PRIORISÉ passe en tête
+        # --------------------------------------------------------------
+        # Prompt hors 24 phases (retour Samy) : "4 pour le muscle principal
+        # OU le muscle priorisé choisi par la personne" — "Épaules" n'est pas
+        # le premier muscle de la séance, mais doit tout de même recevoir 4
+        # une fois coché comme prioritaire (réordonnancement, cf.
+        # `workout_generator._muscles_ordonnes_par_priorite`).
+        p8 = profil(
+            niveau_musculation="Intermédiaire",
+            variables_json={"duree_seance": "1h - 1h30", "muscles_prioritaires": ["Épaules"]},
+        )
+        w8 = generate_workout(p8, ["pecs", "epaules", "triceps"], catalogue7, "1h - 1h30")
+        comptes8 = {
+            m: sum(1 for e in w8["exercises"] if e["muscle_principal"] == m)
+            for m in ("pecs", "epaules", "triceps")
+        }
+        assert comptes8["epaules"] == 4, f"muscle prioritaire (épaules) doit recevoir 4, obtenu {comptes8}"
+        assert w8["muscles"][0] == "epaules", (
+            f"le muscle prioritaire doit passer en tête de séance, obtenu {w8['muscles']}"
+        )
+        print(f"OK 8 — muscle prioritaire réordonné en tête et dosé à 4 : {comptes8}")
+
+        # --------------------------------------------------------------
+        # 9) Adaptation au sport pratiqué : mêmes muscles priorisés, sans
+        # case "muscles_prioritaires" cochée manuellement
+        # --------------------------------------------------------------
+        # Prompt hors 24 phases (retour Samy : "demande si tu veux que le
+        # programme soit adapté à ce sport"). Basketball -> quadriceps
+        # priorisé (cf. logic/recommendation/sport_profiles.py) ; catalogue
+        # dédié pour ne pas dépendre de l'ordre d'affectation des 3 exercices
+        # ci-dessus.
+        catalogue9 = catalogue_muscle("pecs", "push") + catalogue_muscle("quadriceps", "squat")
+        p9 = profil(
+            niveau_musculation="Intermédiaire",
+            variables_json={
+                "duree_seance": "1h - 1h30",
+                "autre_sport": "Oui", "autre_sport_type": "Basketball", "autre_sport_adapter": "Oui",
+            },
+        )
+        w9 = generate_workout(p9, ["pecs", "quadriceps"], catalogue9, "1h - 1h30")
+        assert w9["muscles"][0] == "quadriceps", (
+            f"le sport pratiqué (basketball -> quadriceps) doit passer en tête, obtenu {w9['muscles']}"
+        )
+        print(f"OK 9 — adaptation sport (basketball) : quadriceps réordonné en tête ({w9['muscles']})")
 
     print("\nTOUS LES TESTS DU GÉNÉRATEUR DE SÉANCES SONT PASSÉS")
 

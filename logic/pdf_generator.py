@@ -17,6 +17,7 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 from .supplements import recommend_supplements
 from .food_lists import get_food_recommendations
+from .exercises_db import MUSCLE_LABELS
 
 
 # Trois "styles" de repas selon l'objectif : léger (perte de gras), généreux (prise de
@@ -714,6 +715,20 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
                               f"({lifestyle.get('autre_sport_sessions', '?')}x/semaine) : répartis bien "
                               f"tes jours de repos entre toutes tes activités pour éviter le cumul de "
                               f"fatigue sur les mêmes groupes musculaires."))
+        # Additif (prompt hors 24 phases, retour Samy : "demande si tu veux
+        # que le programme soit adapté à ce sport") : n'affiche cette 2e
+        # phrase que si l'utilisateur a explicitement demandé l'adaptation
+        # ET que le sport déclaré a une correspondance documentée (cf.
+        # logic/recommendation/sport_profiles.py, réutilisé ici en lecture
+        # seule pour le libellé des muscles, aucune règle recalculée).
+        if lifestyle.get("autre_sport_adapter") == "Oui":
+            from logic.recommendation.sport_profiles import SPORT_MUSCLES_PRIORITAIRES
+            muscles_sport = SPORT_MUSCLES_PRIORITAIRES.get(lifestyle.get("autre_sport_type_brut", ""))
+            if muscles_sport:
+                labels_muscles = ", ".join(sorted(MUSCLE_LABELS.get(m, m) for m in muscles_sport))
+                story.append(_bullet(f"Ton programme est adapté à {lifestyle.get('autre_sport_type', 'ce sport')} "
+                                      f"comme demandé : {labels_muscles} reçoivent davantage de volume, ce "
+                                      f"sont les groupes les plus sollicités par cette pratique."))
     story.append(_bullet("Quelques minutes d'étirements ou de mobilité en fin de séance pour la récupération."))
 
     story.append(_p("Récupération", h2_style))
@@ -764,13 +779,23 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle):
     story.append(_bullet("Ne te fie pas uniquement à la balance : prends aussi des photos et des mesures."))
 
     composition = profile.get("composition_corporelle")
+    # Prompt hors 24 phases (retour Samy : options "sec"/"mince" distinctes,
+    # ajout "athlétique") : les deux valeurs remplacent l'ancienne option
+    # unique "Plutôt sec / mince" pour ce même avertissement décalage-IMC ;
+    # rétrocompatible avec d'anciens profils enregistrés sous l'ancien libellé.
+    valeurs_sec_ou_mince = (
+        "Sec / bien défini, peu de gras visible",
+        "Mince / plutôt menu(e), naturellement peu de masse",
+        "Plutôt sec / mince",
+    )
     if composition and composition != "Je ne sais pas":
-        if composition == "Plutôt en surpoids / du gras à perdre" and imc_cat in ("poids normal", "sous-poids"):
+        if composition in ("En surpoids / du gras à perdre", "Plutôt en surpoids / du gras à perdre") \
+                and imc_cat in ("poids normal", "sous-poids"):
             story.append(_bullet("Tu te perçois plutôt en surpoids alors que ton IMC est dans la norme : "
                                   "l'IMC ne distingue pas masse grasse et masse musculaire, donc ce "
                                   "décalage est fréquent et ne remet pas en cause le calcul ci-dessus. "
                                   "Fie-toi surtout à l'évolution de tes mensurations et de tes photos."))
-        elif composition == "Plutôt sec / mince" and imc_cat in ("surpoids", "obésité"):
+        elif composition in valeurs_sec_ou_mince and imc_cat in ("surpoids", "obésité"):
             story.append(_bullet("Tu te perçois plutôt sec/mince alors que ton IMC suggère un surpoids : "
                                   "si tu es très musclé, l'IMC peut surestimer ta masse grasse réelle. "
                                   "Le tour de taille et les photos donneront une image plus fidèle que "

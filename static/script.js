@@ -85,9 +85,19 @@ const steps = [
         options: ["Homme", "Femme"] },
       { id: "poids", label: "Poids (kg)", type: "number", required: true, min: 30, max: 300 },
       { id: "taille", label: "Taille (cm)", type: "number", required: true, min: 100, max: 250 },
+      // Prompt hors 24 phases (retour Samy : "un qlq de sec n'est pas
+      // forcément mince, mets sec ensuite mince ensuite gras ensuite musclé
+      // et gras ensuite athlétique") : options élargies et distinctes plutôt
+      // que "sec / mince" regroupés en une seule, dans l'ordre demandé.
       { id: "composition_corporelle", label: "Comment décrirais-tu ton corps actuellement ?", type: "select",
-        options: ["Plutôt sec / mince", "Plutôt en surpoids / du gras à perdre",
-                   "Musclé(e) avec du gras à perdre (recomposition)", "Je ne sais pas"] },
+        options: [
+          "Sec / bien défini, peu de gras visible",
+          "Mince / plutôt menu(e), naturellement peu de masse",
+          "En surpoids / du gras à perdre",
+          "Musclé(e) avec du gras à perdre (recomposition)",
+          "Athlétique / sportif(ve), assez équilibré(e)",
+          "Je ne sais pas",
+        ] },
       { id: "niveau_musculation", label: "Niveau en musculation", type: "select", required: true,
         options: ["Débutant complet", "Quelques mois d'expérience", "Intermédiaire", "Avancé"] },
       { id: "annees_pratique", label: "Depuis combien de temps pratiques-tu la musculation régulièrement ? (facultatif)",
@@ -254,24 +264,37 @@ const steps = [
           { value: "ppl", label: "Push / Pull / Legs" },
           { value: "arnold", label: "Arnold Split" },
         ] },
-      { id: "exos_par_muscle_pref", label: "Nombre d'exercices par muscle souhaité", type: "select",
-        showIf: d => d.formule !== "cardio",
-        options: [
-          { value: "auto", label: "Laisse l'algorithme décider" },
-          { value: "2", label: "2 par muscle" },
-          { value: "3", label: "3 par muscle" },
-          { value: "4", label: "4 par muscle" },
-        ] },
+      // Prompt hors 24 phases (retour Samy, refonte du volume) : le nombre
+      // d'exercices par muscle n'est plus demandé manuellement — l'algorithme
+      // le détermine désormais lui-même (position de priorité du muscle +
+      // nombre de portions anatomiques à couvrir, cf. logic/recommendation/
+      // volume.py::calculer_repartition_seance). Champ "exos_par_muscle_pref"
+      // retiré du questionnaire (Samy : "ne demande plus combien d'exercice
+      // on veut bosser par muscle") ; conservé côté backend (app.py) comme
+      // repli "auto" pour l'ancien moteur legacy uniquement (jamais lu par le
+      // moteur V2), donc rien à migrer côté données existantes.
       { id: "muscles_prioritaires", label: "Groupes musculaires à prioriser (facultatif, plus de volume leur sera donné)",
         type: "checkbox-group",
         showIf: d => d.formule !== "cardio",
         options: ["Pectoraux", "Dos", "Épaules", "Bras (biceps/triceps)", "Jambes (quadriceps/ischio)", "Fessiers", "Abdominaux"] },
       { id: "autre_sport", label: "Pratiques-tu un autre sport en parallèle (foot, tennis, danse...) ?",
         type: "select", options: ["Non", "Oui"] },
-      { id: "autre_sport_type", label: "Lequel ?", type: "text", placeholder: "Ex : Football",
+      { id: "autre_sport_type", label: "Lequel ?", type: "select",
+        options: [
+          "Football", "Tennis", "Basketball",
+          "Sports de combat (boxe, MMA, kickboxing...)",
+          "Arts martiaux (judo, karaté, taekwondo...)",
+          "Athlétisme / course à pied", "Rugby", "Natation", "Cyclisme",
+          "Handball", "Volleyball", "Danse", "Escalade", "Golf", "Autre",
+        ],
         showIf: d => d.autre_sport === "Oui" },
+      { id: "autre_sport_type_autre", label: "Précise lequel", type: "text", placeholder: "Ex : Aviron",
+        showIf: d => d.autre_sport === "Oui" && d.autre_sport_type === "Autre" },
       { id: "autre_sport_frequence", label: "À quelle fréquence ?", type: "select",
         options: ["1x / semaine", "2x / semaine", "3x / semaine ou plus"],
+        showIf: d => d.autre_sport === "Oui" },
+      { id: "autre_sport_adapter", label: "Veux-tu que ton programme de musculation soit adapté à ce sport (davantage de volume sur les muscles qu'il sollicite le plus) ?",
+        type: "select", options: ["Non", "Oui"],
         showIf: d => d.autre_sport === "Oui" },
       { id: "sommeil", label: "Sommeil moyen par nuit", type: "select",
         options: ["Moins de 6h", "6 à 7h", "7 à 8h", "8h et plus"] },

@@ -87,6 +87,18 @@ def _autre_sport_sessions(data):
     return _parse_sessions(data.get("autre_sport_frequence", ""))
 
 
+def _autre_sport_type_affiche(data):
+    """Nom du sport à afficher (PDF/conseils) : résout le cas "Autre" (liste
+    déroulante des sports les plus pratiqués en France, cf. static/script.js)
+    vers le texte libre saisi ensuite (`autre_sport_type_autre`), sinon la
+    valeur choisie telle quelle. Prompt hors 24 phases (retour Samy : liste
+    des sports + adaptation du programme)."""
+    valeur = data.get("autre_sport_type", "")
+    if valeur == "Autre":
+        return data.get("autre_sport_type_autre") or "un autre sport"
+    return valeur
+
+
 def _normalize_formule(data):
     formule = data.get("formule", "les_deux")
     if formule not in ("musculation", "cardio", "les_deux", "abonnement"):
@@ -347,7 +359,9 @@ def _build_everything(data):
         "condition_medicale_details": data.get("condition_medicale_details", ""),
         "precisions": data.get("precisions", ""),
         "autre_sport": data.get("autre_sport", "Non"),
-        "autre_sport_type": data.get("autre_sport_type", ""),
+        "autre_sport_type": _autre_sport_type_affiche(data),
+        "autre_sport_type_brut": data.get("autre_sport_type", ""),
+        "autre_sport_adapter": data.get("autre_sport_adapter", "Non"),
         "autre_sport_sessions": autre_sport_sessions,
         "niveau_activite_quotidien": data.get("niveau_activite_quotidien", "sedentaire"),
         "blessures": data.get("blessures", []),

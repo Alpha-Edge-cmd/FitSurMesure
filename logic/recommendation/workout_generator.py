@@ -17,6 +17,14 @@ se contente d'orchestrer les trois pour produire un objet "séance".
 """
 from logic.recommendation import exercise_order, fallback, volume
 from logic.recommendation.fatigue import calculate_fatigue_budget
+from logic.recommendation.sport_profiles import resolve_sport_muscles
+# Réutilisation en LECTURE SEULE du moteur legacy (même pattern déjà établi
+# ailleurs dans ce module pour `logic.exercises_db.SPLITS`/`logic.program_
+# builder._split_key_auto`, cf. logic/recommendation/program_builder.py) :
+# pas de raison de dupliquer une seconde table muscle-checkbox -> clé moteur
+# ni une seconde fonction de réordonnancement par priorité, déjà écrites et
+# testées côté legacy.
+from logic.program_builder import _resolve_prioritaires, _reorder_by_priority
 
 # Libellé de justification affiché par exercice, un par palier de
 # `exercise_order.classify_exercise` — aucune formule, un texte informatif.
@@ -28,7 +36,7 @@ RAISON_PAR_TIER = {
 }
 
 MESSAGE_BUDGET_PLANCHER = (
-    "Budget de fatigue estimé dépassé même au volume plancher (1 exercice/muscle) : "
+    "Budget de fatigue estimé dépassé même au volume plancher visé pour chaque muscle : "
     "le volume n'est plus réduit en dessous de ce plancher pour ne pas vider la séance."
 )
 MESSAGE_REDUCTION_VOLUME = (
@@ -39,80 +47,40 @@ MESSAGE_SEANCE_VIDE = (
     "Aucun exercice disponible pour cette séance compte tenu de tes contraintes."
 )
 
-# Prompt hors 24 phases (bascule du PDF payant sur le moteur V2, régression
-# détectée via test_min_exos_and_families.py) : plancher explicite de nombre
-# total d'exercices par séance selon la durée choisie — MÊMES valeurs que
-# l'ancien moteur (`logic.program_builder.MIN_EXOS_PAR_SEANCE`, tâche #52 des
-# 24 phases). Le budget de fatigue PAR EXERCICE (`calculate_fatigue_budget`,
-# phase 6) a été calibré indépendamment de cette contrainte de VOLUME TOTAL
-# et, pour un split à plusieurs muscles par séance (Upper/Lower, PPL...),
-# converge naturellement vers beaucoup moins d'exercices que ce plancher
-# métier explicite. Le contrôle fin du volume d'ENTRAÎNEMENT réel (fatigue
-# cumulée) reste géré en aval par `prescription._ajuster_series_selon_budget`
-# (nombre de SÉRIES par exercice, pas nombre d'exercices) : ajouter des
-# exercices ici pour tenir ce plancher ne fait donc jamais courir de risque
-# de surentraînement, seulement plus de variété avec moins de séries chacun.
-SESSION_MIN_EXOS = {
-    "1h - 1h30": 9,
-    "1h30+": 10,
-}
-MESSAGE_PLANCHER_SEANCE_INATTEIGNABLE = (
-    "Impossible d'atteindre {plancher} exercices sur cette séance compte tenu de tes contraintes "
-    "actuelles (équipement/blessures/exclusions) — {total} exercice(s) proposé(s), c'est le maximum "
-    "réellement disponible."
+# Prompt hors 24 phases (retour Samy, test en conditions réelles : "ça ne va
+# pas du tout une séance fait 4 exercices, minimum 3 exercice par muscle et 4
+# pour le muscle principal ou le muscle priorisé choisi par la personne").
+# REMPLACE l'ancien plancher de VOLUME TOTAL par séance (SESSION_MIN_EXOS,
+# 9/10 selon durée) par une répartition explicite PAR MUSCLE ET PAR POSITION
+# DE PRIORITÉ (cf. `volume.calculer_repartition_seance`), jugée par Samy plus
+# fidèle à un vrai programme (le muscle principal/prioritaire mérite plus de
+# volume que les autres, pas un simple total à atteindre peu importe la
+# répartition). Cf. `_muscles_ordonnes_par_priorite` ci-dessous pour la
+# résolution du muscle prioritaire (choix utilisateur ou sport pratiqué).
+MESSAGE_VOLUME_CIBLE_INATTEIGNABLE = (
+    "{muscle} : {cible} exercices visés pour ce muscle mais seulement {obtenu} disponible(s) compte "
+    "tenu de tes contraintes actuelles (équipement/blessures/exclusions)."
 )
 
 
-def _completer_volume_minimum(par_muscle, profile, available_exercises, session_duration, warnings):
-    """Complète (JAMAIS ne réduit) le nombre total d'exercices de la séance
-    pour atteindre `SESSION_MIN_EXOS[session_duration]`, si applicable.
-    N'ajoute que des exercices RÉELLEMENT disponibles (relance `fallback.
-    run_fallback_cascade` avec un objectif +1 pour le muscle le moins fourni
-    à chaque tour, jamais d'invention) ; répartit l'ajout entre muscles
-    plutôt que d'empiler sur un seul. S'arrête et avertit explicitement si le
-    plancher demandé reste hors de portée (mêmes garanties que le reste du
-    moteur : jamais un silence sur une limite réelle)."""
-    plancher = SESSION_MIN_EXOS.get(session_duration)
-    if not plancher or not par_muscle:
-        return
-
-    def total():
-        return sum(len(groupe["exercises"]) for groupe in par_muscle)
-
-    deja_par_groupe = {
-        id(groupe): {item["exercise"].exercise_id for item in groupe["exercises"]}
-        for groupe in par_muscle
-    }
-
-    tentatives_sans_progres = 0
-    while total() < plancher and tentatives_sans_progres <= len(par_muscle):
-        groupe = min(par_muscle, key=lambda g: len(g["exercises"]))
-        deja = deja_par_groupe[id(groupe)]
-        resultat = fallback.run_fallback_cascade(
-            profile, available_exercises, groupe["muscle"], len(groupe["exercises"]) + 1
-        )
-        nouveaux = [e for e in resultat["exercises"] if e["exercise_id"] not in deja]
-        if not nouveaux:
-            tentatives_sans_progres += 1
-            continue
-
-        candidat = nouveaux[0]
-        exo_obj = next(
-            (ex for ex in available_exercises if getattr(ex, "exercise_id", None) == candidat["exercise_id"]),
-            None,
-        )
-        if exo_obj is None:
-            tentatives_sans_progres += 1
-            continue
-
-        groupe["exercises"].append({"exercise": exo_obj, "score": candidat["score"]})
-        deja.add(candidat["exercise_id"])
-        tentatives_sans_progres = 0
-
-    if total() < plancher:
-        warnings.append(
-            MESSAGE_PLANCHER_SEANCE_INATTEIGNABLE.format(plancher=plancher, total=total())
-        )
+def _muscles_ordonnes_par_priorite(profile, target_muscles):
+    """Réordonne `target_muscles` pour placer en tête les muscles prioritaires
+    de la séance : ceux explicitement cochés par l'utilisateur
+    (`variables_json["muscles_prioritaires"]`, réutilise `logic.program_
+    builder.MUSCLE_PRIORITY_MAP`/`_resolve_prioritaires` en lecture seule,
+    même mécanisme que le moteur legacy) ET ceux sollicités par le sport
+    pratiqué en parallèle si l'utilisateur a demandé l'adaptation (cf.
+    `sport_profiles.resolve_sport_muscles`). Si aucune priorité n'est
+    déclarée, l'ordre natif du split (déjà pensé pour mettre le muscle
+    "principal" de la séance en premier, cf. logic/exercises_db.SPLITS) est
+    conservé tel quel : c'est LUI qui devient alors le muscle "principal" au
+    sens de la répartition positionnelle ci-dessous."""
+    variables = getattr(profile, "variables_json", None) or {}
+    prioritaires = _resolve_prioritaires(variables.get("muscles_prioritaires"))
+    prioritaires = prioritaires | resolve_sport_muscles(profile)
+    if not prioritaires:
+        return list(target_muscles)
+    return _reorder_by_priority(list(target_muscles), prioritaires)
 
 
 def estimate_exercise_fatigue_cost(exercise):
@@ -143,14 +111,18 @@ def _nom_seance(target_muscles):
     return "Séance " + " / ".join(str(m).capitalize() for m in target_muscles)
 
 
-def _reduire_volume_si_besoin(par_muscle, budget, warnings):
+def _reduire_volume_si_besoin(par_muscle, budget, warnings, planchers=None):
     """Section 7 : total_fatigue <= budget pendant la construction ; si
     dépassement, réduire le VOLUME (retirer des exercices) avant de
     dégrader la qualité. Retire toujours, en priorité, l'exercice du palier
     le plus "sacrifiable" (finisseur, puis isolation, puis secondaire —
     jamais un mouvement "principal" tant qu'un autre palier reste
     disponible), au score le plus bas au sein de ce palier. Ne descend
-    jamais en dessous d'1 exercice par muscle ciblé (plancher explicite)."""
+    jamais en dessous du plancher explicite du muscle (`planchers[muscle]`,
+    cf. `volume.calculer_repartition_seance` — plancher à 1 par défaut si
+    absent, comportement historique préservé pour les appelants qui ne
+    passent pas ce paramètre)."""
+    planchers = planchers or {}
 
     def total_fatigue():
         return sum(
@@ -163,7 +135,8 @@ def _reduire_volume_si_besoin(par_muscle, budget, warnings):
     while total_fatigue() > budget:
         pire_groupe, pire_tier = None, -1
         for groupe in par_muscle:
-            if len(groupe["exercises"]) <= 1:
+            plancher_groupe = planchers.get(groupe["muscle"], 1)
+            if len(groupe["exercises"]) <= plancher_groupe:
                 continue
             for item in groupe["exercises"]:
                 tier = exercise_order.TIER_ORDER[exercise_order.classify_exercise(item["exercise"])]
@@ -197,11 +170,17 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
                            ("45 min", "1h", "1h - 1h30", "1h30+").
 
     Retourne {"name", "muscles", "exercises", "estimated_duration", "warnings",
-    "profile_analysis"} ; ne prescrit ni séries, ni répétitions, ni charges
-    (hors périmètre). "profile_analysis" (phase 19/24, clé ADDITIVE, cf.
-    logic/profile_analysis.py) résume le profil (niveau/objectif dominant/
-    contraintes/forces/faiblesses/risques) pour expliquer la séance a
-    posteriori — ne participe à AUCUN calcul de volume/budget/ordre ici."""
+    "profile_analysis", "muscle_floors"} ; ne prescrit ni séries, ni
+    répétitions, ni charges (hors périmètre). "profile_analysis" (phase
+    19/24, clé ADDITIVE, cf. logic/profile_analysis.py) résume le profil
+    (niveau/objectif dominant/contraintes/forces/faiblesses/risques) pour
+    expliquer la séance a posteriori — ne participe à AUCUN calcul de
+    volume/budget/ordre ici. "muscle_floors" (clé ADDITIVE, prompt hors 24
+    phases) expose le plancher d'exercices retenu par muscle (cf.
+    `_muscles_ordonnes_par_priorite`/`volume.calculer_repartition_seance`) —
+    consommé par `prescription._retirer_exercices_si_besoin` pour ne jamais
+    retirer un exercice en dessous de ce plancher lors de l'ajustement du
+    budget de fatigue par les séries."""
     # Import différé pour cohérence avec scoring.py (même raison : éviter tout
     # cycle d'import, même si aucun n'existe réellement ici).
     from logic.profile_analysis import analyze_profile
@@ -210,12 +189,37 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
     budget = calculate_fatigue_budget(profile)
     warnings = []
 
+    # Le muscle prioritaire (choix utilisateur ou sport pratiqué) est placé
+    # en tête -> devient le muscle "principal" au sens de la répartition
+    # positionnelle ci-dessous (cf. docstring de `_muscles_ordonnes_par_
+    # priorite`). Sans priorité déclarée, l'ordre natif du split (déjà pensé
+    # pour mettre son muscle principal en premier) est conservé.
+    target_muscles = _muscles_ordonnes_par_priorite(profile, target_muscles)
+
+    # Prompt hors 24 phases (retour Samy) : à partir d'1h de séance, le
+    # nombre d'exercices par muscle est fixé par la répartition positionnelle
+    # + portions anatomiques (`volume.calculer_repartition_seance`), qui
+    # remplace le barème niveau/objectif habituel. En dessous (45 min),
+    # l'ancien barème reste utilisé (Samy : "à partir d'une heure").
+    nouvelle_repartition = volume._duree_minutes(session_duration) >= volume.SEUIL_NOUVELLE_REPARTITION_MINUTES
+    if nouvelle_repartition:
+        planchers = volume.calculer_repartition_seance(target_muscles, available_exercises)
+    else:
+        planchers = {muscle: 1 for muscle in target_muscles}
+
     par_muscle = []
     for muscle in target_muscles:
-        nombre = volume.calculate_exercise_count(profile, muscle, session_duration)
+        if nouvelle_repartition:
+            nombre = planchers[muscle]
+        else:
+            nombre = volume.calculate_exercise_count(profile, muscle, session_duration)
         resultat = fallback.run_fallback_cascade(profile, available_exercises, muscle, nombre)
         if resultat["warning"]:
             warnings.append(f"{muscle} : {resultat['warning']}")
+        if nouvelle_repartition and len(resultat["exercises"]) < nombre:
+            warnings.append(MESSAGE_VOLUME_CIBLE_INATTEIGNABLE.format(
+                muscle=muscle, cible=nombre, obtenu=len(resultat["exercises"]),
+            ))
 
         enrichis = []
         for e in resultat["exercises"]:
@@ -226,8 +230,7 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
 
         par_muscle.append({"muscle": muscle, "exercises": enrichis})
 
-    _reduire_volume_si_besoin(par_muscle, budget, warnings)
-    _completer_volume_minimum(par_muscle, profile, available_exercises, session_duration, warnings)
+    _reduire_volume_si_besoin(par_muscle, budget, warnings, planchers=planchers)
 
     exercices_sortie = []
     for groupe in par_muscle:
@@ -256,4 +259,5 @@ def generate_workout(profile, target_muscles, available_exercises, session_durat
         "estimated_duration": estimated_duration,
         "warnings": warnings,
         "profile_analysis": analyze_profile(profile),
+        "muscle_floors": planchers,
     }
