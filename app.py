@@ -998,5 +998,78 @@ def admin_dashboard():
     )
 
 
+# ---------------------------------------------------------------------------
+# Dashboard admin : suivi des programmes générés/envoyés (retour Samy, prompt
+# hors 24 phases : "je veux également pouvoir avoir un suivi de tout les
+# programmes qui sont faits et à qui ils sont envoyé"). Réponse validée par
+# Samy pour ce périmètre : "Liste + consultation/téléchargement du PDF" (pas
+# de recherche/filtre avancé pour cette phase). Source de vérité : orders.json
+# (logic/orders.py), déjà la seule trace fiable de "qui a reçu quoi" — la
+# couche Program/User (base relationnelle) n'est peuplée que pour les
+# commandes migrées (logic/order_migration.py), donc pas encore exhaustive.
+# ---------------------------------------------------------------------------
+
+def _admin_program_rows():
+    """Construit la liste des commandes pour le dashboard admin, la plus
+    récente en premier. Un email non résolvable (essai gratuit/accès
+    propriétaire sans email connu, cf. docstring order_migration._resolve_email)
+    n'est jamais une erreur bloquante : affiché comme "?" plutôt que de faire
+    échouer toute la liste."""
+    store = orders._load()
+    rows = []
+    for order_id, order in store["orders"].items():
+        data = order.get("data") or {}
+        try:
+            email = order_migration._resolve_email(order)
+        except Exception:
+            email = None
+        rows.append({
+            "order_id": order_id,
+            "created_at": order.get("created_at", ""),
+            "prenom": data.get("prenom") or "?",
+            "email": email or "?",
+            "formule": order.get("formule", "?"),
+            "paid": bool(order.get("paid")),
+            "free": bool(order.get("free")),
+            "code_promo": order.get("code_promo") or "",
+        })
+    rows.sort(key=lambda r: r["created_at"], reverse=True)
+    return rows
+
+
+@app.route("/admin/programmes")
+@_admin_required
+def admin_programmes():
+    return render_template("admin_programs.html", rows=_admin_program_rows())
+
+
+@app.route("/admin/programmes/<order_id>/pdf")
+@_admin_required
+def admin_programme_pdf(order_id):
+    """Consultation/téléchargement du PDF d'une commande depuis le dashboard
+    admin (même génération que /download/<order_id>, jamais une logique
+    dupliquée). Ouvert en ligne (as_attachment=False) plutôt qu'en
+    téléchargement forcé : permet à la fois la consultation directe dans le
+    navigateur ET le téléchargement via son propre bouton, cf. réponse Samy
+    "Liste + consultation/téléchargement du PDF"."""
+    order = orders.get_order(order_id)
+    if not order or not (order.get("paid") or order.get("free")):
+        return _error("Commande introuvable ou programme jamais livré.", 404)
+
+    data = order["data"]
+    error, profile, nutrition, program, cardio, lifestyle = _build_everything(data)
+    if error:
+        return error
+
+    buffer = io.BytesIO()
+    generate_pdf(
+        buffer, profile, nutrition, program, cardio, lifestyle,
+        include_nutrition=_include_nutrition(_normalize_formule(data)),
+    )
+    buffer.seek(0)
+    return send_file(buffer, mimetype="application/pdf", as_attachment=False,
+                      download_name="programme_personnalise.pdf")
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5050, debug=True)

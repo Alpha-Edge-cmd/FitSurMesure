@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Programmes envoyés | FitSurMesure</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0f1115; color: #e6e8ec; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;
+  }
+  header h1 { font-size: 1.4rem; margin: 0; }
+  header .links { display: flex; gap: 1rem; align-items: center; }
+  header a { color: #9aa1af; font-size: 0.85rem; text-decoration: none; }
+  header a:hover { color: #fff; }
+  nav.tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+  nav.tabs a {
+    padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.82rem; text-decoration: none;
+    color: #9aa1af; background: #181b22; border: 1px solid #262b36;
+  }
+  nav.tabs a.active { color: #10131a; background: #f5c344; border-color: #f5c344; font-weight: 700; }
+  nav.tabs a:hover:not(.active) { color: #fff; }
+
+  .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .totals .card {
+    background: #181b22; border: 1px solid #262b36; border-radius: 10px; padding: 1rem 1.2rem;
+  }
+  .totals .card .num { font-size: 1.5rem; font-weight: 700; color: #f5c344; }
+  .totals .card .label { font-size: 0.78rem; color: #9aa1af; margin-top: 0.2rem; }
+
+  .panel {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 1.1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid #21252f; vertical-align: top; }
+  th { color: #9aa1af; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  .btn {
+    padding: 0.45rem 0.9rem; border: none; border-radius: 8px; font-weight: 700;
+    font-size: 0.8rem; cursor: pointer; background: #f5c344; color: #10131a; text-decoration: none;
+    display: inline-block;
+  }
+  .btn:hover { background: #f7cf66; }
+  .btn-disabled {
+    padding: 0.45rem 0.9rem; border-radius: 8px; font-size: 0.8rem; color: #6b7280;
+    background: #10131a; border: 1px solid #21252f; display: inline-block;
+  }
+  .badge-ok { color: #7be2a0; font-size: 0.75rem; }
+  .badge-free { color: #f5c344; font-size: 0.75rem; }
+  .badge-unpaid { color: #ff8a8a; font-size: 0.75rem; }
+  .muted { color: #6b7280; font-size: 0.78rem; }
+  .empty { color: #6b7280; font-size: 0.85rem; padding: 1rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Programmes envoyés</h1>
+    <div class="links"><a href="/admin/logout">Se déconnecter</a></div>
+  </header>
+
+  <nav class="tabs">
+    <a href="/admin/dashboard">Codes promo</a>
+    <a href="/admin/programmes" class="active">Programmes envoyés</a>
+  </nav>
+
+  <div class="totals">
+    <div class="card"><div class="num">{{ rows|length }}</div><div class="label">Commandes au total</div></div>
+    <div class="card"><div class="num">{{ rows|selectattr("paid")|list|length }}</div><div class="label">Programmes réellement livrés (payés ou essai gratuit)</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Historique des commandes</h2>
+    <p class="muted" style="margin: -0.4rem 0 1.1rem;">
+      Chaque ligne correspond à une réponse au questionnaire. Le PDF est régénéré à la volée
+      à partir des réponses stockées (pas un fichier figé) : il reflète donc les éventuelles
+      corrections faites depuis via l'écran de révision "je n'aime pas cet exercice".
+    </p>
+    {% if rows %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Formule</th>
+          <th>Statut</th>
+          <th>Code promo</th>
+          <th>PDF</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.created_at[:10] if r.created_at else "?" }}</td>
+          <td>{{ r.prenom }}</td>
+          <td>{{ r.email }}</td>
+          <td>{{ r.formule }}</td>
+          <td>
+            {% if r.free %}<span class="badge-free">● Essai gratuit</span>
+            {% elif r.paid %}<span class="badge-ok">● Payé</span>
+            {% else %}<span class="badge-unpaid">● Non payé (abandonné)</span>{% endif %}
+          </td>
+          <td>{{ r.code_promo or "—" }}</td>
+          <td>
+            {% if r.paid or r.free %}
+            <a class="btn" href="/admin/programmes/{{ r.order_id }}/pdf" target="_blank" rel="noopener">Consulter / télécharger</a>
+            {% else %}
+            <span class="btn-disabled">Jamais livré</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Aucune commande pour le moment.</div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

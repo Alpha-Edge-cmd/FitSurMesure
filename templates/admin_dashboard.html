@@ -71,6 +71,13 @@
   details ul { margin: 0.5rem 0 0; padding-left: 1.1rem; }
   details li { font-size: 0.78rem; color: #cbd1db; margin-bottom: 0.2rem; }
   .empty { color: #6b7280; font-size: 0.85rem; padding: 1rem 0; }
+  nav.tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+  nav.tabs a {
+    padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.82rem; text-decoration: none;
+    color: #9aa1af; background: #181b22; border: 1px solid #262b36;
+  }
+  nav.tabs a.active { color: #10131a; background: #f5c344; border-color: #f5c344; font-weight: 700; }
+  nav.tabs a:hover:not(.active) { color: #fff; }
 </style>
 </head>
 <body>
@@ -79,6 +86,11 @@
     <h1>Codes promo / parrainage</h1>
     <a href="/admin/logout">Se déconnecter</a>
   </header>
+
+  <nav class="tabs">
+    <a href="/admin/dashboard" class="active">Codes promo</a>
+    <a href="/admin/programmes">Programmes envoyés</a>
+  </nav>
 
   {% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
   {% if error %}<div class="msg error">{{ error }}</div>{% endif %}
