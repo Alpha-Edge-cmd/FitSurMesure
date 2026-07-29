@@ -106,10 +106,18 @@ const steps = [
           "Athlétique / sportif(ve), assez équilibré(e)",
           "Je ne sais pas",
         ] },
-      { id: "niveau_musculation", label: "Niveau en musculation", type: "select", required: true,
+      { id: "niveau_musculation",
+        label: d => d.formule === "nutrition"
+          ? "Ton niveau de pratique sportive actuel"
+          : "Niveau en musculation",
+        type: "select", required: true,
         options: ["Débutant complet", "Quelques mois d'expérience", "Intermédiaire", "Avancé"] },
+      // Retour Samy (séparation stricte des programmes) : question purement
+      // musculation, sans effet sur les calculs nutritionnels — masquée en
+      // formule Alimentation seule.
       { id: "annees_pratique", label: "Depuis combien de temps pratiques-tu la musculation régulièrement ? (facultatif)",
         type: "select",
+        showIf: d => d.formule !== "nutrition",
         options: ["Moins de 6 mois", "6 mois à 2 ans", "2 à 5 ans", "Plus de 5 ans"] },
       // As-tu déjà testé ton 1RM (record perso) sur ces 4 mouvements de référence ?
       // Sert à calibrer le conseil d'exécution (cf. logic/recommendation/prescription.py,
@@ -305,15 +313,20 @@ const steps = [
   {
     title: "Contraintes physiques",
     fields: [
+      // Retour Samy (séparation stricte) : les douleurs articulaires servent à
+      // écarter des exercices de musculation et à adapter les séances cardio.
+      // Elles n'ont aucune incidence sur un plan alimentaire seul.
       { id: "blessures", label: "Douleurs ou blessures actuelles", type: "checkbox-group",
+        showIf: d => d.formule !== "nutrition",
         options: ["Épaule", "Dos / lombaires", "Genoux", "Chevilles / talons", "Poignets"] },
       { id: "severite_blessure", label: "À quel point ces gênes te limitent-elles aujourd'hui ?",
         type: "severity-per-zone", zonesField: "blessures",
-        showIf: d => (d.blessures || []).length > 0 },
+        showIf: d => d.formule !== "nutrition" && (d.blessures || []).length > 0 },
       { id: "exercices_incapables", label: "Exercices qu'il ne sait pas / ne peut pas faire", type: "checkbox-group",
         showIf: d => (d.formule !== "cardio" && d.formule !== "nutrition"),
         options: ["Tractions", "Dips", "Squat barre libre", "Soulevé de terre barre"] },
       { id: "precisions", label: "Précisions (facultatif)", type: "textarea",
+        showIf: d => d.formule !== "nutrition",
         placeholder: "Ex : sensibilité au talon droit à la course" },
     ],
   },
@@ -333,6 +346,7 @@ const steps = [
         options: ["45 min", "1h", "1h - 1h30", "1h30+"] },
       { id: "disponibilite_reelle", label: "En réalité, combien de temps peux-tu consacrer à l'entraînement par semaine, tout compris ? (facultatif)",
         type: "select",
+        showIf: d => d.formule !== "nutrition",
         options: ["Moins de 2h", "2 à 4h", "4 à 6h", "Plus de 6h"] },
       { id: "split_preference", label: "Split préféré", type: "select",
         showIf: d => (d.formule !== "cardio" && d.formule !== "nutrition"),
@@ -417,7 +431,8 @@ const steps = [
         options: ["Soulever lourd, peu de répétitions", "Contrôler le mouvement, plus de répétitions",
                    "Un mix des deux"] },
       { id: "preferences_libres", label: "Autre chose à préciser sur tes préférences d'entraînement ? (facultatif)",
-        type: "textarea", placeholder: "Ex : je préfère éviter les longues séries de cardio en fin de séance" },
+        type: "textarea", showIf: d => d.formule !== "nutrition",
+        placeholder: "Ex : je préfère éviter les longues séries de cardio en fin de séance" },
     ],
   },
   {
@@ -428,9 +443,15 @@ const steps = [
       { id: "allergie_details", label: "Précise ton/tes allergie(s)", type: "text",
         placeholder: "Ex : arachides, fruits de mer",
         showIf: d => d.restriction_alimentaire === "Allergie" },
+      // Retour Samy : "Poulet" et "Dinde" ajoutés explicitement. "Volaille"
+      // est conservé pour qui veut cocher large (canard, pintade...), mais les
+      // deux viandes blanches de loin les plus consommées en musculation
+      // méritent leur propre case plutôt que d'être noyées dans une catégorie
+      // générique — elles orientent des suggestions de repas différentes.
       { id: "aliments_apprecies", label: "Catégories d'aliments que tu apprécies (pour orienter les suggestions)",
         type: "checkbox-group",
-        options: ["Viande rouge", "Volaille", "Poisson", "Œufs", "Légumineuses", "Produits laitiers", "Fruits à coque"] },
+        options: ["Poulet", "Dinde", "Volaille (autre)", "Viande rouge", "Poisson", "Œufs",
+                   "Légumineuses", "Produits laitiers", "Fruits à coque"] },
       { id: "aliments_non_apprecies", label: "Aliments ou ingrédients précis non appréciés", type: "text",
         placeholder: "Ex : tomates, brocolis" },
       { id: "repas_par_jour", label: "Repas par jour souhaités", type: "select",
@@ -477,6 +498,13 @@ const steps = [
 
 let current = 0;
 
+// Vrai quand l'utilisateur arrive depuis la landing page avec une formule déjà
+// choisie (?formule=...) : l'étape 0 "Ta formule" est alors sautée, et sans
+// point de retour explicite il n'existait aucun moyen de revenir au menu des
+// programmes (retour Samy). Cf. `preselectFormule()` en bas de fichier et le
+// lien "← Changer de programme" ajouté dans l'en-tête d'étape.
+let formulePreselectionnee = false;
+
 function renderProgress() {
   const bar = document.getElementById("progress");
   bar.innerHTML = "";
@@ -489,6 +517,15 @@ function renderProgress() {
 
 function optionValue(o) { return typeof o === "string" ? o : o.value; }
 function optionLabel(o) { return typeof o === "string" ? o : o.label; }
+
+// Libellé lisible de la formule en cours ("musculation" -> "Programme
+// Musculation seul"), lu directement dans les options de l'étape 0 pour ne pas
+// dupliquer la liste des offres.
+function formuleLabel(valeur) {
+  const champ = steps[0].fields.find(f => f.id === "formule");
+  const option = (champ ? champ.options : []).find(o => optionValue(o) === valeur);
+  return option ? optionLabel(option) : "";
+}
 
 function fieldHtml(f) {
   const val = formData[f.id];
@@ -540,11 +577,21 @@ function fieldHtml(f) {
   }
   if (f.type === "checkbox-group") {
     const arr = formData[f.id] || [];
-    return `<div class="checkbox-grid">${f.options.map(o => `
+    // Correctif (retour Samy) : les options d'un checkbox-group peuvent être
+    // soit des chaînes ("Course", "Vélo"...), soit des objets
+    // { value, label } — c'est le cas de "splits_exclus", seul groupe du
+    // questionnaire dans ce format. L'ancienne version interpolait `o`
+    // directement, ce qui affichait "[object Object]" et enregistrait la
+    // chaîne "[object Object]" comme valeur cochée. On passe désormais par
+    // les mêmes helpers optionValue()/optionLabel() que les <select>.
+    return `<div class="checkbox-grid">${f.options.map(o => {
+      const v = optionValue(o), l = optionLabel(o);
+      return `
       <label>
-        <input type="checkbox" data-field="${f.id}" value="${o}" ${arr.includes(o) ? "checked" : ""}>
-        ${o}
-      </label>`).join("")}</div>`;
+        <input type="checkbox" data-field="${f.id}" value="${v}" ${arr.includes(v) ? "checked" : ""}>
+        ${l}
+      </label>`;
+    }).join("")}</div>`;
   }
   if (f.type === "textarea") {
     return `<textarea rows="2" data-field="${f.id}" placeholder="${f.placeholder || ""}">${val || ""}</textarea>`;
@@ -578,14 +625,36 @@ function renderStep() {
   const container = document.getElementById("steps");
   const visibleFields = s.fields.filter(f => !f.showIf || f.showIf(formData));
 
+  // Flèche de retour au menu des programmes (retour Samy : "lorsqu'on
+  // sélectionne un programme, ajoute une petite flèche de retour en arrière
+  // afin de revenir facilement au menu précédent"). Affichée dès qu'on a
+  // dépassé l'étape "Ta formule", que celle-ci ait été franchie normalement
+  // ou sautée via ?formule=... depuis la landing page. Le libellé rappelle la
+  // formule en cours pour que l'utilisateur voie immédiatement s'il s'est
+  // trompé de programme.
+  const retourMenuHtml = current > 0
+    ? `<button type="button" class="back-to-menu" id="backToMenu"
+         title="Revenir au choix du programme">&larr; Changer de programme${
+           formuleLabel(formData.formule) ? ` (${formuleLabel(formData.formule)})` : ""
+         }</button>`
+    : "";
+
   let html = `
+    ${retourMenuHtml}
     <div class="step-header">
       <span class="step-count">Étape ${current + 1} sur ${steps.length}</span>
       <h2>${s.title}</h2>
     </div>
   `;
   visibleFields.forEach(f => {
-    html += `<div class="field"><label>${f.label}</label>${fieldHtml(f)}</div>`;
+    // `label` accepte une fonction (d => "...") pour les rares questions dont
+    // la formulation doit s'adapter à la formule choisie — cf.
+    // "niveau_musculation", conservée en formule Alimentation parce qu'elle
+    // alimente réellement le calcul des protéines et l'ajustement calorique
+    // (logic/calculations.py), mais qui ne doit pas être formulée en termes de
+    // musculation dans un programme purement nutritionnel.
+    const labelTexte = typeof f.label === "function" ? f.label(formData) : f.label;
+    html += `<div class="field"><label>${labelTexte}</label>${fieldHtml(f)}</div>`;
   });
 
   if (s.consentAtEnd) {
@@ -680,6 +749,19 @@ function renderStep() {
     });
   }
 
+  // Retour direct au choix du programme, quel que soit le nombre d'étapes déjà
+  // franchies. Les réponses déjà saisies sont conservées : changer de formule
+  // ne fait que modifier les questions affichées (via les `showIf`), donc
+  // repartir de zéro punirait inutilement quelqu'un qui s'est juste trompé de
+  // programme au départ.
+  const backToMenuEl = document.getElementById("backToMenu");
+  if (backToMenuEl) {
+    backToMenuEl.addEventListener("click", () => {
+      current = 0;
+      renderStep();
+    });
+  }
+
   document.getElementById("backBtn").style.visibility = current === 0 ? "hidden" : "visible";
   const nextBtn = document.getElementById("nextBtn");
   nextBtn.innerHTML = current === steps.length - 1 ? "Voir mon programme →" : "Suivant";
@@ -692,22 +774,26 @@ function validateStep() {
   const s = steps[current];
   const visibleFields = s.fields.filter(f => !f.showIf || f.showIf(formData));
   for (const f of visibleFields) {
+    // `label` peut être une fonction (libellé dépendant de la formule choisie,
+    // cf. renderStep) : on le résout avant de l'insérer dans un message
+    // d'erreur, sinon l'utilisateur lirait "[object Function]".
+    const nom = typeof f.label === "function" ? f.label(formData) : f.label;
     // checkbox-group : un tableau vide est "truthy" en JS ([] est vrai), donc
     // le test générique ci-dessous ne suffit pas — vérifie explicitement la
     // longueur (utilisé notamment par le nouveau champ "objectifs", plusieurs
     // choix possibles, prompt final hors 24 phases).
     if (f.required && f.type === "checkbox-group" && (!formData[f.id] || formData[f.id].length === 0)) {
-      showMessage(`Merci de sélectionner au moins une option pour : ${f.label}`, "error");
+      showMessage(`Merci de sélectionner au moins une option pour : ${nom}`, "error");
       return false;
     }
     if (f.required && f.type !== "checkbox-group" && !formData[f.id]) {
-      showMessage(`Merci de renseigner : ${f.label}`, "error");
+      showMessage(`Merci de renseigner : ${nom}`, "error");
       return false;
     }
     if (f.type === "number" && formData[f.id]) {
       const v = parseFloat(formData[f.id]);
-      if (f.min !== undefined && v < f.min) { showMessage(`${f.label} trop faible.`, "error"); return false; }
-      if (f.max !== undefined && v > f.max) { showMessage(`${f.label} trop élevé.`, "error"); return false; }
+      if (f.min !== undefined && v < f.min) { showMessage(`${nom} trop faible.`, "error"); return false; }
+      if (f.max !== undefined && v > f.max) { showMessage(`${nom} trop élevé.`, "error"); return false; }
     }
   }
   if (s.consentAtEnd && !formData.consentement_rgpd) {
@@ -1006,14 +1092,28 @@ document.getElementById("backBtn").addEventListener("click", () => {
 });
 
 // Si on arrive depuis la landing page avec une formule déjà choisie
-// (?formule=musculation|cardio|les_deux|abonnement), on la préremplit et on
-// saute directement à l'étape suivante.
+// (?formule=nutrition|musculation|cardio|les_deux|abonnement), on la
+// préremplit et on saute directement à l'étape suivante.
+//
+// Correctif (retour Samy : "il y a des questions de musculation dans le
+// programme alimentation") : "nutrition" manquait dans cette liste alors que
+// la landing page propose bien un lien /questionnaire?formule=nutrition. La
+// formule n'était donc jamais appliquée et formData.formule restait à sa
+// valeur par défaut ("les_deux"), ce qui affichait TOUT le questionnaire
+// musculation + cardio à quelqu'un venu pour le programme Alimentation seul.
+// La liste est désormais dérivée des options réellement déclarées dans
+// l'étape "Ta formule", pour qu'un futur ajout d'offre ne puisse plus
+// réintroduire ce décalage.
+const FORMULES_VALIDES = (steps[0].fields.find(f => f.id === "formule").options || [])
+  .map(optionValue);
+
 (function preselectFormule() {
   const params = new URLSearchParams(window.location.search);
   const formule = params.get("formule");
-  if (formule && ["musculation", "cardio", "les_deux", "abonnement"].includes(formule)) {
+  if (formule && FORMULES_VALIDES.includes(formule)) {
     formData.formule = formule;
     current = 1;
+    formulePreselectionnee = true;
   }
 })();
 

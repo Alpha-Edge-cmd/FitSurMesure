@@ -364,3 +364,26 @@ button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   text-decoration: none;
 }
 .back-home:hover { color: var(--accent); }
+
+/* Flèche de retour au choix du programme, affichée en haut de chaque étape du
+   questionnaire dès qu'on a dépassé l'étape "Ta formule" (retour Samy). */
+.back-to-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 0.9rem;
+  font-family: inherit;
+  font-size: 13px;
+  color: #9aa2b8;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.back-to-menu:hover,
+.back-to-menu:focus-visible {
+  color: var(--accent);
+  background: none;
+  text-decoration: underline;
+}
