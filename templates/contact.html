@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Nous contacter | FitSurMesure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+<style>
+  .contact-wrap { max-width: 640px; margin: 0 auto; padding: 3.5rem 1.25rem 5rem; }
+  .contact-wrap h1 {
+    font-family: var(--font-display); font-weight: 400; font-size: 34px;
+    color: var(--ink); margin: 0 0 0.6rem;
+  }
+  .contact-wrap p.lead { color: var(--grey); margin: 0 0 2rem; font-size: 15.5px; }
+  .msg { padding: 0.8rem 1.1rem; border-radius: 10px; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .msg.ok { background: var(--light-teal); color: var(--teal); }
+  .msg.error { background: #fdeceb; color: #b3261e; }
+  form { display: flex; flex-direction: column; gap: 1.1rem; }
+  label { font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 0.35rem; display: block; }
+  input[type="text"], input[type="email"], textarea {
+    width: 100%; padding: 0.75rem 0.9rem; border-radius: 10px; border: 1px solid var(--border);
+    font-size: 0.95rem; font-family: inherit; background: #fff; color: var(--ink);
+  }
+  textarea { min-height: 140px; resize: vertical; }
+  .form-actions { margin-top: 0.4rem; }
+  .btn-submit {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff; font-weight: 700; font-size: 15px; padding: 13px 28px; border: none;
+    border-radius: 10px; cursor: pointer; box-shadow: 0 10px 24px rgba(255, 77, 46, 0.3);
+  }
+  .btn-submit:hover { transform: translateY(-1px); }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <a href="/" class="brand">FitSurMesure</a>
+    <a href="/questionnaire" class="cta-small">Créer mon programme</a>
+  </div>
+</nav>
+
+<div class="contact-wrap">
+  <h1>Nous contacter</h1>
+  <p class="lead">
+    Une question sur ton programme, un exercice qui n'apparaît pas comme prévu, un souci de
+    paiement ou autre chose ? Laisse un message ci-dessous, il est transmis directement pour
+    être traité au plus vite.
+  </p>
+
+  {% if message %}<div class="msg ok">{{ message }}</div>{% endif %}
+  {% if error %}<div class="msg error">{{ error }}</div>{% endif %}
+
+  <form method="POST">
+    <div>
+      <label for="nom">Prénom (facultatif)</label>
+      <input type="text" id="nom" name="nom" value="{{ prenom_defaut }}" placeholder="Ton prénom">
+    </div>
+    <div>
+      <label for="email">Email (facultatif, pour te répondre si besoin)</label>
+      <input type="email" id="email" name="email" value="{{ email_defaut }}" placeholder="ton@email.com">
+    </div>
+    <div>
+      <label for="message">Ton message *</label>
+      <textarea id="message" name="message" required placeholder="Décris ta question ou le problème rencontré..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn-submit">Envoyer le message</button>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>

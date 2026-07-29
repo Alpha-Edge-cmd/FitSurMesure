@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Messages | FitSurMesure</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0f1115; color: #e6e8ec; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;
+  }
+  header h1 { font-size: 1.4rem; margin: 0; }
+  header a { color: #9aa1af; font-size: 0.85rem; text-decoration: none; }
+  header a:hover { color: #fff; }
+  nav.tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+  nav.tabs a {
+    padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.82rem; text-decoration: none;
+    color: #9aa1af; background: #181b22; border: 1px solid #262b36;
+  }
+  nav.tabs a.active { color: #10131a; background: #f5c344; border-color: #f5c344; font-weight: 700; }
+  nav.tabs a:hover:not(.active) { color: #fff; }
+
+  .panel {
+    background: #181b22; border: 1px solid #262b36; border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 1.1rem; }
+  .msg-card {
+    background: #10131a; border: 1px solid #21252f; border-radius: 10px; padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .msg-card.unread { border-color: #f5c344; }
+  .msg-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.4rem; }
+  .msg-from { font-weight: 700; }
+  .msg-date { color: #6b7280; font-size: 0.78rem; }
+  .msg-body { white-space: pre-wrap; font-size: 0.9rem; color: #cbd1db; margin-bottom: 0.8rem; }
+  .badge-new { color: #f5c344; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .row-actions { display: flex; gap: 0.5rem; }
+  .row-actions form { display: inline; }
+  button, .btn-ghost {
+    padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.78rem; cursor: pointer;
+    background: transparent; border: 1px solid #2c313d; color: #cbd1db; font-weight: 500;
+  }
+  button:hover, .btn-ghost:hover { background: #20242e; }
+  .btn-danger { border-color: #5c2626; color: #ff8a8a; }
+  .btn-danger:hover { background: #2a1616; }
+  .empty { color: #6b7280; font-size: 0.85rem; padding: 1rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Messages reçus</h1>
+    <a href="/admin/logout">Se déconnecter</a>
+  </header>
+
+  <nav class="tabs">
+    <a href="/admin/dashboard">Codes promo</a>
+    <a href="/admin/programmes">Programmes envoyés</a>
+    <a href="/admin/messages" class="active">Messages</a>
+  </nav>
+
+  <div class="panel">
+    <h2>Messages du formulaire de contact</h2>
+    {% if rows %}
+      {% for r in rows %}
+      <div class="msg-card {{ '' if r.lu else 'unread' }}">
+        <div class="msg-head">
+          <span class="msg-from">{{ r.nom or "Anonyme" }}{% if r.email %} — {{ r.email }}{% endif %}</span>
+          <span class="msg-date">{{ r.created_at[:19].replace("T", " ") if r.created_at else "?" }}{% if not r.lu %} · <span class="badge-new">Nouveau</span>{% endif %}</span>
+        </div>
+        <div class="msg-body">{{ r.message }}</div>
+        <div class="row-actions">
+          {% if r.lu %}
+          <form method="POST">
+            <input type="hidden" name="action" value="mark_unread">
+            <input type="hidden" name="message_id" value="{{ r.id }}">
+            <button type="submit" class="btn-ghost">Marquer comme non lu</button>
+          </form>
+          {% else %}
+          <form method="POST">
+            <input type="hidden" name="action" value="mark_read">
+            <input type="hidden" name="message_id" value="{{ r.id }}">
+            <button type="submit" class="btn-ghost">Marquer comme lu</button>
+          </form>
+          {% endif %}
+          <form method="POST" onsubmit="return confirm('Supprimer ce message ? Cette action est définitive.');">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="message_id" value="{{ r.id }}">
+            <button type="submit" class="btn-danger">Supprimer</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty">Aucun message pour le moment.</div>
+    {% endif %}
+  </div>
+</div>
+</body>
+</html>

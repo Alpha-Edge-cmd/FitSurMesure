@@ -11,7 +11,7 @@ from logic.calculations import build_nutrition_profile
 from logic.program_builder import build_program
 from logic.cardio_builder import build_cardio_program
 from logic.pdf_generator import generate_pdf
-from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction
+from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages
 from logic.db import init_db
 
 # Prompt hors 24 phases (décision explicite de Samy, cf. discussion sur le
@@ -832,6 +832,36 @@ def logout_page():
     return redirect(url_for("landing"))
 
 
+@app.route("/contact", methods=["GET", "POST"])
+def contact_page():
+    """Retour Samy (prompt hors 24 phases) : "je veux également qu'il puisse
+    me laisser un message directement sur le site afin que au moindre
+    problème il y'ai une réponse." Réponse validée : "Dans le dashboard admin
+    (Recommandé)" — aucun envoi d'email, le message atterrit uniquement dans
+    /admin/messages (cf. logic/contact_messages.py). Accessible sans
+    connexion : un visiteur qui n'a pas encore acheté doit pouvoir écrire
+    aussi bien qu'un client existant."""
+    utilisateur = auth.current_user()
+    message = None
+    error = None
+
+    if request.method == "POST":
+        nom = request.form.get("nom", "").strip()
+        email = request.form.get("email", "").strip()
+        texte = request.form.get("message", "").strip()
+        if not texte:
+            error = "Le message ne peut pas être vide."
+        else:
+            contact_messages.create_message(nom, email, texte)
+            message = "Message envoyé. Il sera lu et traité au plus vite."
+
+    return render_template(
+        "contact.html", message=message, error=error,
+        prenom_defaut=utilisateur.prenom if utilisateur else "",
+        email_defaut=utilisateur.email if utilisateur else "",
+    )
+
+
 @app.route("/mon-compte")
 @_login_required
 def mon_compte(utilisateur):
@@ -1069,6 +1099,30 @@ def admin_programme_pdf(order_id):
     buffer.seek(0)
     return send_file(buffer, mimetype="application/pdf", as_attachment=False,
                       download_name="programme_personnalise.pdf")
+
+
+# ---------------------------------------------------------------------------
+# Dashboard admin : messages envoyés via /contact (retour Samy, prompt hors
+# 24 phases : "je veux également qu'il puisse me laisser un message
+# directement sur le site afin que au moindre problème il y'ai une réponse").
+# Réponse validée par Samy : "Dans le dashboard admin (Recommandé)".
+# ---------------------------------------------------------------------------
+
+@app.route("/admin/messages", methods=["GET", "POST"])
+@_admin_required
+def admin_messages():
+    if request.method == "POST":
+        action = request.form.get("action", "")
+        message_id = request.form.get("message_id", "")
+        if action == "mark_read":
+            contact_messages.mark_read(message_id, True)
+        elif action == "mark_unread":
+            contact_messages.mark_read(message_id, False)
+        elif action == "delete":
+            contact_messages.delete_message(message_id)
+
+    rows = contact_messages.list_messages()
+    return render_template("admin_messages.html", rows=rows)
 
 
 if __name__ == "__main__":
