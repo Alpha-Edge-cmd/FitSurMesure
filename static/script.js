@@ -199,6 +199,21 @@ const steps = [
       { id: "allure_cible_course", label: "Allure cible visée, ou autre précision (facultatif)", type: "text",
         placeholder: "Ex : 5:30/km, ou \"tenir 10km sans marcher\"",
         showIf: d => (d.cardio_types || []).includes("Course") },
+      // Retour Samy : question ajoutée juste sous l'allure cible. C'est la
+      // donnée qui manquait le plus au moteur cardio — sans distance visée, il
+      // ne pouvait pas placer d'allure spécifique (5 km, 10 km, semi, marathon)
+      // ni doser la sortie longue, et retombait sur "endurance fondamentale"
+      // par défaut. Cf. logic/cardio_builder.py::_session_mix.
+      { id: "distance_objectif_course", label: "Sur combien de kilomètres ?", type: "select",
+        showIf: d => (d.cardio_types || []).includes("Course"),
+        options: [
+          { value: "", label: "Pas de distance précise" },
+          { value: "5km", label: "5 km" },
+          { value: "10km", label: "10 km" },
+          { value: "semi", label: "Semi-marathon (21,1 km)" },
+          { value: "marathon", label: "Marathon (42,2 km)" },
+          { value: "trail_ultra", label: "Trail / ultra (au-delà du marathon)" },
+        ] },
       { id: "temps_1km", label: "Temps estimé sur 1 km de course (en minutes, ex : 5.5) — aide à mieux calibrer ton niveau",
         type: "number", placeholder: "Ex : 5.5",
         showIf: d => (d.cardio_types || []).includes("Course") },
