@@ -674,6 +674,24 @@ def payment_success():
     try:
         email = order_migration._resolve_email(order)
         if email:
+            # Filet de sécurité (retour Samy, prompt hors 24 phases : "je
+            # veux que les clients puisse également retrouver leur
+            # programme directement sur le site par précautions", #154) :
+            # `_essayer_generer_programme_v2` n'est normalement déclenché
+            # qu'au moment où une commande PASSE à "payée" (webhook Stripe,
+            # accès gratuit immédiat, ou la vérification directe ci-dessus
+            # dans CETTE route) — si l'e-mail n'était pas encore résolvable
+            # à ce moment-là (webhook arrivé avant que Stripe ait confirmé
+            # l'email, panne réseau ponctuelle...), le Program n'a jamais
+            # été généré et resterait invisible sur /mon-compte et
+            # /my-program malgré un paiement bien confirmé. On retente donc
+            # ici, uniquement si aucun programme n'existe encore pour cet
+            # email : sans risque de doublon si une tentative précédente a
+            # en fait réussi entre-temps (`create_program_from_result`
+            # déduplique déjà une régénération strictement identique, cf.
+            # logic/program_repository.py, jamais modifié ici).
+            if program_service.get_user_current_program(email) is None:
+                _essayer_generer_programme_v2(order_id, order)
             user = program_service.get_or_create_user_for_email(email)
             access_token = auth.issue_token_for_user(user)
             auth.login(user)
