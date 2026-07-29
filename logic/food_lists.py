@@ -11,9 +11,12 @@ FECULENTS = ["riz (blanc ou complet)", "pâtes complètes", "pommes de terre", "
 FECULENTS_SANS_GLUTEN = ["riz (blanc ou complet)", "pommes de terre", "patate douce", "quinoa", "sarrasin",
                          "pâtes sans gluten", "pain sans gluten", "polenta", "maïs", "flocons d'avoine sans gluten"]
 
-PROTEINES_ANIMALES = ["poulet", "dinde", "bœuf maigre", "porc (filet, longe)", "poisson blanc (cabillaud, colin, lieu)",
+PROTEINES_ANIMALES = ["poulet (blanc, filet)", "poulet (cuisse, haut de cuisse)", "dinde (escalope)",
+                       "dinde (rôti, sauté)", "volaille — pintade", "volaille — magret de canard dégraissé",
+                       "bœuf maigre", "porc (filet, longe)", "poisson blanc (cabillaud, colin, lieu)",
                        "poisson gras (saumon, maquereau, sardines, thon)", "fruits de mer (crevettes, moules)",
-                       "œufs", "fromage blanc / skyr", "jambon blanc dégraissé", "viande hachée à 5%"]
+                       "œufs", "fromage blanc / skyr", "jambon blanc dégraissé", "jambon de dinde",
+                       "viande hachée à 5%", "thon au naturel en conserve"]
 PROTEINES_VEGETALES = ["lentilles (vertes, corail)", "pois chiches", "haricots rouges", "haricots blancs",
                        "tofu", "tofu fumé", "tempeh", "seitan", "edamame", "protéine de soja texturée",
                        "levure maltée (topping riche en protéines)"]
@@ -79,8 +82,15 @@ def get_food_recommendations(restriction_alimentaire, aliments_non_apprecies, al
         proteines = list(PROTEINES_ANIMALES) + PROTEINES_VEGETALES
 
     # priorise les catégories appréciées si renseignées
+    # Retour Samy : "Poulet" et "Dinde" sont désormais des cases distinctes du
+    # questionnaire (cf. static/script.js, champ `aliments_apprecies`).
+    # L'ancienne clé "Volaille" est conservée telle quelle pour ne pas casser
+    # les commandes déjà enregistrées en base avec cette valeur, et la nouvelle
+    # option "Volaille (autre)" y est mappée également.
     priority_map = {
-        "Viande rouge": "bœuf maigre", "Volaille": "poulet", "Poisson": "poisson",
+        "Poulet": "poulet", "Dinde": "dinde",
+        "Volaille": "poulet", "Volaille (autre)": "volaille",
+        "Viande rouge": "bœuf maigre", "Poisson": "poisson",
         "Œufs": "œufs", "Légumineuses": "lentilles", "Produits laitiers": "fromage",
         "Fruits à coque": "amandes",
     }
