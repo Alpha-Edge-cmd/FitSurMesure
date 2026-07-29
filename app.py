@@ -11,7 +11,7 @@ from logic.calculations import build_nutrition_profile
 from logic.program_builder import build_program
 from logic.cardio_builder import build_cardio_program
 from logic.pdf_generator import generate_pdf
-from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages
+from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages, support_agent
 from logic.db import init_db
 
 # Prompt hors 24 phases (décision explicite de Samy, cf. discussion sur le
@@ -860,6 +860,59 @@ def contact_page():
         prenom_defaut=utilisateur.prenom if utilisateur else "",
         email_defaut=utilisateur.email if utilisateur else "",
     )
+
+
+@app.route("/assistant")
+def assistant_page():
+    """Retour Samy (prompt hors 24 phases) : "je voudrais également qu'il
+    y'ai un agent IA ou un blog ou les utilisateurs peuvent parler entre eux
+    afin que leur question persistante ne soit pas laissé au hasard" —
+    réponse validée : agent IA plutôt que blog/forum. Accessible sans
+    connexion (utile aussi bien pour un visiteur qui hésite avant d'acheter
+    que pour un client). Aucun historique côté serveur, cf. docstring de
+    logic/support_agent.py."""
+    return render_template("assistant.html", ai_configured=support_agent.is_configured())
+
+
+@app.route("/assistant/ask", methods=["POST"])
+def assistant_ask():
+    payload = request.get_json(silent=True) or {}
+    question = (payload.get("question") or "").strip()
+    if not question:
+        return _error("Question vide.", 400)
+    if len(question) > 2000:
+        return _error("Question trop longue (2000 caractères maximum).", 400)
+
+    # L'historique vient du client (JavaScript, cf. docstring de
+    # logic/support_agent.py : aucun état côté serveur) : jamais fait
+    # confiance tel quel — on ne garde que les champs attendus, de type
+    # correct, et on borne strictement la longueur (nombre de tours ET
+    # taille de chaque message), qu'importe ce que le client a envoyé.
+    historique = []
+    for tour in (payload.get("historique") or [])[-(support_agent.MAX_HISTORIQUE * 2):]:
+        role = tour.get("role") if isinstance(tour, dict) else None
+        content = tour.get("content") if isinstance(tour, dict) else None
+        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+            historique.append({"role": role, "content": content[:2000]})
+
+    try:
+        reponse = support_agent.ask(question, historique)
+    except support_agent.SupportAgentNotConfiguredError:
+        return jsonify({
+            "reponse": "L'assistant IA n'est pas encore configuré sur ce site. "
+                       "Utilise le formulaire de contact pour nous écrire directement.",
+            "configured": False,
+        })
+    except Exception:
+        app.logger.exception("Erreur lors de l'appel à l'agent de support IA")
+        return jsonify({
+            "reponse": "Une erreur est survenue, désolé. Utilise le formulaire de contact "
+                       "si le problème persiste.",
+            "configured": True,
+            "erreur": True,
+        })
+
+    return jsonify({"reponse": reponse, "configured": True})
 
 
 @app.route("/mon-compte")

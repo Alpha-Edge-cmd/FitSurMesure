@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Assistant | FitSurMesure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+<style>
+  .assistant-wrap { max-width: 680px; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+  .assistant-wrap h1 {
+    font-family: var(--font-display); font-weight: 400; font-size: 32px;
+    color: var(--ink); margin: 0 0 0.5rem;
+  }
+  .assistant-wrap p.lead { color: var(--grey); margin: 0 0 1.5rem; font-size: 15px; }
+  .disclaimer {
+    font-size: 12.5px; color: var(--grey); background: var(--light-blue);
+    border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 1.5rem;
+  }
+  .not-configured {
+    background: #fdeceb; color: #b3261e; border-radius: 10px; padding: 1rem 1.2rem;
+    font-size: 0.9rem; margin-bottom: 1.5rem;
+  }
+  .not-configured a { color: #b3261e; font-weight: 700; }
+  .chat-box {
+    border: 1px solid var(--border); border-radius: 14px; background: #fff;
+    display: flex; flex-direction: column; height: 440px; overflow: hidden;
+  }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .bubble { max-width: 82%; padding: 0.65rem 0.9rem; border-radius: 12px; font-size: 0.92rem; line-height: 1.45; white-space: pre-wrap; }
+  .bubble.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 3px; }
+  .bubble.assistant { align-self: flex-start; background: var(--light-blue); color: var(--ink); border-bottom-left-radius: 3px; }
+  .bubble.assistant.erreur { background: #fdeceb; color: #b3261e; }
+  .chat-form { display: flex; gap: 0.6rem; padding: 0.8rem; border-top: 1px solid var(--border); }
+  .chat-form input {
+    flex: 1; padding: 0.7rem 0.9rem; border-radius: 10px; border: 1px solid var(--border);
+    font-size: 0.92rem; font-family: inherit;
+  }
+  .chat-form button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: #fff;
+    font-weight: 700; padding: 0.7rem 1.3rem; border: none; border-radius: 10px; cursor: pointer;
+  }
+  .chat-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .empty-hint { color: #9aa2b8; font-size: 0.85rem; text-align: center; margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <a href="/" class="brand">FitSurMesure</a>
+    <a href="/questionnaire" class="cta-small">Créer mon programme</a>
+  </div>
+</nav>
+
+<div class="assistant-wrap">
+  <h1>Assistant FitSurMesure</h1>
+  <p class="lead">Pose une question sur le fonctionnement du site (formules, questionnaire, paiement, compte) ou sur des notions générales de musculation, nutrition et cardio.</p>
+  <div class="disclaimer">
+    Cet assistant automatisé ne remplace pas un avis médical, un coach sportif diplômé ou un
+    nutritionniste. Il n'a accès à aucune donnée de ton compte ou de ta commande : pour un
+    problème précis, utilise plutôt le <a href="/contact">formulaire de contact</a>.
+  </div>
+
+  {% if not ai_configured %}
+  <div class="not-configured">
+    L'assistant IA n'est pas encore configuré sur ce site. Utilise le
+    <a href="/contact">formulaire de contact</a> pour nous écrire directement.
+  </div>
+  {% endif %}
+
+  <div class="chat-box">
+    <div class="chat-messages" id="chat-messages">
+      <div class="empty-hint" id="empty-hint">Pose ta première question ci-dessous.</div>
+    </div>
+    <form class="chat-form" id="chat-form">
+      <input type="text" id="chat-input" placeholder="Ex : c'est quoi le TDEE ?" autocomplete="off"
+        {% if not ai_configured %}disabled{% endif %} maxlength="2000">
+      <button type="submit" id="chat-submit" {% if not ai_configured %}disabled{% endif %}>Envoyer</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Historique conservé UNIQUEMENT dans cette page (variable JavaScript, pas
+  // de session/cookie côté serveur, pas de stockage navigateur) : cf.
+  // logic/support_agent.py pour l'explication de ce choix de conception.
+  var historique = [];
+  var MAX_TOURS = 10;
+
+  var messagesEl = document.getElementById("chat-messages");
+  var emptyHint = document.getElementById("empty-hint");
+  var form = document.getElementById("chat-form");
+  var input = document.getElementById("chat-input");
+  var submitBtn = document.getElementById("chat-submit");
+
+  function addBubble(role, texte, erreur) {
+    if (emptyHint) { emptyHint.remove(); }
+    var div = document.createElement("div");
+    div.className = "bubble " + role + (erreur ? " erreur" : "");
+    div.textContent = texte;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var question = input.value.trim();
+    if (!question) return;
+
+    addBubble("user", question, false);
+    historique.push({ role: "user", content: question });
+    input.value = "";
+    input.disabled = true;
+    submitBtn.disabled = true;
+
+    fetch("/assistant/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: question, historique: historique.slice(-(MAX_TOURS * 2)) }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var reponse = data.reponse || "Une erreur est survenue.";
+        addBubble("assistant", reponse, !!data.erreur || data.configured === false);
+        if (data.configured !== false) {
+          historique.push({ role: "assistant", content: reponse });
+        }
+      })
+      .catch(function () {
+        addBubble("assistant", "Impossible de contacter l'assistant pour le moment. Réessaie, ou utilise le formulaire de contact.", true);
+      })
+      .finally(function () {
+        input.disabled = false;
+        submitBtn.disabled = false;
+        input.focus();
+      });
+  });
+})();
+</script>
+
+</body>
+</html>

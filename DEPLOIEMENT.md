@@ -64,6 +64,7 @@ Onglet **Environment** → ajoute :
 | `OWNER_ACCESS_CODE` | un code que toi seul connais (remplace `SAMY-ACCES-ILLIMITE`) |
 | `STRIPE_SECRET_KEY` | ta clé secrète Stripe (`sk_test_...` pour commencer) |
 | `STRIPE_WEBHOOK_SECRET` | laisse vide pour l'instant, voir étape 9 |
+| `ANTHROPIC_API_KEY` | facultatif : ta clé API Anthropic (console.anthropic.com), pour activer l'assistant IA de support sur `/assistant`. Sans elle, la page reste accessible mais affiche un message invitant à utiliser le formulaire de contact à la place — rien n'est bloqué. |
 
 Sauvegarde : Render relance automatiquement le déploiement.
 
