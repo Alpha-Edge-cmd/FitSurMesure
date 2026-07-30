@@ -1,6 +1,21 @@
 # Données locales (codes promo, commandes) : ne doivent jamais être poussées sur
 # GitHub — en production, elles vivent sur le disque persistant de l'hébergeur.
-data/
+data/*
+
+# EXCEPTION : le catalogue d'exercices est un fichier ÉDITORIAL, pas une donnée
+# utilisateur. Il doit voyager AVEC le code (c'est ce que dit déjà la docstring
+# de logic/exercise_catalog_validator.py), sinon il n'existe jamais sur le
+# serveur.
+#
+# Retour Samy (« ce sont absolument toujours les mêmes exercices ») : c'était
+# exactement le problème. `data/` étant ignoré en bloc, le fichier ne partait
+# jamais sur Render. Au démarrage, `init_db` tentait de synchroniser le
+# catalogue, échouait sur un fichier introuvable, avalait l'exception, et
+# `get_recommendation_catalog()` retombait silencieusement sur le catalogue
+# legacy de 111 exercices (logic/exercises_db.py) — au lieu des 365 de la liste
+# fournie. Avec 14 exercices de dos disponibles au lieu de 52, aucun moteur de
+# diversité ne pouvait produire de la variété.
+!data/exercise_enrichment.json
 
 __pycache__/
 *.pyc
