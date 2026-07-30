@@ -129,7 +129,9 @@ SETS_PAR_PALIER = {
     ("endurance_musculaire", exercise_order.TIER_FINISSEUR): 3,
 
     # Perte de gras : maintien de la masse musculaire, volume soutenu sur les
-    # mouvements structurants.
+    # mouvements structurants. En déficit calorique, c'est le maintien de
+    # l'INTENSITÉ (charge) qui préserve le muscle, pas le volume — d'où des
+    # plages proches de l'hypertrophie plutôt que des séries très longues.
     ("perte_de_gras", exercise_order.TIER_PRINCIPAL): 4,
     ("perte_de_gras", exercise_order.TIER_SECONDAIRE): 3,
     ("perte_de_gras", exercise_order.TIER_ISOLATION): 3,
@@ -324,13 +326,41 @@ REP_RANGES_PAR_PALIER = {
     ("force", exercise_order.TIER_FINISSEUR): (10, 15),
 
     # --- Hypertrophie --------------------------------------------------------
-    # Le cœur du programme, et de loin le cas le plus fréquent. Les trois
-    # plages demandées (8-10, 10-12, 12-15) se répartissent naturellement du
-    # mouvement le plus lourd au plus léger.
-    ("hypertrophie", exercise_order.TIER_PRINCIPAL): (6, 10),
-    ("hypertrophie", exercise_order.TIER_SECONDAIRE): (8, 12),
-    ("hypertrophie", exercise_order.TIER_ISOLATION): (10, 15),
-    ("hypertrophie", exercise_order.TIER_FINISSEUR): (12, 20),
+    # Recalibré après question de Samy (« l'hypertrophie c'est pas plutôt 12 à
+    # 15 reps ? »). Le réglage précédent envoyait tous les mouvements composés
+    # en 6-8, ce qui est une zone de FORCE, pas d'hypertrophie — mal calibré
+    # pour quelqu'un qui achète un programme de prise de muscle.
+    #
+    # État des connaissances sur lequel je m'appuie :
+    #
+    # - Schoenfeld, Grgic, Ogborn & Krieger (2017), méta-analyse comparant
+    #   charges lourdes et légères : à volume égal et séries menées proche de
+    #   l'échec, l'hypertrophie est comparable sur une large plage de charges.
+    #   Autrement dit il n'existe pas UNE zone d'hypertrophie étroite : elle
+    #   s'obtient d'environ 6 à 30 répétitions. En revanche les gains de FORCE
+    #   maximale, eux, sont spécifiques à la charge et nettement supérieurs en
+    #   charges lourdes — d'où la distinction maintenue entre les deux
+    #   objectifs dans cette table.
+    #
+    # - Schoenfeld, Ogborn & Krieger (2017), relation dose-réponse : le volume
+    #   hebdomadaire est le principal déterminant de l'hypertrophie. Or le
+    #   volume se construit plus facilement en séries de 8 à 15 qu'en séries
+    #   de 6 : à 6 répétitions, la fatigue nerveuse et articulaire limite le
+    #   nombre de séries réellement exploitables.
+    #
+    # - Conséquence pratique, largement partagée par les praticiens qui
+    #   s'appuient sur ces travaux (Helms, Israetel, Nippard) : centrer le
+    #   travail d'hypertrophie autour de 6-12 sur les gros composés et de
+    #   12-20 sur les isolations, où la charge absolue compte moins et où les
+    #   répétitions plus hautes sont mieux tolérées par les articulations.
+    #
+    # Limite assumée : ces plages sont des repères de population, pas des
+    # optima individuels. La progression de charge à répétitions constantes
+    # reste le facteur qui décide, quelle que soit la fourchette retenue.
+    ("hypertrophie", exercise_order.TIER_PRINCIPAL): (8, 12),
+    ("hypertrophie", exercise_order.TIER_SECONDAIRE): (10, 12),
+    ("hypertrophie", exercise_order.TIER_ISOLATION): (12, 15),
+    ("hypertrophie", exercise_order.TIER_FINISSEUR): (15, 20),
 
     # --- Endurance musculaire ------------------------------------------------
     ("endurance_musculaire", exercise_order.TIER_PRINCIPAL): (10, 15),
@@ -343,9 +373,9 @@ REP_RANGES_PAR_PALIER = {
     # charge sur les mouvements principaux (c'est ce qui préserve le muscle) et
     # on monte les répétitions sur les accessoires pour la densité de séance.
     ("perte_de_gras", exercise_order.TIER_PRINCIPAL): (8, 12),
-    ("perte_de_gras", exercise_order.TIER_SECONDAIRE): (10, 15),
-    ("perte_de_gras", exercise_order.TIER_ISOLATION): (12, 20),
-    ("perte_de_gras", exercise_order.TIER_FINISSEUR): (15, 25),
+    ("perte_de_gras", exercise_order.TIER_SECONDAIRE): (10, 12),
+    ("perte_de_gras", exercise_order.TIER_ISOLATION): (12, 15),
+    ("perte_de_gras", exercise_order.TIER_FINISSEUR): (15, 20),
 
     # --- Explosivité ---------------------------------------------------------
     # Séries très courtes sur les mouvements principaux (qualité du geste,
