@@ -376,6 +376,8 @@ def _build_everything(data):
     lifestyle = {
         "restriction_alimentaire": data.get("restriction_alimentaire", "Aucune"),
         "aliments_non_apprecies": data.get("aliments_non_apprecies", ""),
+        # Retour Samy : liste d'aliments à cocher, en plus du champ libre.
+        "aliments_non_apprecies_liste": data.get("aliments_non_apprecies_liste", []),
         "aliments_apprecies": data.get("aliments_apprecies", []),
         "repas_par_jour": data.get("repas_par_jour", "3 à 4"),
         "sommeil": data.get("sommeil", "7 à 8h"),

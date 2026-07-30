@@ -543,6 +543,91 @@ def _dominant_objective(profile):
     return max(vector, key=vector.get)
 
 
+# --- Format de travail par exercice -------------------------------------------
+# Retour Samy : « les séries et les répétitions ne sont toujours pas cohérentes.
+# Par exemple, tu proposes du 5x3-6 sur un exercice à la poulie, alors que ce
+# n'est pas un exercice de force. »
+#
+# Il a raison, et c'est un angle mort de la version précédente : la plage était
+# choisie par (objectif x PALIER). Or le palier dit seulement qu'un mouvement
+# est structurant pour son muscle — pas qu'il se prête à des séries lourdes.
+# Un tirage à la poulie peut parfaitement être le mouvement principal du dos
+# d'une séance, il reste inadapté à du 3-6 : on ne fait pas de la force
+# maximale sur une poulie, la charge n'est pas stable, il n'y a pas de
+# contrainte axiale, et la marge de progression en charge est faible.
+#
+# On introduit donc un FORMAT DE TRAVAIL propre à l'exercice, indépendant de
+# l'objectif de l'utilisateur, qui plafonne ce que l'exercice autorise :
+#
+#   "force"        : mouvements type SBD — barre libre, polyarticulaires,
+#                    charge axiale, progression en charge illimitée.
+#                    Seuls ceux-là descendent en dessous de 6 répétitions.
+#   "hypertrophie" : composés aux haltères, machines convergentes, Smith.
+#                    Zone 6-15, jamais de série lourde à 3 répétitions.
+#   "isolation"    : poulies, isolations mono-articulaires. Zone 8-20.
+#   "isometrique"  : maintiens, en secondes (traité en amont).
+FORMAT_FORCE = "force"
+FORMAT_HYPERTROPHIE = "hypertrophie"
+FORMAT_ISOLATION = "isolation"
+FORMAT_ISOMETRIQUE = "isometrique"
+
+# Plancher de répétitions autorisé par format. C'est un GARDE-FOU : la plage
+# calculée depuis l'objectif ne peut jamais descendre en dessous.
+PLANCHER_REPS_PAR_FORMAT = {
+    FORMAT_FORCE: 1,
+    FORMAT_HYPERTROPHIE: 6,
+    FORMAT_ISOLATION: 8,
+    FORMAT_ISOMETRIQUE: 1,
+}
+
+# Mouvements de force au sens strict : les trois du powerlifting (squat, bench,
+# deadlift) et leurs cousins directs à la barre libre.
+MOTS_CLES_FORCE = (
+    "squat", "développé couché", "developpe couche", "bench",
+    "soulevé de terre", "souleve de terre", "deadlift",
+    "développé militaire", "developpe militaire", "overhead press",
+    "rowing barre", "pendlay", "front squat", "good morning",
+    "hip thrust", "clean", "snatch", "épaulé", "epaule-jete",
+)
+
+# Un exercice à la poulie ou sur machine guidée n'est jamais un mouvement de
+# force, quelle que soit la façon dont il est classé par ailleurs.
+EQUIPEMENTS_NON_FORCE = ("machine", "poulie", "elastique", "poids_du_corps")
+
+
+def format_de_travail(exercise):
+    """Format de travail que l'exercice AUTORISE, indépendamment de l'objectif
+    de l'utilisateur."""
+    movement_type = getattr(exercise, "movement_type", None)
+    if movement_type in MOVEMENT_TYPES_EN_DUREE:
+        return FORMAT_ISOMETRIQUE
+
+    nom = str(getattr(exercise, "name", "") or "").lower()
+    equipement = [str(e).lower() for e in (getattr(exercise, "equipment", None) or [])]
+    est_compose = movement_type in exercise_order.COMPOUND_MOVEMENT_TYPES
+
+    sur_machine_ou_poulie = any(e in EQUIPEMENTS_NON_FORCE for e in equipement)
+    a_la_barre = "barre" in equipement
+    aux_halteres = "haltere" in equipement
+
+    # Smith machine : guidée, donc jamais de la force maximale malgré la barre.
+    if "smith" in nom or "guidé" in nom or "guide" in nom:
+        return FORMAT_HYPERTROPHIE
+
+    if sur_machine_ou_poulie:
+        # Une machine convergente sur un mouvement composé reste un bon support
+        # d'hypertrophie lourde ; une poulie d'isolation, non.
+        return FORMAT_HYPERTROPHIE if est_compose else FORMAT_ISOLATION
+
+    if a_la_barre and est_compose and any(k in nom for k in MOTS_CLES_FORCE):
+        return FORMAT_FORCE
+
+    if est_compose and (a_la_barre or aux_halteres):
+        return FORMAT_HYPERTROPHIE
+
+    return FORMAT_ISOLATION
+
+
 def determine_rep_range(profile, exercise, semaine=1):
     """determine_rep_range(profile, exercise, semaine=1) -> "min-max" (chaîne).
 
@@ -605,6 +690,19 @@ def determine_rep_range(profile, exercise, semaine=1):
         ecart = high - low
         low = plancher
         high = max(plancher + max(2, ecart), high)
+
+    # --- Garde-fou par format de travail ------------------------------------
+    # Retour Samy : « tu proposes du 5x3-6 sur un exercice à la poulie, alors
+    # que ce n'est pas un exercice de force ». Le plancher de l'exercice prime
+    # sur celui de l'objectif : un profil "force" peut parfaitement recevoir
+    # 3-6 sur son squat barre, jamais sur un tirage poulie.
+    plancher_format = PLANCHER_REPS_PAR_FORMAT.get(
+        format_de_travail(exercise), PLANCHER_REPS_PAR_FORMAT[FORMAT_ISOLATION]
+    )
+    if low < plancher_format:
+        ecart = high - low
+        low = plancher_format
+        high = plancher_format + max(2, ecart)
 
     # Dernière étape : ramener à une plage canonique. Les modulations
     # ci-dessus (unilatéral, progression, plancher par niveau) s'accumulent et

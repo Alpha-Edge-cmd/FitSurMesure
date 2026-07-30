@@ -61,6 +61,18 @@ CATEGORIE_VERS_ALIMENTS = {
 
 JOURS = ("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche")
 
+# Nombre de recettes retenues par moment de la journée, PAR PERSONNE.
+# Volontairement bien en dessous du catalogue disponible : c'est ce qui permet
+# à deux acheteurs d'obtenir des sélections différentes (retour Samy). Assez
+# large pour ne pas manger la même chose tous les jours, assez étroit pour que
+# la sélection soit réellement personnelle.
+TAILLE_VIVIER = {
+    "petit_dejeuner": 4,
+    "dejeuner": 5,
+    "diner": 5,
+    "collation": 3,
+}
+
 
 def _sans_accent(texte):
     return "".join(
@@ -69,16 +81,82 @@ def _sans_accent(texte):
     )
 
 
-def _termes_exclus(aliments_non_apprecies, allergie_details):
-    """Mots-clés à bannir, issus des deux champs de texte libre du
-    questionnaire. Une allergie est traitée exactement comme une aversion :
-    exclusion dure, sans exception."""
+# Cases à cocher du questionnaire -> termes réellement présents dans les
+# recettes. Une case cochée doit exclure TOUTES les formulations possibles :
+# quelqu'un qui ne mange pas de fromage ne doit voir ni feta, ni parmesan, ni
+# ricotta.
+CASE_VERS_TERMES = {
+    "Viande rouge": ["boeuf", "viande rouge", "steak"],
+    "Porc": ["porc", "jambon"],
+    "Poulet": ["poulet"],
+    "Dinde": ["dinde"],
+    "Œufs": ["oeuf"],
+    "Poisson blanc": ["cabillaud", "colin", "lieu", "poisson blanc"],
+    "Poisson gras (saumon, maquereau)": ["saumon", "maquereau", "sardine"],
+    "Thon": ["thon"],
+    "Fruits de mer": ["crevette", "moule", "fruits de mer"],
+    "Lait": ["lait"],
+    "Fromage": ["fromage", "feta", "parmesan", "ricotta", "gruyere", "cottage"],
+    "Fromage blanc / skyr": ["fromage blanc", "skyr"],
+    "Yaourt": ["yaourt"],
+    "Lentilles": ["lentille"],
+    "Pois chiches": ["pois chiche", "houmous"],
+    "Haricots rouges": ["haricots rouges"],
+    "Tofu / soja": ["tofu", "soja"],
+    "Brocolis": ["brocoli"],
+    "Épinards": ["epinard"],
+    "Courgettes": ["courgette"],
+    "Aubergines": ["aubergine"],
+    "Poivrons": ["poivron"],
+    "Champignons": ["champignon"],
+    "Tomates": ["tomate"],
+    "Oignons": ["oignon", "ciboule"],
+    "Ail": ["ail"],
+    "Carottes": ["carotte"],
+    "Chou": ["chou"],
+    "Avocat": ["avocat"],
+    "Olives": ["olive"],
+    "Noix et amandes": ["noix", "amande"],
+    "Beurre de cacahuète": ["cacahuete"],
+    "Banane": ["banane"],
+    "Fruits rouges": ["fruits rouges"],
+    "Agrumes": ["citron", "orange", "pamplemousse"],
+    "Mangue": ["mangue"],
+    "Ananas": ["ananas"],
+    "Dattes": ["datte"],
+    "Riz": ["riz"],
+    "Pâtes": ["pate", "nouille"],
+    "Pain complet": ["pain"],
+    "Pommes de terre": ["pomme de terre", "pommes de terre"],
+    "Patate douce": ["patate douce"],
+    "Quinoa": ["quinoa"],
+    "Avoine": ["avoine"],
+    "Semoule": ["semoule"],
+    "Lait de coco": ["coco"],
+    "Piment / épices fortes": ["piment", "sriracha"],
+}
+
+
+def _termes_exclus(aliments_non_apprecies, allergie_details, cases_cochees=None):
+    """Mots-clés à bannir.
+
+    Trois sources, toutes traitées comme des exclusions dures :
+      - les cases cochées dans la liste d'aliments (retour Samy : le texte
+        libre passait à côté d'une faute de frappe ou d'un pluriel) ;
+      - le champ texte libre restant, pour ce qui n'est pas dans la liste ;
+      - l'allergie déclarée, qui n'admet évidemment aucune exception.
+    """
     termes = []
+
+    for case in (cases_cochees or []):
+        termes.extend(CASE_VERS_TERMES.get(case, [case]))
+
     for source in (aliments_non_apprecies, allergie_details):
         if not source:
             continue
         brut = str(source).replace(";", ",").replace(" et ", ",")
         termes.extend(t.strip() for t in brut.split(",") if len(t.strip()) >= 3)
+
     return [_sans_accent(t) for t in termes]
 
 
@@ -145,8 +223,29 @@ def _selection_variee(candidats, nombre, signature, cle):
     if not candidats:
         return []
 
-    depart = _graine(signature, cle) % len(candidats)
-    ordonnes = candidats[depart:] + candidats[:depart]
+    # Retour Samy : « augmente fortement la diversité des recettes afin que
+    # deux personnes achetant le même programme n'obtiennent pas les mêmes
+    # repas. »
+    #
+    # L'ancienne version décalait le point de départ dans une liste TRIÉE par
+    # score. Comme le tri est quasi identique pour deux profils proches, les
+    # premières recettes étaient presque toujours les mêmes : le décalage ne
+    # changeait que l'ordre, pas le contenu.
+    #
+    # On mélange donc l'ensemble des candidats avec une permutation dérivée de
+    # la signature, en conservant le score comme pondération : une recette bien
+    # notée reste plus probable, mais aucune n'est systématiquement première.
+    # Deux profils identiques gardent le même menu (la permutation est
+    # déterministe), deux profils différents en obtiennent de réellement
+    # différents.
+    def cle_melange(recette):
+        rang = candidats.index(recette)
+        bruit = _graine(signature, f"{cle}-{recette['id']}") % 1000
+        # Le rang pèse peu (x7) face au bruit (0-999) : le score oriente,
+        # il ne décide plus seul.
+        return rang * 7 + bruit
+
+    ordonnes = sorted(candidats, key=cle_melange)
 
     choix = []
     while len(choix) < nombre:
@@ -177,7 +276,8 @@ def build_menu(data, kcal_objectif=None, jours=7):
     restriction = data.get("restriction_alimentaire", "Aucune")
     tag_requis = RESTRICTION_TAG_REQUIS.get(restriction)
     termes_exclus = _termes_exclus(
-        data.get("aliments_non_apprecies"), data.get("allergie_details")
+        data.get("aliments_non_apprecies"), data.get("allergie_details"),
+        cases_cochees=data.get("aliments_non_apprecies_liste"),
     )
 
     objectif_cible = OBJECTIF_CIBLE.get(
@@ -229,9 +329,20 @@ def build_menu(data, kcal_objectif=None, jours=7):
                 )
             )
 
-            choix = _selection_variee(
-                disponibles, index_jour + 1, signature, f"{moment}-{position}"
-            )[index_jour]
+            # Vivier restreint par moment : chaque personne ne reçoit qu'une
+            # PARTIE du catalogue, pas la quasi-totalité.
+            #
+            # Sans cette limite, un client recevait 26 recettes sur 39 : deux
+            # acheteurs se recouvraient alors mécaniquement à plus de 50%,
+            # quelle que soit la qualité du mélange — c'est arithmétique, pas
+            # un défaut d'algorithme. En n'en retenant qu'une poignée par
+            # moment, deux personnes obtiennent des sélections réellement
+            # distinctes, et chacune garde de quoi varier ses journées.
+            taille_vivier = min(TAILLE_VIVIER.get(moment, 5), len(disponibles))
+            vivier = _selection_variee(
+                disponibles, taille_vivier, signature, f"vivier-{moment}"
+            )
+            choix = vivier[index_jour % len(vivier)]
 
             repas_du_jour.append({"moment": moment, "recette": choix})
             utilisees[choix["id"]] = choix

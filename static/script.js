@@ -467,8 +467,32 @@ const steps = [
         type: "checkbox-group",
         options: ["Poulet", "Dinde", "Volaille (autre)", "Viande rouge", "Poisson", "Œufs",
                    "Légumineuses", "Produits laitiers", "Fruits à coque"] },
-      { id: "aliments_non_apprecies", label: "Aliments ou ingrédients précis non appréciés", type: "text",
-        placeholder: "Ex : tomates, brocolis" },
+      // Retour Samy : « lorsque tu demandes s'il y a des aliments que
+      // l'utilisateur n'aime pas, propose la liste de tous les aliments avec
+      // la possibilité de sélectionner plusieurs réponses. »
+      //
+      // Le champ texte libre marchait mal en pratique : personne ne pense à
+      // lister ses aversions spontanément, et une faute de frappe ou un
+      // pluriel suffisait à ce que le filtre passe à côté. La liste couvre les
+      // aliments réellement présents dans les recettes — cocher une case
+      // garantit qu'aucune recette contenant cet aliment ne sera proposée.
+      { id: "aliments_non_apprecies_liste",
+        label: "Aliments que tu n'aimes pas (coche tout ce qui s'applique)",
+        type: "checkbox-group",
+        options: [
+          "Viande rouge", "Porc", "Poulet", "Dinde", "Œufs",
+          "Poisson blanc", "Poisson gras (saumon, maquereau)", "Thon", "Fruits de mer",
+          "Lait", "Fromage", "Fromage blanc / skyr", "Yaourt",
+          "Lentilles", "Pois chiches", "Haricots rouges", "Tofu / soja",
+          "Brocolis", "Épinards", "Courgettes", "Aubergines", "Poivrons",
+          "Champignons", "Tomates", "Oignons", "Ail", "Carottes", "Chou",
+          "Avocat", "Olives", "Noix et amandes", "Beurre de cacahuète",
+          "Banane", "Fruits rouges", "Agrumes", "Mangue", "Ananas", "Dattes",
+          "Riz", "Pâtes", "Pain complet", "Pommes de terre", "Patate douce",
+          "Quinoa", "Avoine", "Semoule", "Lait de coco", "Piment / épices fortes",
+        ] },
+      { id: "aliments_non_apprecies", label: "Autre aliment non apprécié (facultatif)", type: "text",
+        placeholder: "Ex : coriandre, réglisse" },
       { id: "repas_par_jour", label: "Repas par jour souhaités", type: "select",
         options: ["2 à 3", "3 à 4", "4 à 5"] },
       { id: "temps_cuisine", label: "Temps disponible pour cuisiner", type: "select",

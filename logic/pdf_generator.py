@@ -583,46 +583,26 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include
         # l'assiette, hydratation, 80/20) sans un seul repas concret.
         if menu_semaine and menu_semaine.get("menu"):
             story.append(PageBreak())
-            story.append(_p("Tes menus de la semaine", h2_style))
+            # Retour Samy : « supprime la partie "Tes menus de la semaine",
+            # les recettes proposées suffisent largement ». Le tableau
+            # jour-par-jour imposait un planning que personne ne suit à la
+            # lettre, et il faisait doublon avec les recettes qui suivent.
+            # Seule la consigne de portions est conservée : sans elle, les
+            # quantités des recettes ne correspondraient à l'objectif calorique
+            # de personne.
+            story.append(_p("Tes recettes", h2_style))
             story.append(_p(
-                "Ces menus sont construits à partir de tes réponses : restriction alimentaire, "
-                "aliments que tu n'aimes pas, aliments que tu apprécies, temps de préparation "
-                "disponible et budget. Les recettes détaillées suivent juste après.", body_style))
+                "Ces recettes sont sélectionnées à partir de tes réponses : restriction "
+                "alimentaire, aliments que tu n'aimes pas, aliments que tu apprécies, temps de "
+                "préparation disponible et budget. Compose tes journées librement en piochant "
+                "dedans.", body_style))
 
             for avertissement in menu_semaine.get("avertissements", []):
                 story.append(_p("⚠ " + avertissement, warn_style))
             story.append(Spacer(1, 6))
 
-            lignes_menu = [["Jour", "Repas", "Calories"]]
-            for jour in menu_semaine["menu"]:
-                repas_texte = "<br/>".join(
-                    f"<b>{MOMENT_LABELS.get(r['moment'], r['moment'])}</b> : {r['recette']['nom']}"
-                    for r in jour["repas"]
-                )
-                lignes_menu.append([
-                    jour["jour"],
-                    Paragraph(repas_texte, ParagraphStyle("menu", parent=body_style, fontSize=8.5, leading=11)),
-                    f"{jour.get('kcal_ajuste', jour['kcal_total'])} kcal",
-                ])
-            table_menu = Table(lignes_menu, colWidths=[2.2 * cm, 11 * cm, 2.3 * cm])
-            table_menu.setStyle(TableStyle([
-                ("BACKGROUND", (0, 0), (-1, 0), BLUE),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 8.5),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("TOPPADDING", (0, 0), (-1, -1), 6),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LIGHT_BLUE]),
-                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cccccc")),
-            ]))
-            story.append(table_menu)
-
-            story.append(PageBreak())
-            story.append(_p("Les recettes", h2_style))
             story.append(_p(
-                "Quantités indiquées pour une portion. Toutes ces recettes sont compatibles "
-                "avec ton profil : tu peux les échanger librement d'un jour à l'autre.", note_style))
+                "Quantités indiquées pour une portion.", note_style))
 
             for recette in menu_semaine.get("recettes_utilisees", []):
                 bloc = [
