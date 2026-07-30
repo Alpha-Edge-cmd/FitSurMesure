@@ -149,9 +149,21 @@ def run():
             bas, haut = (int(x) for x in e["reps"].split("-"))
             assert bas <= 8 and haut <= 12, e
             assert e["rest_seconds"] >= 120, e
-            assert e["sets"] <= 3, e  # faible volume attendu (borne basse, niveau avancé = 3)
+            # Retour Samy (« les séries sont bloquées à 3 ») : l'ancienne
+            # version ramenait l'explosivité au plancher de 3 séries, ce qui
+            # est contraire au principe même du travail de puissance — des
+            # séries de 2 à 5 répétitions doivent être PLUS nombreuses, pas
+            # moins. Ce qui doit rester faible, c'est le volume TOTAL de
+            # répétitions, pas le nombre de séries.
+            assert 3 <= e["sets"] <= 6, e
+            # Borne large : sur un mouvement unilatéral, la plage est décalée
+            # de +2 répétitions (elles se comptent par côté, la charge absolue
+            # étant plus faible), ce qui remonte mécaniquement ce total.
+            volume_total = e["sets"] * haut
+            assert volume_total <= 48, (volume_total, e)
         assert any(e["notes"] == "Recherche de vitesse maximale, arrêter si perte de qualité." for e in presc4["exercises"])
-        print("OK 4 — explosivité : repos longs (>=120s), volume faible, note dédiée présente")
+        volume_moyen = sum(e["sets"] * int(e["reps"].split("-")[1]) for e in presc4["exercises"]) / len(presc4["exercises"])
+        print(f"OK 4 — explosivité : repos longs (>=120s), séries courtes et nombreuses, volume total contenu ({volume_moyen:.0f} répétitions/exercice)")
 
         # --------------------------------------------------------------
         # 5) Tolérance technique faible : intensité limitée
@@ -270,6 +282,44 @@ def run():
 
         print(f"OK 7 — répétitions variées : {len(plages)} plages distinctes, "
               f"6-8 réduit à {100 * part_6_8:.1f}% des prescriptions")
+
+        # --------------------------------------------------------------
+        # 8. Non-régression du second retour Samy : « les séries sont
+        #    bloquées à 3 ». L'ancienne version renvoyait MIN_SETS_FLOOR pour
+        #    tout ce qui n'était ni principal ni secondaire, donc 100% des
+        #    isolations et 74% des exercices d'un programme.
+        # --------------------------------------------------------------
+        from logic.recommendation.prescription import _sets_de_base, _dominant_objective
+
+        series = collections.Counter()
+        seances_variees = 0
+        seances_total = 0
+        for objectif in objectifs:
+            for niveau in niveaux:
+                p8 = profil(niveau_musculation=niveau, objectif_principal=objectif)
+                dom8 = _dominant_objective(p8)
+                valeurs = [_sets_de_base(p8, e, dom8, False)[0] for e in seance_type]
+                for v in valeurs:
+                    series[v] += 1
+                seances_total += 1
+                if len(set(valeurs)) >= 2:
+                    seances_variees += 1
+
+        total_series = sum(series.values())
+        part_3 = series[3] / total_series
+
+        # Le 3 reste un plancher légitime, mais ne doit plus représenter la
+        # majorité des prescriptions.
+        assert part_3 <= 0.60, (part_3, series)
+        # Au moins 3 valeurs distinctes de séries sur l'ensemble des profils.
+        assert len(series) >= 3, series
+        # Et surtout : dans CHAQUE séance, les paliers doivent produire des
+        # nombres de séries différents. C'est le vrai test du "bloqué à 3".
+        assert seances_variees == seances_total, (seances_variees, seances_total)
+
+        print(f"OK 8 — séries variées : {sorted(series)} séries possibles, "
+              f"3 séries réduit à {100 * part_3:.0f}%, "
+              f"{seances_variees}/{seances_total} séances avec plusieurs valeurs")
 
     print("\nTOUS LES TESTS DE LA PRESCRIPTION SONT PASSÉS")
 
