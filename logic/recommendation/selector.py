@@ -18,6 +18,8 @@ intègre en plus les signaux de `feedback.py` (blessures dérivées, exclusion
 ciblée, ajustements de score) sans jamais modifier `filters.py`/`scoring.py`
 eux-mêmes, ni relâcher une exclusion de sécurité.
 """
+import hashlib
+
 from logic.feedback_learning import apply_user_preferences_to_score, calculate_user_preferences
 from logic.recommendation import diversity, feedback, filters, history, scoring
 
@@ -73,6 +75,39 @@ def _survivants_passe1(profile, candidats, disliked_ids, feedback_repository):
             continue
         survivants.append(ex)
     return survivants
+
+
+# Écart de score en dessous duquel deux exercices sont considérés comme
+# équivalents pour ce profil. Sur un score composite qui agrège objectif,
+# anatomie, morphologie, niveau, matériel et historique, quelques points
+# d'écart ne traduisent aucune supériorité réelle d'un mouvement sur l'autre.
+# C'est cette marge qui rend la rotation possible sans jamais dégrader la
+# qualité de la sélection.
+TOLERANCE_EQUIVALENCE = 6
+
+
+def _graine_rotation(profile, target_muscle, user_id):
+    """Décalage stable, propre à ce profil et à ce muscle.
+
+    Déterministe (même profil + même muscle -> même décalage, donc même
+    programme si rien ne change), mais différent d'un utilisateur à l'autre et
+    d'un muscle à l'autre — c'est ce qui fait que deux personnes au profil
+    voisin n'obtiennent pas la même séance, et que les blocs "pectoraux" et
+    "dos" d'une même séance ne piochent pas tous au même rang.
+
+    Reprend le principe de `_variante_jitter` (cardio_builder.py) et de
+    `_signature_jitter` (program_builder.py), déjà utilisés ailleurs dans le
+    moteur pour exactement le même besoin.
+    """
+    parts = [
+        str(user_id or ""),
+        str(target_muscle or ""),
+        str(getattr(profile, "objectif_principal", "") or ""),
+        str(getattr(profile, "niveau_musculation", "") or ""),
+        str(getattr(profile, "signature", "") or ""),
+    ]
+    graine = "|".join(parts)
+    return int(hashlib.sha256(graine.encode("utf-8")).hexdigest()[:8], 16)
 
 
 def select_exercises(
@@ -169,18 +204,56 @@ def select_exercises(
 
     scored.sort(key=lambda c: c["score"], reverse=True)
 
+    # --- Rotation par profil et par séance -----------------------------------
+    # Retour Samy : « ce sont absolument toujours les mêmes exercices ».
+    #
+    # Diagnostic : la sélection était entièrement déterministe. Un score par
+    # exercice, un tri, et on prend les N premiers. Deux profils identiques —
+    # ou le même profil qui régénère son programme — obtenaient donc
+    # rigoureusement la même liste. Le SEUL mécanisme anti-répétition était
+    # `PENALITE_RECENCE`, qui ne s'applique qu'à un utilisateur connecté ayant
+    # déjà cliqué « J'ai réalisé » sur des séances précédentes : sur un premier
+    # programme, il ne se passait strictement rien.
+    #
+    # Correctif : on n'écrase pas le classement, on l'assouplit. Les exercices
+    # dont le score est proche du meilleur sont considérés comme équivalents
+    # (ils le sont : un écart de quelques points sur un score composite n'a
+    # aucune signification pratique), et on départage à l'intérieur de ce
+    # groupe par un décalage stable dérivé de la signature du profil et du
+    # créneau demandé. Conséquences :
+    #   - deux utilisateurs différents n'ont pas les mêmes exercices ;
+    #   - les séances A et B d'un même programme diffèrent ;
+    #   - une régénération donne autre chose ;
+    #   - et un même profil régénérant à l'identique retrouve le même programme
+    #     (déterminisme préservé, comme partout ailleurs dans le moteur).
+    #
+    # Un exercice nettement moins bon ne remonte jamais : le garde-fou est
+    # l'écart de score, pas le hasard.
+    rotation = _graine_rotation(profile, target_muscle, user_id)
+
     selected = []
     remaining = list(scored)
     while remaining and len(selected) < number_required:
-        best_idx, best_adjusted = None, None
+        evalues = []
         for i, candidate in enumerate(remaining):
             adjusted = candidate["score"]
             if enforce_family_diversity:
                 deja = [s["exercise"] for s in selected]
                 adjusted += diversity.calculate_diversity_bonus(candidate["exercise"], deja)
                 adjusted += diversity.calculate_family_penalty(candidate["exercise"], deja)
-            if best_adjusted is None or adjusted > best_adjusted:
-                best_adjusted, best_idx = adjusted, i
+            evalues.append((adjusted, i, candidate))
+
+        meilleur = max(a for a, _, _ in evalues)
+        # Groupe des candidats "à égalité pratique" avec le meilleur.
+        equivalents = [(a, i, c) for a, i, c in evalues if a >= meilleur - TOLERANCE_EQUIVALENCE]
+        # Ordre stable (par score décroissant puis identifiant) avant rotation,
+        # pour que le résultat ne dépende jamais de l'ordre d'itération du
+        # catalogue.
+        equivalents.sort(key=lambda t: (-t[0], getattr(t[2]["exercise"], "exercise_id", "")))
+
+        pos = (rotation + len(selected)) % len(equivalents)
+        best_adjusted, best_idx, _ = equivalents[pos]
+
         chosen = remaining.pop(best_idx)
         chosen["score_ajuste"] = best_adjusted
         selected.append(chosen)

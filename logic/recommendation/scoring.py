@@ -113,8 +113,25 @@ def _score_autres_sports(profile, exercise):
 # --- Pondération de combinaison (première passe, à calibrer empiriquement) -
 
 BASE_SCORE = 50
+# Retour Samy (« pas juste mettre des exercices pour mettre des exercices, mais
+# vraiment choisir les exercices par rapport aux questions ») :
+#
+# Diagnostic mesuré — les 52 exercices de dos du catalogue obtenaient TOUS
+# exactement 100. Le score ne discriminait donc rien du tout, et l'ordre final
+# ne dépendait que de l'ordre de lecture du catalogue.
+#
+# Cause : le commentaire ci-dessous supposait un score "objectif" brut compris
+# entre 0 et ~3, d'où un poids de 10 pour l'étaler sur ~30 points. En pratique
+# `objectives.score_objectif_exercise` renvoie plutôt 6,5 à 8 — le produit
+# atteignait donc ~70, et 50 + 70 = 120, écrêté à 100 pour tout le monde. Tous
+# les autres critères (niveau, morphologie, biomécanique) devenaient invisibles
+# puisqu'ils s'appliquaient au-delà du plafond.
+#
+# Poids ramené à 5 : la composante objectif occupe ~33 à 40 points, le total
+# reste sous le plafond, et les critères de personnalisation redeviennent
+# décisifs au lieu d'être absorbés par l'écrêtage.
 WEIGHTS = {
-    "objectif": 10,       # score brut ~0 a ~3 (vecteur x objectifs_adaptes) -> ~0 a 30 points
+    "objectif": 5,        # score brut ~6,5 a ~8 (vecteur x objectifs_adaptes) -> ~33 a 40 points
     "niveau": 1,          # deja exprime en points
     "morphologie": 1,     # deja exprime en points
     "historique": 1,
