@@ -88,7 +88,14 @@ def run():
             # peuvent recevoir le "+1 série possible" si le budget de fatigue le
             # permet (cf. _ajuster_series_selon_budget, mécanisme préexistant).
             assert 3 <= e["sets"] <= 5, e
-            assert e["reps"] == "8-12", e  # dominant = hypertrophie pour "Prise de muscle" (retour Samy : 6-15 resserré)
+            # Retour Samy ("les répétitions sont presque toujours entre 6 et 8,
+            # je n'aime pas du tout") : la plage dépend désormais du PALIER du
+            # mouvement, plus seulement de l'objectif. On ne peut donc plus
+            # attendre une valeur unique pour toute la séance — on vérifie que
+            # chaque plage reste dans le domaine hypertrophie, et la variété
+            # entre paliers est contrôlée plus bas (test 5).
+            bas, haut = (int(x) for x in e["reps"].split("-"))
+            assert 6 <= bas <= 12 and 9 <= haut <= 20, e
             assert 60 <= e["rest_seconds"] <= 120, e
             assert e["intensity"] in ("faible", "modérée"), e  # débutant : jamais élevée
         print("OK 1 — débutant hypertrophie : séries/repos/intensité cohérents", presc1)
@@ -105,7 +112,11 @@ def run():
         w2 = generate_workout(p2, ["dos"], catalogue2, "45 min")
         presc2 = generate_prescription(p2, w2, catalogue2)
         for e in presc2["exercises"]:
-            assert e["reps"] == "6-8", e  # dominant = force (retour Samy : 6-15 resserré)
+            # Dominant = force. Le mouvement principal descend en 3-6 (série
+            # lourde), les accessoires restent en zone hypertrophie : c'est
+            # exactement ce qui manquait avant, où tout sortait en 6-8.
+            bas, haut = (int(x) for x in e["reps"].split("-"))
+            assert 1 <= bas <= 10 and haut <= 15, e
         rest_moyen_1 = sum(e["rest_seconds"] for e in presc1["exercises"]) / len(presc1["exercises"])
         rest_moyen_2 = sum(e["rest_seconds"] for e in presc2["exercises"]) / len(presc2["exercises"])
         assert rest_moyen_2 > rest_moyen_1, (rest_moyen_2, rest_moyen_1)
@@ -119,7 +130,8 @@ def run():
         w3 = generate_workout(p3, ["quadriceps"], catalogue3, "45 min")
         presc3 = generate_prescription(p3, w3, catalogue3)
         for e in presc3["exercises"]:
-            assert e["reps"] == "8-12", e  # dominant = hypertrophie (0.40, premier max ex-aequo avec perte_de_gras)
+            bas, haut = (int(x) for x in e["reps"].split("-"))
+            assert 6 <= bas <= 12 and haut <= 20, e
             assert e["intensity"] in ("faible", "modérée", "élevée"), e
             assert e["notes"], e
         print("OK 3 — recomposition : choix cohérent (reps 6-12, notes présentes)", presc3["exercises"][0])
@@ -132,7 +144,10 @@ def run():
         w4 = generate_workout(p4, ["pecs"], catalogue4, "45 min")
         presc4 = generate_prescription(p4, w4, catalogue4)
         for e in presc4["exercises"]:
-            assert e["reps"] == "6-8", e  # retour Samy : 6-15 resserré
+            # Explosivité : séries courtes sur les mouvements principaux
+            # (qualité du geste et vitesse, pas épuisement).
+            bas, haut = (int(x) for x in e["reps"].split("-"))
+            assert bas <= 8 and haut <= 12, e
             assert e["rest_seconds"] >= 120, e
             assert e["sets"] <= 3, e  # faible volume attendu (borne basse, niveau avancé = 3)
         assert any(e["notes"] == "Recherche de vitesse maximale, arrêter si perte de qualité." for e in presc4["exercises"])
@@ -206,6 +221,55 @@ def run():
         for e in presc6["exercises"]:
             assert e["sets"] >= 1, e
         print(f"OK 6 — profil extrême (fatigue élevée) : {total_projete:.1f}/{budget6:.1f} (dépassement explicable par le plancher de volume), {len(presc6['exercises'])} exercices, tous sets>=1")
+
+        # --------------------------------------------------------------
+        # 7. Non-régression du retour Samy : « je ne veux pas voir quasiment
+        #    tous les exercices en 6-8 répétitions ».
+        #    Ce test échouerait sur l'ancienne implémentation, où
+        #    determine_rep_range ignorait l'exercice et renvoyait une plage
+        #    unique par objectif.
+        # --------------------------------------------------------------
+        import collections
+        from logic.recommendation.prescription import determine_rep_range
+
+        class _Exo:
+            def __init__(self, movement_type, unilateral=False):
+                self.movement_type = movement_type
+                self.unilateral = unilateral
+                self.technical_complexity = 2
+                self.pattern = "p"
+
+        # Séance type : 2 mouvements composés, 1 unilatéral, 3 isolations.
+        seance_type = [_Exo("squat"), _Exo("push"), _Exo("pull", unilateral=True),
+                       _Exo("autre"), _Exo("autre"), _Exo("autre")]
+        objectifs = ["Prise de muscle", "Perte de gras", "Recomposition (sec + muscle)",
+                     "Condition physique générale", "Performance / explosivité"]
+        niveaux = ["Débutant complet", "Quelques mois d'expérience", "Intermédiaire", "Avancé"]
+
+        plages = collections.Counter()
+        for objectif in objectifs:
+            for niveau in niveaux:
+                p7 = profil(niveau_musculation=niveau, objectif_principal=objectif)
+                for semaine in (1, 2, 3, 4):
+                    for exo in seance_type:
+                        plages[determine_rep_range(p7, exo, semaine=semaine)] += 1
+
+        total = sum(plages.values())
+        part_6_8 = plages["6-8"] / total
+
+        # Au moins 10 plages distinctes sur l'ensemble des profils testés.
+        assert len(plages) >= 10, plages
+        # Le 6-8 reste possible (débutant en force notamment) mais ne doit plus
+        # jamais dominer : plafond à 10% des prescriptions.
+        assert part_6_8 <= 0.10, (part_6_8, plages)
+        # Sur un même profil et une même séance, les paliers doivent produire
+        # des plages différentes — c'est le cœur de la correction.
+        p_hyper = profil(niveau_musculation="Intermédiaire", objectif_principal="Prise de muscle")
+        plages_seance = {determine_rep_range(p_hyper, e) for e in seance_type}
+        assert len(plages_seance) >= 2, plages_seance
+
+        print(f"OK 7 — répétitions variées : {len(plages)} plages distinctes, "
+              f"6-8 réduit à {100 * part_6_8:.1f}% des prescriptions")
 
     print("\nTOUS LES TESTS DE LA PRESCRIPTION SONT PASSÉS")
 
