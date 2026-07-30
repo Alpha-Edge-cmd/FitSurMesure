@@ -274,6 +274,40 @@ PLANCHER_REPS_DEFAUT = 6
 
 REP_RANGE_DEFAUT = (8, 12)
 
+# --- Exercices tenus en durée, pas en répétitions -----------------------------
+# Retour Samy (séries/répétitions cohérentes avec le TYPE d'exercice, dont
+# « isométrique ») : une planche prescrite en « 3 x 12-15 répétitions » n'a
+# aucun sens — il n'y a pas de répétition dans un gainage, il y a un temps de
+# maintien. Même chose pour les ports de charge (farmer's walk), qui se
+# mesurent en durée ou en distance.
+#
+# `movement_type` est déjà présent sur chaque fiche du catalogue et déjà
+# utilisé par `exercise_order` : on s'appuie dessus plutôt que d'ajouter un
+# champ.
+MOVEMENT_TYPES_EN_DUREE = ("isometrique", "carry")
+
+# Durées de maintien en secondes, par objectif dominant. Repères usuels du
+# travail isométrique : court et lourd pour la force, moyen pour
+# l'hypertrophie/le gainage classique, long pour l'endurance.
+DUREES_ISOMETRIQUES = {
+    "force": (20, 30),
+    "explosivite": (15, 25),
+    "hypertrophie": (30, 45),
+    "perte_de_gras": (40, 60),
+    "endurance_musculaire": (45, 60),
+}
+DUREE_ISOMETRIQUE_DEFAUT = (30, 45)
+
+# Un débutant ne tient pas une planche 45 secondes en gardant une position
+# correcte : au-delà, c'est le bas du dos qui travaille, pas la sangle
+# abdominale. On raccourcit donc, quitte à ajouter une série.
+FACTEUR_DUREE_PAR_NIVEAU = {
+    "Débutant complet": 0.7,
+    "Quelques mois d'expérience": 0.85,
+    "Intermédiaire": 1.0,
+    "Avancé": 1.2,
+}
+
 # --- Notes automatiques (section 7) ------------------------------------------
 NOTE_PRINCIPALE = "Priorité à la technique et à la progression de charge."
 NOTE_ISOLATION = "Contrôle du mouvement, amplitude complète."
@@ -432,6 +466,20 @@ def determine_rep_range(profile, exercise, semaine=1):
     """
     dominant = _dominant_objective(profile)
     tier = exercise_order.classify_exercise(exercise)
+
+    # --- Exercices tenus, pas répétés ---------------------------------------
+    # Traité en premier : aucune des modulations ci-dessous (unilatéral,
+    # progression, plancher par niveau) ne s'applique à une durée de maintien.
+    if getattr(exercise, "movement_type", None) in MOVEMENT_TYPES_EN_DUREE:
+        bas, haut = DUREES_ISOMETRIQUES.get(dominant, DUREE_ISOMETRIQUE_DEFAUT)
+        facteur = FACTEUR_DUREE_PAR_NIVEAU.get(
+            getattr(profile, "niveau_musculation", None), 1.0
+        )
+        # Arrondi à 5 secondes : un programme qui affiche « 31-47 sec » fait
+        # faux, personne ne tient une planche à la seconde près.
+        bas = max(10, int(round(bas * facteur / 5)) * 5)
+        haut = max(bas + 10, int(round(haut * facteur / 5)) * 5)
+        return f"{bas}-{haut} sec"
 
     low, high = REP_RANGES_PAR_PALIER.get((dominant, tier), REP_RANGE_DEFAUT)
 
