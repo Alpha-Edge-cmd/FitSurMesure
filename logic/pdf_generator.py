@@ -15,6 +15,7 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
+from . import cardio_zones
 from .supplements import recommend_supplements
 from .food_lists import get_food_recommendations
 from .exercises_db import MUSCLE_LABELS
@@ -737,6 +738,25 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include
         for t in types_presents:
             if t in zone_explications:
                 story.append(_bullet(zone_explications[t]))
+                continue
+            # Types ajoutés au catalogue cardio (Tempo, Seuil, VMA, Côtes,
+            # Fartlek, allures spécifiques...) : l'explication est construite
+            # automatiquement à partir du référentiel de zones, converti en
+            # battements/min pour cet utilisateur. Sans ce repli, une séance de
+            # Seuil ou de VMA apparaissait dans le tableau sans la moindre
+            # explication de zone au-dessus.
+            zone = cardio_zones.zone_de(t)
+            if not zone:
+                continue
+            bpm_min = round(fcmax * zone["fc_min"] / 100)
+            bpm_max = round(fcmax * zone["fc_max"] / 100)
+            story.append(_bullet(
+                f"<b>{t}</b> ({bpm_min}-{bpm_max} batt/min, soit "
+                f"{zone['fc_min']}-{zone['fc_max']}% de ta FCmax) : "
+                f"{cardio_zones.description_de(t)} "
+                f"Filière {zone['filiere'].lower()}, carburant principal : "
+                f"{zone['carburant'].lower()}."
+            ))
         story.append(_p("Concrètement, tu peux estimer ta fréquence cardiaque pendant l'effort avec une "
                          "montre connectée, ou plus simplement au ressenti : en endurance fondamentale tu "
                          "dois pouvoir parler par phrases courtes, en fractionné tu es essoufflé mais tu "

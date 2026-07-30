@@ -471,6 +471,10 @@ def _build_everything(data):
             "objectif_course": data.get("objectif_course", ""),
             "delai_objectif_course": data.get("delai_objectif_course", ""),
             "allure_cible_course": data.get("allure_cible_course", ""),
+            # Retour Samy : distance visée ("5km" | "10km" | "semi" |
+            # "marathon" | "trail_ultra" | ""). Pilote le placement des séances
+            # à allure spécifique et le dosage de la sortie longue.
+            "distance_objectif_course": data.get("distance_objectif_course", ""),
             "records_course": {
                 "5km": _parse_optional_float(data.get("record_5km")),
                 "10km": _parse_optional_float(data.get("record_10km")),

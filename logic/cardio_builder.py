@@ -38,6 +38,13 @@ même semaine -- et des profils différents -- ont des variantes différentes.
 """
 import hashlib
 
+from logic import cardio_protocols, cardio_zones
+
+# Libellé exact de l'option "préparer une course" dans le questionnaire
+# (static/script.js, champ `objectif_cardio`). Centralisé ici pour éviter de
+# le recopier dans chaque test d'égalité.
+COURSE_OBJECTIF = "Me préparer à une course (5km, 10km, semi, marathon)"
+
 
 def _variante_jitter(signature, cle):
     """Nombre stable dérivé de la signature du profil + d'une clé (nom de
@@ -219,10 +226,35 @@ PROTOCOLS_VARIANTS = {
 }
 
 
+# Les 12 types de séance ajoutés (Tempo, Seuil, VMA courte/longue, Côtes,
+# Fartlek, Sortie longue, Récupération active, allures spécifiques) vivent dans
+# `cardio_protocols.py` et sont fusionnés ici. Les 4 types historiques définis
+# ci-dessus ne sont pas modifiés : en cas de collision de clé, c'est la
+# définition historique qui gagne.
+for _type, _table in cardio_protocols.PROTOCOLS_SUPPLEMENTAIRES.items():
+    PROTOCOLS_VARIANTS.setdefault(_type, _table)
+
+
 def _choisir_protocole(type_seance, discipline, niveau_cardio, signature, cle_variete):
     """Choisit une variante concrète parmi celles disponibles pour ce type de
-    séance x discipline, de façon stable par profil (cf. `_variante_jitter`)."""
-    variantes = PROTOCOLS_VARIANTS[type_seance][discipline](niveau_cardio)
+    séance x discipline, de façon stable par profil (cf. `_variante_jitter`).
+
+    Robustesse : l'ancienne version indexait directement
+    `PROTOCOLS_VARIANTS[type][discipline]` et levait une KeyError si l'un des
+    deux manquait. Avec 16 types de séance et 5 disciplines, une combinaison
+    oubliée ferait planter la génération complète du programme pour un simple
+    trou de catalogue. On replie donc proprement : discipline inconnue ->
+    "Autre" ; type inconnu -> endurance fondamentale (la séance la plus sûre
+    quel que soit le profil).
+    """
+    table = PROTOCOLS_VARIANTS.get(type_seance) or PROTOCOLS_VARIANTS["Endurance fondamentale"]
+    fabrique = table.get(discipline) or table.get("Autre")
+    if fabrique is None:
+        fabrique = PROTOCOLS_VARIANTS["Endurance fondamentale"]["Autre"]
+
+    variantes = fabrique(niveau_cardio) or []
+    if not variantes:
+        return PROTOCOLS_VARIANTS["Endurance fondamentale"]["Autre"](niveau_cardio)[0]
     if len(variantes) == 1:
         return variantes[0]
     idx = _variante_jitter(signature, cle_variete) % len(variantes)
@@ -268,61 +300,208 @@ NIVEAU_CARDIO_NOTES = {
 }
 
 
-def _session_mix(objectif_cardio, objectif_principal, nb_sessions):
-    """Retourne une liste de types de séance, dans l'ordre, pour la semaine.
-    Priorité à l'objectif cardio spécifique s'il est renseigné, sinon on retombe
-    sur l'objectif musculation général (rétro-compatibilité)."""
+def _priorites_par_objectif(objectif_cardio, objectif_principal, distance):
+    """Ordre de priorité des séances INTENSES à placer dans la semaine, selon
+    l'objectif. La première de la liste est posée en premier, la deuxième
+    ensuite, etc. — donc à 1 seule séance dure par semaine, c'est la plus
+    utile pour l'objectif qui est retenue.
+
+    Retour Samy : « les séances doivent varier intelligemment selon
+    l'objectif ». C'est ici que se joue cette intelligence : ce n'est plus une
+    alternance mécanique entre deux étiquettes, mais un ordre de priorité
+    argumenté par objectif.
+    """
+    # Préparation d'une course : l'allure spécifique de la distance visée passe
+    # avant tout le reste — c'est le geste exact à automatiser. Vient ensuite le
+    # seuil (tenir l'allure plus longtemps), puis la VMA (élever le plafond).
+    if objectif_cardio == COURSE_OBJECTIF or distance:
+        specifique = cardio_zones.ALLURE_SPECIFIQUE_PAR_DISTANCE.get(distance)
+        if distance in ("5km", "10km"):
+            # Courtes distances : le plafond aérobie (VMA) pèse lourd, le seuil
+            # aussi. La sortie longue reste utile mais moins déterminante.
+            ordre = ["Seuil", "VMA longue", "VMA courte", "Côtes", "Fartlek", "Tempo"]
+        elif distance in ("semi", "marathon", "trail_ultra"):
+            # Longues distances : tempo et seuil priment, la VMA n'intervient
+            # qu'en complément une fois le socle installé.
+            ordre = ["Tempo", "Seuil", "Côtes", "VMA longue", "Fartlek"]
+        else:
+            ordre = ["Seuil", "Tempo", "VMA longue", "Fartlek", "Côtes"]
+        return ([specifique] if specifique else []) + ordre
+
+    if objectif_cardio == "Perdre du poids / sécher":
+        # La dépense se joue surtout sur le volume facile (déjà majoritaire dans
+        # la répartition). Les séances dures servent à maintenir la masse
+        # musculaire et l'appétence à l'effort, sans épuiser la récupération :
+        # on privilégie des formats courts et variés plutôt que du seuil long.
+        return ["Fractionné", "VMA courte", "Côtes", "Fartlek", "Tempo", "Seuil"]
+
+    if objectif_cardio == "Améliorer mon endurance générale":
+        return ["Tempo", "Seuil", "Fartlek", "VMA longue", "Côtes"]
+
+    if objectif_cardio == "Santé cardiovasculaire générale":
+        # Public le plus fragile : on reste sur des formats doux et ludiques,
+        # jamais de VMA ni de sprints.
+        return ["Fartlek", "Tempo"]
+
+    # Pas d'objectif cardio renseigné (ex : formule Musculation avec un peu de
+    # cardio en complément) : on retombe sur l'objectif musculation général.
+    if objectif_principal == "Prise de muscle":
+        # Interférence cardio/musculation : on limite volontairement l'intensité
+        # pour ne pas concurrencer la récupération des séances de musculation.
+        return ["Fartlek"]
+    if objectif_principal == "Performance / explosivité":
+        return ["Sprints / explosivité", "VMA courte", "Côtes", "VMA longue"]
+    if objectif_principal in ("Perte de gras", "Recomposition (sec + muscle)"):
+        return ["Fractionné", "VMA courte", "Fartlek", "Tempo"]
+    return ["Fartlek", "Tempo", "Fractionné", "VMA longue"]
+
+
+def _nb_seances_intenses(nb_sessions, niveau_cardio, objectif_cardio):
+    """Nombre de séances dures dans la semaine.
+
+    Principe de la répartition polarisée (le plus constant de la littérature
+    endurance, et cohérent avec les zones du document « Les bases du cardio ») :
+    l'essentiel du volume se fait facile (Z1-Z2), et seule une minorité
+    assumée se fait dur (Z3-Z5). Empiler les séances intenses ne fait pas
+    progresser plus vite, ça dégrade la récupération.
+
+    On plafonne donc à environ un tiers de séances dures, avec un maximum
+    absolu de 3 par semaine, et on tient compte du niveau : un débutant
+    encaisse une seule séance dure, un confirmé jusqu'à trois.
+    """
+    if nb_sessions <= 0:
+        return 0
+    if objectif_cardio == "Santé cardiovasculaire générale":
+        # Public santé : au maximum une séance un peu soutenue, et seulement
+        # à partir de 3 séances hebdomadaires.
+        return 1 if nb_sessions >= 3 else 0
+
+    plafond_niveau = {"Débutant": 1, "Intermédiaire": 2, "Confirmé": 3}.get(niveau_cardio, 2)
+
+    if nb_sessions == 1:
+        # Séance unique : elle doit d'abord construire le socle aérobie.
+        # Exception faite ci-dessous pour les objectifs où la seule séance de la
+        # semaine n'aurait aucun sens en facile (perte de poids, explosivité).
+        base = 0
+    elif nb_sessions == 2:
+        base = 1
+    else:
+        base = max(1, round(nb_sessions / 3))
+
+    return max(0, min(base, plafond_niveau, 3))
+
+
+def _session_mix(objectif_cardio, objectif_principal, nb_sessions,
+                 niveau_cardio="Intermédiaire", distance="", signature=""):
+    """Retourne la liste ordonnée des types de séance de la semaine.
+
+    Réécriture complète (retour Samy : « sur 5 séances proposées, il y en a 4
+    en endurance fondamentale, ce n'est absolument pas assez varié »).
+
+    Diagnostic de l'ancienne version : elle ne connaissait que 4 étiquettes de
+    séance (Endurance fondamentale, Fractionné, Endurance légère, Sprints) et
+    construisait le mix par simple remplissage — typiquement
+    `["Endurance fondamentale"] * (n-1) + ["Fractionné"]`. D'où 4 endurances
+    sur 5 séances, quel que soit le profil.
+
+    Nouvelle logique, en trois temps :
+      1. on calcule combien de séances doivent être dures (`_nb_seances_intenses`,
+         répartition polarisée) ;
+      2. on choisit LESQUELLES via l'ordre de priorité propre à l'objectif et à
+         la distance visée (`_priorites_par_objectif`), sans jamais répéter un
+         type tant qu'il reste des types non utilisés ;
+      3. on remplit le reste en volume facile, en alternant endurance
+         fondamentale, sortie longue et récupération active plutôt qu'en
+         empilant trois fois la même séance.
+
+    Enfin on entrelace dur/facile pour ne jamais enchaîner deux séances dures
+    consécutives.
+    """
     if nb_sessions <= 0:
         return []
 
-    if objectif_cardio == "Perdre du poids / sécher":
-        if nb_sessions == 1:
-            return ["Fractionné"]
-        mix = ["Fractionné"] + ["Endurance fondamentale"] * (nb_sessions - 1)
-        return mix
+    priorites = _priorites_par_objectif(objectif_cardio, objectif_principal, distance)
+    nb_intenses = _nb_seances_intenses(nb_sessions, niveau_cardio, objectif_cardio)
 
-    if objectif_cardio == "Améliorer mon endurance générale":
-        if nb_sessions == 1:
-            return ["Endurance fondamentale"]
-        base = ["Endurance fondamentale", "Endurance fondamentale", "Fractionné"]
-        return [base[i % 3] for i in range(nb_sessions)]
+    # Cas particulier : une seule séance dans la semaine et un objectif pour
+    # lequel une séance facile isolée n'apporterait quasiment rien.
+    if nb_sessions == 1 and objectif_cardio in ("Perdre du poids / sécher",) :
+        nb_intenses = 1
+    if nb_sessions == 1 and not objectif_cardio and objectif_principal == "Performance / explosivité":
+        nb_intenses = 1
 
-    if objectif_cardio == "Me préparer à une course (5km, 10km, semi, marathon)":
-        if nb_sessions == 1:
-            return ["Endurance fondamentale"]
-        mix = ["Endurance fondamentale"] * (nb_sessions - 1) + ["Fractionné"]
-        return mix
+    intenses = []
+    if priorites and nb_intenses:
+        # La première priorité de la liste est TOUJOURS retenue : c'est la
+        # séance la plus utile à l'objectif (l'allure spécifique quand une
+        # distance est visée, par exemple). Les suivantes sont prises en
+        # tournant dans le reste de la liste, à partir d'un décalage dérivé de
+        # la signature du profil. Sans ce décalage, seuls les 2-3 premiers
+        # types de chaque liste sortaient jamais : côtes, VMA longue et sprints
+        # n'apparaissaient dans aucun programme, alors qu'ils y figurent bien.
+        intenses.append(priorites[0])
+        reste = priorites[1:]
+        if reste:
+            depart = _variante_jitter(signature, "mix-intenses") % len(reste)
+            for i in range(nb_intenses - 1):
+                intenses.append(reste[(depart + i) % len(reste)])
+        else:
+            intenses.extend([priorites[0]] * (nb_intenses - 1))
 
-    if objectif_cardio == "Santé cardiovasculaire générale":
-        return ["Endurance légère"] * nb_sessions
+    nb_faciles = nb_sessions - len(intenses)
 
-    # Pas d'objectif cardio spécifique renseigné : on retombe sur l'ancienne logique
-    # basée sur l'objectif musculation général (ex: formule musculation + un peu de cardio).
-    objectif = objectif_principal
-    if objectif == "Prise de muscle":
-        return ["Endurance légère"] * nb_sessions
+    # --- Volume facile : varié lui aussi ------------------------------------
+    # Une sortie longue dès 3 séances par semaine (repère classique : elle
+    # représente 20-30% du volume hebdomadaire), et de la récupération active
+    # dès qu'il reste assez de séances faciles pour se le permettre. Sans ça,
+    # tout le volume facile retombait sur "Endurance fondamentale" répétée
+    # trois ou quatre fois — le reproche initial.
+    faciles = []
+    sortie_longue_placee = False
+    recup_placee = False
+    for i in range(nb_faciles):
+        reste_apres = nb_faciles - i - 1
+        if (not sortie_longue_placee and nb_sessions >= 3
+                and _sortie_longue_pertinente(objectif_cardio, distance)):
+            faciles.append("Sortie longue")
+            sortie_longue_placee = True
+        elif not recup_placee and nb_faciles >= 3 and reste_apres == 0:
+            # Dernière séance facile de la semaine et il y en a au moins trois :
+            # une récupération active vaut mieux qu'une troisième endurance.
+            # Pertinent pour tous les publics, y compris santé : c'est la séance
+            # la plus douce du catalogue (Zone 1).
+            faciles.append("Récupération active")
+            recup_placee = True
+        else:
+            faciles.append("Endurance fondamentale")
 
-    if objectif == "Perte de gras":
-        if nb_sessions == 1:
-            return ["Endurance fondamentale"]
-        mix = ["Fractionné"] + ["Endurance fondamentale"] * (nb_sessions - 1)
-        return mix
+    # --- Entrelacement dur / facile -----------------------------------------
+    # On alterne pour ne jamais enchaîner deux séances dures d'affilée, ce qui
+    # laisse au moins une journée de récupération relative entre deux gros
+    # efforts quand les séances sont réparties sur la semaine.
+    mix = []
+    while intenses or faciles:
+        if faciles:
+            mix.append(faciles.pop(0))
+        if intenses:
+            mix.append(intenses.pop(0))
 
-    if objectif == "Recomposition (sec + muscle)":
-        if nb_sessions == 1:
-            return ["Endurance fondamentale"]
-        mix = ["Fractionné"] + ["Endurance fondamentale"] * (nb_sessions - 1)
-        return mix
+    # Si la semaine ne contient QUE des séances dures (cas limite : 1 séance,
+    # objectif perte de poids), on la laisse telle quelle.
+    return mix[:nb_sessions]
 
-    if objectif == "Performance / explosivité":
-        if nb_sessions == 1:
-            return ["Fractionné"]
-        mix = ["Sprints / explosivité", "Fractionné"] + ["Endurance fondamentale"] * max(0, nb_sessions - 2)
-        return mix[:nb_sessions]
 
-    # Condition physique générale : mix équilibré
-    base = ["Endurance fondamentale", "Fractionné"]
-    return [base[i % 2] for i in range(nb_sessions)]
+def _sortie_longue_pertinente(objectif_cardio, distance):
+    """La sortie longue n'a de sens que si l'on cherche à durer.
+
+    Elle a sa place dès 3 séances par semaine quel que soit l'objectif — y
+    compris la perte de poids, où la séance longue en Zone 2 est justement le
+    format qui maximise la part de graisses utilisées comme carburant (cf.
+    tableau des zones du document), et y compris sur un objectif santé, où une
+    sortie longue reste une sortie FACILE : elle allonge la durée, pas
+    l'intensité. C'est le plafond de séances dures (`_nb_seances_intenses`) qui
+    protège ce public, pas l'interdiction de varier le volume facile."""
+    return True
 
 
 def _estimate_niveau_from_1km(temps_1km, sexe):
@@ -345,11 +524,34 @@ def _estimate_niveau_from_1km(temps_1km, sexe):
 # Pour la fonctionnalité "je n'aime pas cette séance" : à quel type plus doux
 # retomber quand la raison est "trop difficile/intense". "Endurance légère" est le
 # palier le plus bas, donc n'a nulle part où descendre plus.
+# Allègement d'une séance jugée « trop difficile/intense » par l'utilisateur.
+# Chaque type descend d'un cran vers une zone plus basse, jusqu'au plancher
+# ("Récupération active"), plutôt que de retomber brutalement en endurance.
+# Étendu aux 12 nouveaux types (retour Samy) : sans cela, une séance de Seuil
+# ou de VMA signalée comme trop dure serait restée identique d'une semaine sur
+# l'autre, faute d'entrée dans cette table.
 TYPE_DOWNGRADE = {
-    "Sprints / explosivité": "Fractionné",
-    "Fractionné": "Endurance fondamentale",
+    # Zone 5 -> Zone 4
+    "Sprints / explosivité": "Côtes",
+    "VMA courte": "VMA longue",
+    "VMA longue": "Seuil",
+    # Zone 4 -> Zone 3
+    "Côtes": "Tempo",
+    "Seuil": "Tempo",
+    "Fractionné": "Fartlek",
+    "Allure spécifique 5 km": "Allure spécifique 10 km",
+    "Allure spécifique 10 km": "Tempo",
+    # Zone 3 -> Zone 2
+    "Tempo": "Endurance fondamentale",
+    "Fartlek": "Endurance fondamentale",
+    "Allure semi-marathon": "Endurance fondamentale",
+    "Allure marathon": "Endurance fondamentale",
+    # Zone 2 -> Zone 1
+    "Sortie longue": "Endurance fondamentale",
     "Endurance fondamentale": "Endurance légère",
-    "Endurance légère": "Endurance légère",
+    "Endurance légère": "Récupération active",
+    # Plancher : on ne descend pas plus bas.
+    "Récupération active": "Récupération active",
 }
 
 RAISON_TROP_DUR = "Trop difficile / intense"
@@ -398,7 +600,18 @@ def build_cardio_program(data):
         if niveau_calcule:
             niveau_cardio = niveau_calcule
 
-    mix = _session_mix(objectif_cardio, objectif, nb_sessions)
+    # Distance visée en course ("5km" | "10km" | "semi" | "marathon" |
+    # "trail_ultra" | ""), question ajoutée sous "Allure cible visée" (retour
+    # Samy). Elle ne s'applique qu'à la course à pied : sur un profil qui ne
+    # court pas, on l'ignore pour ne pas placer d'allure spécifique absurde
+    # (une "allure marathon" en natation n'a aucun sens).
+    distance = data.get("distance_objectif_course", "") or ""
+    if "Course" not in cardio_types:
+        distance = ""
+
+    mix = _session_mix(objectif_cardio, objectif, nb_sessions,
+                       niveau_cardio=niveau_cardio, distance=distance,
+                       signature=data.get("signature", ""))
 
     warnings = []
 
@@ -470,6 +683,15 @@ def build_cardio_program(data):
             "type": type_seance,
             "discipline": discipline,
             "protocole": protocole,
+            # Champs ADDITIFS (retour Samy, document « Les bases du cardio ») :
+            # chaque séance affiche désormais sa zone d'intensité et l'effet
+            # physiologique recherché, pour qu'on comprenne POURQUOI elle est là
+            # et pas seulement quoi faire. Les consommateurs existants du dict
+            # (PDF, page /my-program) ignorent simplement ces clés s'ils ne les
+            # utilisent pas encore.
+            "zone": cardio_zones.libelle_zone(type_seance),
+            "description": cardio_zones.description_de(type_seance),
+            "intensite": cardio_zones.intensite_de(type_seance),
         })
 
     if data.get("autre_sport") == "Oui" and int(data.get("autre_sport_sessions", 0)) >= 2:
