@@ -89,6 +89,82 @@ NIVEAU_SETS_SECONDAIRE = {
 }
 NIVEAU_SETS_SECONDAIRE_DEFAUT = NIVEAU_SETS_SECONDAIRE["Intermédiaire"]
 
+# --- Séries par objectif x palier ---------------------------------------------
+# Retour Samy (second problème identifié) : « les séries sont bloquées à 3 ».
+#
+# Diagnostic : `_sets_de_base` renvoyait `MIN_SETS_FLOOR` (3) pour TOUT ce qui
+# n'était ni principal ni secondaire — donc pour toutes les isolations et tous
+# les finisseurs, sans aucune exception ni condition. Comme une séance qui
+# respecte le plancher d'exercices par muscle compte majoritairement des
+# isolations, 74% des exercices d'un programme sortaient à 3 séries, et 100%
+# des isolations. Le correctif précédent (#132) avait bien relevé les
+# mouvements principaux à 4-5, mais n'avait jamais touché aux isolations.
+#
+# Même principe que pour les répétitions : le nombre de séries dépend du
+# croisement objectif dominant x palier du mouvement. Le plancher de 3 reste
+# un plancher — « 3 c'est le minimum, pas le plafond » — mais ce n'est plus
+# une valeur par défaut appliquée faute de règle.
+SETS_PAR_PALIER = {
+    # Force : peu d'exercices, beaucoup de séries sur le mouvement lourd.
+    ("force", exercise_order.TIER_PRINCIPAL): 5,
+    ("force", exercise_order.TIER_SECONDAIRE): 4,
+    ("force", exercise_order.TIER_ISOLATION): 3,
+    ("force", exercise_order.TIER_FINISSEUR): 3,
+
+    # Hypertrophie : le volume est le principal moteur de progression, il est
+    # réparti sur l'ensemble de la séance et pas concentré sur un seul
+    # mouvement. C'est ici que les isolations méritent 4 séries.
+    ("hypertrophie", exercise_order.TIER_PRINCIPAL): 4,
+    ("hypertrophie", exercise_order.TIER_SECONDAIRE): 4,
+    # Isolation à 3 : c'est la dose utile, et surtout c'est ce qui crée un
+    # ÉCART avec les mouvements composés (4-5). Les monter à 4 aussi revenait
+    # simplement à déplacer le problème — tout à 4 au lieu de tout à 3.
+    ("hypertrophie", exercise_order.TIER_ISOLATION): 3,
+    ("hypertrophie", exercise_order.TIER_FINISSEUR): 3,
+
+    # Endurance musculaire : séries longues, donc moins nombreuses.
+    ("endurance_musculaire", exercise_order.TIER_PRINCIPAL): 4,
+    ("endurance_musculaire", exercise_order.TIER_SECONDAIRE): 3,
+    ("endurance_musculaire", exercise_order.TIER_ISOLATION): 3,
+    ("endurance_musculaire", exercise_order.TIER_FINISSEUR): 3,
+
+    # Perte de gras : maintien de la masse musculaire, volume soutenu sur les
+    # mouvements structurants.
+    ("perte_de_gras", exercise_order.TIER_PRINCIPAL): 4,
+    ("perte_de_gras", exercise_order.TIER_SECONDAIRE): 3,
+    ("perte_de_gras", exercise_order.TIER_ISOLATION): 3,
+    ("perte_de_gras", exercise_order.TIER_FINISSEUR): 3,
+
+    # Explosivité : séries très courtes (2-5 répétitions), donc plus
+    # nombreuses. L'ancienne version ramenait tout le monde à 3 sur cet
+    # objectif, ce qui donnait un volume de travail dérisoire.
+    ("explosivite", exercise_order.TIER_PRINCIPAL): 5,
+    ("explosivite", exercise_order.TIER_SECONDAIRE): 4,
+    ("explosivite", exercise_order.TIER_ISOLATION): 3,
+    ("explosivite", exercise_order.TIER_FINISSEUR): 3,
+}
+SETS_DEFAUT = 3
+
+# Bonus de séries pour les niveaux capables d'absorber plus de volume. Un
+# pratiquant avancé récupère mieux et a besoin de plus de stimulus pour
+# continuer à progresser ; un débutant progresse déjà pleinement à 3-4 séries
+# et n'y gagnerait que de la fatigue.
+BONUS_SETS_PAR_NIVEAU = {
+    "Débutant complet": 0,
+    "Quelques mois d'expérience": 0,
+    "Intermédiaire": 0,
+    "Avancé": 1,
+}
+
+# Plafond absolu par palier, pour que le bonus de niveau ne produise pas
+# d'aberration (une isolation à 6 séries n'a aucun intérêt).
+PLAFOND_SETS_PAR_PALIER = {
+    exercise_order.TIER_PRINCIPAL: 6,
+    exercise_order.TIER_SECONDAIRE: 5,
+    exercise_order.TIER_ISOLATION: 4,
+    exercise_order.TIER_FINISSEUR: 4,
+}
+
 # Plancher absolu (Retour Samy : "3 c'est le minimum") : jamais en dessous,
 # quel que soit le palier/niveau — en dessous, mieux vaut retirer l'exercice
 # de la séance que le vider de son intérêt (cf. `_retirer_exercices_si_besoin`
@@ -397,25 +473,35 @@ def _sets_de_base(profile, exercise, dominant, recuperation_degradee=False):
     respecte le plancher d'exercices par muscle #132, ce qui écrasait tout le
     monde à 3 séries sans distinction).
 
-    Deux cas ramènent tout le monde au plancher (3), quel que soit le
-    palier/niveau :
-      - objectif dominant = explosivité (scénario de test "explosivité ->
-        faible volume", section 8 : qualité du geste > quantité, cohérent
-        avec le principe d'entraînement de la puissance) ;
-      - récupération dégradée déclarée (`_recuperation_degradee`, sommeil
-        très réduit et/ou stress élevé) : on réduit le volume, pas
-        l'intensité ni la fréquence, quand la récupération est mauvaise."""
+    Retour Samy (« les séries sont bloquées à 3 ») : cette fonction renvoyait
+    `MIN_SETS_FLOOR` pour tout ce qui n'était ni principal ni secondaire, donc
+    pour TOUTES les isolations et TOUS les finisseurs. Comme une séance en
+    compte majoritairement, 74% du programme sortait à 3 séries. Le nombre de
+    séries est désormais lu dans `SETS_PAR_PALIER` (objectif x palier), avec un
+    bonus de niveau et un plafond par palier.
+
+    Un seul cas ramène tout le monde au plancher : une récupération dégradée
+    déclarée (`_recuperation_degradee`, sommeil très réduit et/ou stress
+    élevé) — on réduit le volume, pas l'intensité ni la fréquence, quand la
+    récupération est mauvaise.
+
+    L'explosivité n'y est plus ramenée : ses séries sont très courtes (2 à 5
+    répétitions), elles doivent donc être plus nombreuses, pas moins. Les
+    ramener à 3 produisait un volume de travail dérisoire."""
     tier = exercise_order.classify_exercise(exercise)
 
-    if dominant == "explosivite" or recuperation_degradee:
+    if recuperation_degradee:
         return MIN_SETS_FLOOR, tier
 
     niveau = getattr(profile, "niveau_musculation", None)
-    if tier == exercise_order.TIER_PRINCIPAL:
-        return NIVEAU_SETS_PRINCIPAL.get(niveau, NIVEAU_SETS_PRINCIPAL_DEFAUT), tier
-    if tier == exercise_order.TIER_SECONDAIRE:
-        return NIVEAU_SETS_SECONDAIRE.get(niveau, NIVEAU_SETS_SECONDAIRE_DEFAUT), tier
-    return MIN_SETS_FLOOR, tier
+    sets = SETS_PAR_PALIER.get((dominant, tier), SETS_DEFAUT)
+    sets += BONUS_SETS_PAR_NIVEAU.get(niveau, 0)
+
+    # Plafond par palier, puis plancher global : "3 c'est le minimum, pas le
+    # plafond" (retour Samy sur le volume).
+    sets = min(sets, PLAFOND_SETS_PAR_PALIER.get(tier, 4))
+    sets = max(sets, MIN_SETS_FLOOR)
+    return sets, tier
 
 
 def _cout_fatigue_par_serie(exercise):
