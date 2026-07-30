@@ -416,20 +416,105 @@ def affiner_archetype(muscle_header, portion_texte, nom, base):
 #    (biomechanics.py, score_morphologie).
 # --------------------------------------------------------------------------
 
-def morphologie_pour(pattern, muscle_principal):
+def morphologie_pour(pattern, muscle_principal, nom="", movement_type=None, equipment=None):
+    """Bonus de score par trait morphologique déclaré au questionnaire
+    (longueur des bras, des jambes, largeur des épaules).
+
+    Consommé par `biomechanics.score_morphologie`, qui additionne simplement
+    les valeurs correspondant aux traits activés du profil. Une clé absente
+    vaut 0 : l'exercice devient alors insensible à la morphologie.
+
+    Retour Samy (« vraiment choisir les exercices par rapport aux questions ») :
+    la version précédente ne renseignait que 4 combinaisons de pattern, ce qui
+    laissait 169 fiches sur 365 sans aucune donnée morphologique. Les questions
+    sur la longueur des bras et des jambes ne pesaient donc que sur la moitié
+    du catalogue — et pas la moitié la plus pertinente, puisqu'elle dépendait
+    d'un libellé de pattern plutôt que du mouvement réel.
+
+    On raisonne désormais sur le schéma de mouvement et le matériel, qui sont
+    renseignés partout.
+
+    Principes appliqués :
+      - Bras longs : sur les poussées, la barre impose une amplitude plus
+        grande et un bras de levier défavorable — les haltères, les machines
+        convergentes et les mouvements à amplitude réglable conviennent mieux.
+        En tirage en revanche, des bras longs sont un avantage.
+      - Bras courts : l'inverse — la barre et les charges lourdes sont
+        avantageuses en poussée, les tirages demandent plus d'amplitude.
+      - Jambes longues / buste court : le squat libre devient très penché en
+        avant ; presse, hack squat et squat guidé conviennent mieux. Les
+        mouvements en charnière de hanche sont en revanche favorables.
+      - Épaules larges : avantage sur les tractions et les développés larges.
+    """
+    n = (nom or "").lower()
+    equipment = equipment or []
     m = {}
-    if pattern in ("squat", "hinge"):
-        m["jambes_longues"] = 6
-        m["jambes_courtes"] = 3
-    if pattern == "presse" and muscle_principal in ("pecs", "epaules", "triceps"):
-        m["bras_longs"] = 3
-        m["bras_courts"] = 6
-    if pattern in ("tirage", "isolation") and muscle_principal in ("dos", "biceps"):
-        m["bras_longs"] = 6
-        m["bras_courts"] = 3
+
+    def poser(cle, valeur):
+        m[cle] = max(m.get(cle, 0), valeur)
+
+    barre = "barre" in equipment
+    haltere = "haltere" in equipment
+    guide = any(e in ("machine", "poulie", "smith") for e in equipment)
+    unilat = any(k in n for k in ("unilatéral", "unilateral", "single", "une main", "un bras"))
+
+    pousse = movement_type == "push" or pattern in ("developpe", "presse")
+    tire = movement_type == "pull" or pattern in ("tirage", "rowing")
+    jambes = movement_type in ("squat", "lunge", "hinge") or pattern in ("squat", "fente", "hinge", "presse")
+
+    # ---------- Longueur des bras ----------
+    if pousse:
+        if barre and not guide:
+            poser("bras_courts", 7)
+            poser("bras_longs", 2)
+        elif haltere or unilat:
+            # Trajectoire libre : chacun trouve son amplitude.
+            poser("bras_longs", 6)
+            poser("bras_courts", 5)
+        elif guide:
+            poser("bras_longs", 6)
+            poser("bras_courts", 5)
+    if tire:
+        # Bras longs = plus grande amplitude de traction, avantage net.
+        poser("bras_longs", 7)
+        poser("bras_courts", 4)
+    if muscle_principal in ("biceps", "triceps"):
+        if guide or haltere:
+            poser("bras_longs", 6)
+            poser("bras_courts", 5)
+        else:
+            poser("bras_longs", 4)
+            poser("bras_courts", 6)
+
+    # ---------- Longueur des jambes / buste ----------
+    if jambes:
+        squat_libre = ("squat" in n or movement_type == "squat") and barre and not guide
+        if squat_libre:
+            # Jambes longues : buste très penché, charge lombaire accrue.
+            poser("jambes_courtes", 7)
+            poser("jambes_longues", 2)
+        elif guide or any(k in n for k in ("presse", "hack", "smith", "belt squat")):
+            poser("jambes_longues", 7)
+            poser("jambes_courtes", 5)
+        elif movement_type == "hinge" or pattern == "hinge":
+            # Charnière de hanche : les leviers longs sont un avantage.
+            poser("jambes_longues", 6)
+            poser("jambes_courtes", 4)
+        else:
+            poser("jambes_longues", 5)
+            poser("jambes_courtes", 5)
+
+    # ---------- Largeur des épaules ----------
     if muscle_principal == "epaules":
-        m["epaules_larges"] = 6
-        m["epaules_etroites"] = 4
+        poser("epaules_larges", 6)
+        poser("epaules_etroites", 4)
+    if any(k in n for k in ("traction", "pull-up", "chin-up", "tirage vertical", "dips")):
+        poser("epaules_larges", 6)
+        poser("epaules_etroites", 3)
+    if muscle_principal == "pecs" and any(k in n for k in ("prise large", "wide")):
+        poser("epaules_larges", 6)
+        poser("epaules_etroites", 3)
+
     return m
 
 
@@ -631,7 +716,11 @@ def build_fiches():
                     ),
                     "technical_complexity": arche["technical_complexity"],
                     "stability_demand": arche["stability_demand"],
-                    "morphologie_adaptee": morphologie_pour(pattern, muscle_principal),
+                    "morphologie_adaptee": morphologie_pour(
+                        pattern, muscle_principal, nom,
+                        movement_type=arche.get("movement_type"),
+                        equipment=equipment,
+                    ),
                     "objectifs_adaptes": arche["objectifs_adaptes"],
                     "score_tension_mecanique": arche["score_tension_mecanique"],
                     "score_contraction_max": arche["score_contraction_max"],
