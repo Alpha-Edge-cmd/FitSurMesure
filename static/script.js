@@ -823,6 +823,58 @@ function showMessage(text, type) {
   box.innerHTML = `<div class="${type === "error" ? "error-box" : "success-box"}">${text}</div>`;
 }
 
+// ---------------- Appel réseau avec reprise automatique ----------------
+// Retour Samy : « Impossible de contacter le serveur — ce message au premier
+// clic sur payer et recevoir mon PDF », puis ça fonctionne en réessayant.
+//
+// Signature typique d'un hébergement qui met le service en veille faute de
+// trafic : la première requête après une période d'inactivité doit attendre le
+// redémarrage complet du serveur (démarrage Python, ouverture de la base,
+// synchronisation du catalogue d'exercices au boot) et dépasse le délai du
+// navigateur. La seconde tombe sur un service déjà chaud et passe.
+//
+// Faire porter ça à l'utilisateur — qui voit une erreur alors que rien n'est
+// cassé, au moment précis où il s'apprête à payer — est le pire endroit
+// possible pour ce genre de friction. On réessaie donc nous-mêmes, en
+// expliquant l'attente au lieu d'annoncer un échec.
+const REPRISES_MAX = 3;
+const DELAI_ENTRE_REPRISES_MS = [1500, 4000, 8000];
+
+function attendre(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchAvecReprise(url, options, onAttente) {
+  let derniereErreur = null;
+
+  for (let tentative = 0; tentative <= REPRISES_MAX; tentative++) {
+    try {
+      const res = await fetch(url, options);
+      // 502/503/504 = serveur encore en train de démarrer côté hébergeur :
+      // même traitement qu'une erreur réseau, on réessaie. Les autres codes
+      // (400, 404, 500...) sont de vraies réponses applicatives, on les rend
+      // telles quelles à l'appelant.
+      if ([502, 503, 504].includes(res.status) && tentative < REPRISES_MAX) {
+        derniereErreur = new Error(`HTTP ${res.status}`);
+      } else {
+        return res;
+      }
+    } catch (e) {
+      derniereErreur = e;
+      if (tentative >= REPRISES_MAX) break;
+    }
+
+    if (onAttente) onAttente(tentative + 1);
+    await attendre(DELAI_ENTRE_REPRISES_MS[tentative] || 8000);
+  }
+
+  throw derniereErreur || new Error("Échec réseau");
+}
+
+const MESSAGE_REVEIL_SERVEUR =
+  "Le serveur était en veille et redémarre, ça prend quelques secondes. " +
+  "Nouvelle tentative en cours, ne quitte pas la page.";
+
 // ---------------- Écran de révision "je n'aime pas cet exercice / cette séance" ----------------
 // Avant de générer le PDF final, on montre à la personne la liste réelle des exercices
 // et séances de cardio qui ont été choisis pour elle, pour qu'elle puisse signaler ce
@@ -835,11 +887,11 @@ async function showReview() {
   nextBtn.innerHTML = '<span class="spinner"></span> Préparation de ton programme...';
 
   try {
-    const res = await fetch("/generate-preview", {
+    const res = await fetchAvecReprise("/generate-preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
-    });
+    }, () => showMessage(MESSAGE_REVEIL_SERVEUR, "success"));
     const data = await res.json().catch(() => null);
 
     if (!res.ok || !data) {
@@ -859,7 +911,11 @@ async function showReview() {
     reviewMode = true;
     renderReview();
   } catch (e) {
-    showMessage("Impossible de contacter le serveur, tu peux réessayer.", "error");
+    showMessage(
+      "Impossible de contacter le serveur après plusieurs tentatives. " +
+      "Vérifie ta connexion et réessaie — aucune donnée n'a été envoyée et tu n'as rien payé.",
+      "error"
+    );
     nextBtn.disabled = false;
     nextBtn.innerHTML = "Payer et recevoir mon PDF";
   }
@@ -1028,11 +1084,14 @@ async function submitForm() {
   nextBtn.innerHTML = '<span class="spinner"></span> Préparation du paiement...';
 
   try {
-    const res = await fetch("/create-checkout-session", {
+    // Même reprise automatique que pour l'aperçu : c'est l'appel le plus
+    // sensible du parcours, une erreur réseau ici fait abandonner un client
+    // qui était prêt à payer.
+    const res = await fetchAvecReprise("/create-checkout-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
-    });
+    }, () => showMessage(MESSAGE_REVEIL_SERVEUR, "success"));
 
     const data = await res.json().catch(() => null);
 
