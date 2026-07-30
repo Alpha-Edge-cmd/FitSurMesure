@@ -26,3 +26,10 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      # Assistant IA du site (logic/support_agent.py). Tant que cette clé
+      # n'est pas renseignée, /assistant reste accessible mais affiche un
+      # message invitant à passer par /contact — dégradation propre, aucune
+      # erreur. `sync: false` = la valeur se saisit à la main dans le
+      # dashboard Render et n'est jamais écrite dans le dépôt.
+      - key: ANTHROPIC_API_KEY
+        sync: false
