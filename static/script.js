@@ -87,7 +87,7 @@ const steps = [
   {
     title: "Profil général",
     fields: [
-      { id: "prenom", label: "Prénom (facultatif)", type: "text", placeholder: "Ex : Antonio" },
+      { id: "prenom", label: "Prénom (facultatif)", type: "text", placeholder: "Ex : Tom" },
       { id: "date_naissance", label: "Date de naissance", type: "date-parts", required: true },
       { id: "sexe", label: "Sexe", type: "select", required: true,
         options: ["Homme", "Femme"] },
