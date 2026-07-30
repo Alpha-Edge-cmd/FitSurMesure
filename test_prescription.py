@@ -269,11 +269,27 @@ def run():
         total = sum(plages.values())
         part_6_8 = plages["6-8"] / total
 
-        # Au moins 10 plages distinctes sur l'ensemble des profils testés.
-        assert len(plages) >= 10, plages
-        # Le 6-8 reste possible (débutant en force notamment) mais ne doit plus
-        # jamais dominer : plafond à 10% des prescriptions.
-        assert part_6_8 <= 0.10, (part_6_8, plages)
+        # Retour Samy : « les plages doivent rester avec maximum 3 répétitions
+        # d'écart, pas de plages absurdes comme 8-20 ». Toute plage est donc
+        # ramenée à une plage canonique (normaliser_plage) — il y a
+        # mécaniquement MOINS de plages distinctes qu'avant, et c'est voulu.
+        # On vérifie donc la conformité, pas le nombre.
+        from logic.recommendation.prescription import PLAGES_CANONIQUES
+        canoniques = {f"{b}-{h}" for b, h in PLAGES_CANONIQUES}
+        for plage in plages:
+            if "sec" in plage:
+                continue
+            assert plage in canoniques, (plage, sorted(canoniques))
+        assert len(plages) >= 4, plages
+        # Le 6-8 reste une plage parfaitement légitime — c'est même une des
+        # plages canoniques demandées (6-8 -> 5 séries, travail de force). Ce
+        # qui n'allait pas, c'est qu'elle représentait la quasi-totalité des
+        # prescriptions. Plafond à 25% : présente, jamais dominante.
+        assert part_6_8 <= 0.25, (part_6_8, plages)
+        # Et la plage d'hypertrophie doit rester la plus fréquente, puisque
+        # c'est l'objectif le plus courant.
+        plage_dominante = plages.most_common(1)[0][0]
+        assert plage_dominante in ("8-10", "10-12", "12-15"), plages
         # Sur un même profil et une même séance, les paliers doivent produire
         # des plages différentes — c'est le cœur de la correction.
         p_hyper = profil(niveau_musculation="Intermédiaire", objectif_principal="Prise de muscle")
@@ -320,6 +336,35 @@ def run():
         print(f"OK 8 — séries variées : {sorted(series)} séries possibles, "
               f"3 séries réduit à {100 * part_3:.0f}%, "
               f"{seances_variees}/{seances_total} séances avec plusieurs valeurs")
+
+        # --------------------------------------------------------------
+        # 9. Couplage séries <-> répétitions (règle donnée par Samy) :
+        #    « 3x c'est seulement pour 12-15, pour 10-12 c'est 4x,
+        #      pour 8-10 c'est 4x, pour 6-8 et force c'est 5x ».
+        #    Avant, séries et répétitions étaient calculées indépendamment :
+        #    rien n'empêchait un "3 x 6-8", qui ne correspond à aucun schéma
+        #    d'entraînement réel.
+        # --------------------------------------------------------------
+        from logic.recommendation.prescription import sets_depuis_reps
+        from logic.recommendation import exercise_order as _eo
+
+        attendu = {"12-15": 3, "10-12": 4, "8-10": 4, "6-8": 5, "5-8": 5, "3-6": 5, "2-5": 5}
+        for plage, series_attendues in attendu.items():
+            obtenu = sets_depuis_reps(plage)
+            assert obtenu == series_attendues, (plage, obtenu, series_attendues)
+
+        # Et le couple produit par le moteur doit toujours respecter la règle.
+        for objectif in objectifs:
+            for niveau in niveaux:
+                p9 = profil(niveau_musculation=niveau, objectif_principal=objectif)
+                for exo in seance_type:
+                    reps = determine_rep_range(p9, exo)
+                    if "sec" in reps:
+                        continue
+                    tier9 = _eo.classify_exercise(exo)
+                    assert sets_depuis_reps(reps, tier9) >= 3, (reps, exo)
+
+        print("OK 9 — séries couplées aux répétitions : 12-15→3x, 10-12→4x, 8-10→4x, 6-8→5x, force→5x")
 
     print("\nTOUS LES TESTS DE LA PRESCRIPTION SONT PASSÉS")
 

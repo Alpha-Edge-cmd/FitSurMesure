@@ -145,6 +145,103 @@ SETS_PAR_PALIER = {
 }
 SETS_DEFAUT = 3
 
+# --- Couplage séries <-> répétitions ------------------------------------------
+# Retour Samy, règle donnée explicitement :
+#   « 3x c'est seulement pour les répétitions 12-15 (hypertrophie),
+#     pour 10-12 c'est 4x, pour 8-10 c'est 4x, pour 6-8 et force c'est 5x »
+#
+# C'est la bonne façon de raisonner, et c'est ce qui manquait : le nombre de
+# séries et la plage de répétitions étaient calculés INDÉPENDAMMENT l'un de
+# l'autre, chacun depuis sa propre matrice. Rien ne garantissait leur
+# cohérence — on pouvait obtenir 3 x 6-8, qui ne correspond à aucun schéma
+# d'entraînement réel.
+#
+# Le volume total d'une série se conserve : moins on fait de répétitions, plus
+# on fait de séries. Les séries découlent donc désormais de la plage de
+# répétitions, qui reste calculée en premier (objectif x palier x niveau).
+#
+# Clé = borne BASSE de la plage de répétitions.
+SETS_SELON_REPS = [
+    # (rep_min_incluse, rep_max_incluse, séries)
+    (1, 5, 5),     # force maximale
+    (6, 7, 5),     # 6-8 -> 5x
+    (8, 9, 4),     # 8-10 -> 4x
+    (10, 11, 4),   # 10-12 -> 4x
+    (12, 14, 3),   # 12-15 -> 3x
+    (15, 19, 3),   # endurance musculaire
+    (20, 99, 3),   # endurance longue
+]
+
+
+# Plages de répétitions autorisées, reprises telles quelles de la liste donnée
+# par Samy (« exemples acceptés : 5-8, 8-10, 10-12, 12-15, 15-20 — pas de
+# plages absurdes comme 8-20 »), complétées vers le bas pour la force et vers
+# le haut pour l'endurance musculaire.
+#
+# Toute plage calculée est ramenée à la plus proche de cette liste. Sans ça,
+# les modulations successives (unilatéral +2, plancher par niveau, progression
+# sur le cycle) produisaient des écarts comme "14-22", qui ne correspondent à
+# aucune intention d'entraînement lisible.
+PLAGES_CANONIQUES = [
+    (2, 5),    # force maximale
+    (3, 6),
+    (5, 8),
+    (6, 8),
+    (8, 10),
+    (10, 12),
+    (12, 15),
+    (15, 20),
+    (20, 25),
+    (20, 30),  # endurance musculaire longue
+]
+
+
+def normaliser_plage(bas, haut):
+    """Ramène une plage calculée à la plage canonique la plus proche.
+
+    Critère : distance entre les deux bornes, la borne basse pesant double
+    (c'est elle qui porte l'intention — travailler à 6 répétitions ou à 12
+    n'est pas le même exercice)."""
+    def distance(candidate):
+        cb, ch = candidate
+        return 2 * abs(cb - bas) + abs(ch - haut)
+
+    return min(PLAGES_CANONIQUES, key=distance)
+
+
+def sets_depuis_reps(reps, tier=None):
+    """Nombre de séries déduit de la plage de répétitions (règle Samy).
+
+    `reps` : chaîne "min-max", ou "min-max sec" pour un exercice tenu.
+    `tier` : palier du mouvement, utilisé uniquement pour le plafond des
+             isolations (une isolation ne dépasse jamais 4 séries).
+    """
+    texte = str(reps or "")
+    est_duree = "sec" in texte
+
+    try:
+        bas = int(texte.split("-")[0].strip())
+    except (ValueError, IndexError):
+        return SETS_DEFAUT
+
+    if est_duree:
+        # Un maintien ne suit pas la même logique : 3 séries de gainage est la
+        # dose de référence, 4 pour un maintien court et intense.
+        return 4 if bas <= 20 else 3
+
+    series = SETS_DEFAUT
+    for borne_basse, borne_haute, valeur in SETS_SELON_REPS:
+        if borne_basse <= bas <= borne_haute:
+            series = valeur
+            break
+
+    # Une isolation reste plafonnée : 5 séries de curl n'apportent rien de plus
+    # que 4, elles ajoutent seulement de la fatigue locale.
+    if tier in (exercise_order.TIER_ISOLATION, exercise_order.TIER_FINISSEUR):
+        series = min(series, 4)
+
+    return series
+
 # Bonus de séries pour les niveaux capables d'absorber plus de volume. Un
 # pratiquant avancé récupère mieux et a besoin de plus de stimulus pour
 # continuer à progresser ; un débutant progresse déjà pleinement à 3-4 séries
@@ -509,6 +606,11 @@ def determine_rep_range(profile, exercise, semaine=1):
         low = plancher
         high = max(plancher + max(2, ecart), high)
 
+    # Dernière étape : ramener à une plage canonique. Les modulations
+    # ci-dessus (unilatéral, progression, plancher par niveau) s'accumulent et
+    # produisaient sinon des écarts illisibles du type "14-22".
+    low, high = normaliser_plage(low, high)
+
     return f"{low}-{high}"
 
 
@@ -721,11 +823,26 @@ def generate_prescription(profile, workout, available_exercises=None):
             })
             continue
 
+        # Retour Samy : les séries découlent de la plage de répétitions
+        # (12-15 -> 3x, 10-12 -> 4x, 8-10 -> 4x, 6-8 et force -> 5x), et non
+        # d'un calcul indépendant qui pouvait produire des couples incohérents
+        # comme "3 x 6-8". On calcule donc les répétitions d'abord, puis les
+        # séries qui en découlent.
+        #
+        # `it["sets"]` (issu de `_sets_de_base`, puis éventuellement réduit par
+        # le budget de fatigue) reste un PLAFOND : si la récupération du profil
+        # est dégradée ou si la séance dépasse le budget, on ne remonte jamais
+        # le volume au-dessus de ce qui a été arbitré en amont.
+        reps_calculees = determine_rep_range(profile, exo_obj)
+        sets_couples = sets_depuis_reps(reps_calculees, tier)
+        sets_finaux = max(MIN_SETS_FLOOR, min(sets_couples, it["sets"])) \
+            if it["sets"] < sets_couples else sets_couples
+
         resultats.append({
             "exercise_id": exo_obj.exercise_id,
             "name": entree.get("name") or getattr(exo_obj, "name", None),
-            "sets": it["sets"],
-            "reps": determine_rep_range(profile, exo_obj),
+            "sets": sets_finaux,
+            "reps": reps_calculees,
             "rest_seconds": calculate_rest_time(exo_obj, profile),
             "intensity": calculate_intensity(profile, exo_obj),
             "notes": _note_automatique(dominant, tier),
