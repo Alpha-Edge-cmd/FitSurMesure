@@ -118,20 +118,85 @@ def _recuperation_degradee(profile):
     )
 
 # --- Répétitions (section 4) --------------------------------------------------
-# Retour Samy (prompt hors 24 phases) : fourchettes resserrées entre 6 et 15
-# répétitions (jamais en dessous de 6, jugé trop technique/risqué sans
-# supervision réelle sur une appli non encadrée ; jamais au-dessus de 15,
-# hors du champ hypertrophie/force qu'un programme généraliste doit couvrir),
-# tout en gardant des paliers distincts selon l'objectif dominant (force <
-# hypertrophie < perte de gras/endurance).
-REP_RANGES = {
-    "force": (6, 8),
-    "hypertrophie": (8, 12),
-    "endurance_musculaire": (12, 15),
-    "perte_de_gras": (10, 15),
-    "explosivite": (6, 8),
+# Retour Samy : « les répétitions sont presque toujours entre 6 et 8, je n'aime
+# pas du tout. On avait pourtant défini une logique précise. »
+#
+# Diagnostic de l'ancienne version : REP_RANGES ne contenait QU'UNE plage par
+# objectif, et `determine_rep_range` ignorait explicitement le paramètre
+# `exercise`. Conséquence : sur un objectif dominant "force", les 10 à 16
+# exercices d'une séance sortaient TOUS en 6-8, du squat barre au curl poulie.
+# Une plage unique par objectif ne pouvait pas produire autre chose.
+#
+# Nouvelle logique : la plage dépend du croisement objectif x PALIER du
+# mouvement, parce que c'est le palier qui porte l'information utile. Un
+# mouvement principal lourd et un exercice d'isolation ne se travaillent pas
+# dans la même zone de répétitions, même pour un objectif identique — charger
+# un curl en 3 répétitions n'a pas de sens, et faire du squat en 25 non plus.
+#
+# Les plages reprennent celles demandées :
+#   Force               : 1-5 (force maximale), 3-6 / 4-6 (exercices lourds),
+#                         6-8 uniquement quand c'est pertinent
+#   Hypertrophie        : 8-10, 10-12, 12-15 — les plus fréquentes
+#   Endurance musculaire: 15-20, 20-30
+#
+# Clé = (objectif_dominant, palier) -> (min, max)
+REP_RANGES_PAR_PALIER = {
+    # --- Force ---------------------------------------------------------------
+    # Le mouvement principal porte le travail lourd. Les accessoires restent en
+    # zone hypertrophie : c'est le volume qui soutient la force sur le long
+    # terme, pas la répétition de séries très courtes sur chaque exercice.
+    ("force", exercise_order.TIER_PRINCIPAL): (3, 6),
+    ("force", exercise_order.TIER_SECONDAIRE): (5, 8),
+    ("force", exercise_order.TIER_ISOLATION): (8, 12),
+    ("force", exercise_order.TIER_FINISSEUR): (10, 15),
+
+    # --- Hypertrophie --------------------------------------------------------
+    # Le cœur du programme, et de loin le cas le plus fréquent. Les trois
+    # plages demandées (8-10, 10-12, 12-15) se répartissent naturellement du
+    # mouvement le plus lourd au plus léger.
+    ("hypertrophie", exercise_order.TIER_PRINCIPAL): (6, 10),
+    ("hypertrophie", exercise_order.TIER_SECONDAIRE): (8, 12),
+    ("hypertrophie", exercise_order.TIER_ISOLATION): (10, 15),
+    ("hypertrophie", exercise_order.TIER_FINISSEUR): (12, 20),
+
+    # --- Endurance musculaire ------------------------------------------------
+    ("endurance_musculaire", exercise_order.TIER_PRINCIPAL): (10, 15),
+    ("endurance_musculaire", exercise_order.TIER_SECONDAIRE): (12, 20),
+    ("endurance_musculaire", exercise_order.TIER_ISOLATION): (15, 20),
+    ("endurance_musculaire", exercise_order.TIER_FINISSEUR): (20, 30),
+
+    # --- Perte de gras -------------------------------------------------------
+    # Objectif d'entretien de la masse musculaire en déficit : on garde de la
+    # charge sur les mouvements principaux (c'est ce qui préserve le muscle) et
+    # on monte les répétitions sur les accessoires pour la densité de séance.
+    ("perte_de_gras", exercise_order.TIER_PRINCIPAL): (8, 12),
+    ("perte_de_gras", exercise_order.TIER_SECONDAIRE): (10, 15),
+    ("perte_de_gras", exercise_order.TIER_ISOLATION): (12, 20),
+    ("perte_de_gras", exercise_order.TIER_FINISSEUR): (15, 25),
+
+    # --- Explosivité ---------------------------------------------------------
+    # Séries très courtes sur les mouvements principaux (qualité du geste,
+    # vitesse maximale), accessoires en hypertrophie classique.
+    ("explosivite", exercise_order.TIER_PRINCIPAL): (2, 5),
+    ("explosivite", exercise_order.TIER_SECONDAIRE): (4, 6),
+    ("explosivite", exercise_order.TIER_ISOLATION): (8, 12),
+    ("explosivite", exercise_order.TIER_FINISSEUR): (10, 15),
 }
-REP_RANGE_DEFAUT = REP_RANGES["hypertrophie"]
+
+# Plancher de répétitions par niveau. Les séries très courtes (1-5) supposent
+# une technique solide et un échauffement sérieux : on ne les prescrit pas à
+# quelqu'un qui débute, sans supervision. Un débutant "force" travaillera donc
+# en 6-8 sur son mouvement principal — c'est ici, et seulement ici, que le 6-8
+# reste légitime.
+PLANCHER_REPS_PAR_NIVEAU = {
+    "Débutant complet": 8,
+    "Quelques mois d'expérience": 6,
+    "Intermédiaire": 4,
+    "Avancé": 1,
+}
+PLANCHER_REPS_DEFAUT = 6
+
+REP_RANGE_DEFAUT = (8, 12)
 
 # --- Notes automatiques (section 7) ------------------------------------------
 NOTE_PRINCIPALE = "Priorité à la technique et à la progression de charge."
@@ -205,22 +270,121 @@ def _conseil_execution(exercise, dominant, tier, profile):
     return conseil
 
 
+# --- Effort cible / travail à l'échec -----------------------------------------
+# Retour Samy : « travail à l'échec, lorsque c'est demandé : AMRAP, jusqu'à
+# l'échec, RIR 0, RPE 10 ».
+#
+# Le questionnaire ne pose aucune question sur le travail à l'échec. Plutôt
+# que d'en ajouter une, on le rattache au PALIER du mouvement, ce qui est à la
+# fois plus sûr et plus juste : aller à l'échec sur un squat lourd ou un
+# soulevé de terre est le meilleur moyen de se blesser et de compromettre les
+# séances suivantes, alors que sur une extension à la poulie, c'est sans risque
+# et c'est précisément là que ça rapporte.
+#
+# RIR = répétitions en réserve (nombre de répétitions qu'il te restait à la fin
+# de la série). RIR 0 = échec. RPE 10 = échec également, sur l'échelle d'effort
+# perçu.
+EFFORT_PAR_PALIER = {
+    exercise_order.TIER_PRINCIPAL: (
+        "RIR 2-3 — arrête chaque série avec 2 à 3 répétitions encore en réserve. "
+        "Sur un mouvement lourd, aller à l'échec dégrade la technique et la "
+        "récupération sans rien apporter de plus."
+    ),
+    exercise_order.TIER_SECONDAIRE: (
+        "RIR 1-2 — arrête avec 1 à 2 répétitions en réserve, sauf sur la dernière "
+        "série où tu peux aller au contact de l'échec si la technique tient."
+    ),
+    exercise_order.TIER_ISOLATION: (
+        "RIR 0-1 — les dernières répétitions doivent être difficiles. Sur la "
+        "dernière série, va jusqu'à l'échec musculaire (RIR 0 / RPE 10)."
+    ),
+    exercise_order.TIER_FINISSEUR: (
+        "AMRAP sur la dernière série — autant de répétitions que possible, "
+        "jusqu'à l'échec (RIR 0 / RPE 10). C'est le rôle d'un finisseur."
+    ),
+}
+
+# Un débutant n'a ni la technique ni la lecture de ses sensations pour aller à
+# l'échec sans risque : on garde une marge partout, quel que soit le palier.
+EFFORT_DEBUTANT = (
+    "RIR 2-3 — garde toujours 2 à 3 répétitions en réserve. À ce stade, la "
+    "régularité et la technique font progresser bien plus vite que la recherche "
+    "de l'échec, qui augmente surtout le risque de blessure."
+)
+
+# Sur un objectif explosivité, la série s'arrête à la perte de vitesse, jamais
+# à l'épuisement : c'est le principe même du travail de puissance.
+EFFORT_EXPLOSIVITE = (
+    "Arrête la série dès que la vitesse d'exécution chute nettement, sans "
+    "jamais chercher l'échec : en explosivité, c'est la qualité du geste qui "
+    "compte, pas le nombre de répétitions arrachées."
+)
+
+
+def _effort_cible(dominant, tier, profile):
+    """Consigne d'effort (RIR / AMRAP / échec) pour un exercice donné."""
+    if dominant == "explosivite" and tier in (exercise_order.TIER_PRINCIPAL,
+                                              exercise_order.TIER_SECONDAIRE):
+        return EFFORT_EXPLOSIVITE
+    if getattr(profile, "niveau_musculation", None) == "Débutant complet":
+        return EFFORT_DEBUTANT
+    return EFFORT_PAR_PALIER.get(tier, EFFORT_PAR_PALIER[exercise_order.TIER_SECONDAIRE])
+
+
 def _dominant_objective(profile):
     vector = objectives.get_objective_vector(profile)
     return max(vector, key=vector.get)
 
 
-def determine_rep_range(profile, exercise):
-    """determine_rep_range(profile, exercise) -> "min-max" (chaîne).
-    Selon l'objectif dominant du profil (vecteur déjà validé de
-    `objectives.get_objective_vector`, dominante = valeur la plus élevée,
-    cf. consigne "objectif composite -> utiliser le vecteur, choisir la
-    dominante la plus élevée"). Le paramètre `exercise` n'intervient pas
-    dans la formule demandée (purement objectif-dépendante) : conservé pour
-    respecter la signature requise et une éventuelle évolution future
-    (aucune modulation par exercice individuel n'a été validée à ce stade)."""
+def determine_rep_range(profile, exercise, semaine=1):
+    """determine_rep_range(profile, exercise, semaine=1) -> "min-max" (chaîne).
+
+    Retour Samy : « le nombre de répétitions doit varier automatiquement selon
+    l'objectif, le type d'exercice, le niveau et la période de progression. Je
+    ne veux pas voir quasiment tous les exercices en 6-8 répétitions. »
+
+    Les quatre facteurs demandés interviennent ici :
+
+    1. OBJECTIF — dominante du vecteur d'objectifs (`objectives`).
+    2. TYPE D'EXERCICE — via le palier du mouvement (`exercise_order`), qui
+       distingue mouvement principal, secondaire, isolation et finisseur. C'est
+       ce paramètre qui manquait entièrement : il était reçu puis ignoré.
+    3. NIVEAU — plancher de répétitions (`PLANCHER_REPS_PAR_NIVEAU`) : les
+       séries très courtes ne sont pas prescrites à un débutant.
+    4. PÉRIODE DE PROGRESSION — la semaine dans le cycle décale légèrement la
+       plage vers le lourd, façon progression en intensité.
+    """
     dominant = _dominant_objective(profile)
-    low, high = REP_RANGES.get(dominant, REP_RANGE_DEFAUT)
+    tier = exercise_order.classify_exercise(exercise)
+
+    low, high = REP_RANGES_PAR_PALIER.get((dominant, tier), REP_RANGE_DEFAUT)
+
+    # --- Modulation par exercice --------------------------------------------
+    # Un mouvement unilatéral se fait par côté : on ne descend pas aussi bas en
+    # répétitions que sur son équivalent bilatéral, la charge absolue étant
+    # mécaniquement plus faible.
+    if getattr(exercise, "unilateral", False):
+        low, high = low + 2, high + 2
+
+    # --- Progression sur le cycle -------------------------------------------
+    # Semaine 1-2 : plage nominale. Semaine 3-4 : on resserre d'un cran vers le
+    # bas de la fourchette (charges plus lourdes, mêmes séries). Semaine 5+ :
+    # retour à la plage nominale, façon décharge/reprise de cycle.
+    phase = ((int(semaine) - 1) % 4) + 1 if semaine else 1
+    if phase in (3, 4) and high - low >= 3:
+        high -= 1
+        if dominant in ("force", "explosivite"):
+            low = max(1, low - 1)
+
+    # --- Plancher de sécurité par niveau ------------------------------------
+    plancher = PLANCHER_REPS_PAR_NIVEAU.get(
+        getattr(profile, "niveau_musculation", None), PLANCHER_REPS_DEFAUT
+    )
+    if low < plancher:
+        ecart = high - low
+        low = plancher
+        high = max(plancher + max(2, ecart), high)
+
     return f"{low}-{high}"
 
 
@@ -432,6 +596,10 @@ def generate_prescription(profile, workout, available_exercises=None):
             "intensity": calculate_intensity(profile, exo_obj),
             "notes": _note_automatique(dominant, tier),
             "conseil_execution": _conseil_execution(exo_obj, dominant, tier, profile),
+            # Champ ADDITIF (retour Samy, travail à l'échec) : consigne d'effort
+            # explicite en RIR/AMRAP, calée sur le palier du mouvement. Les
+            # consommateurs existants du dict ignorent simplement cette clé.
+            "effort": _effort_cible(dominant, tier, profile),
         })
 
     return {"exercises": resultats, "warnings": warnings}
