@@ -11,6 +11,7 @@ from logic.calculations import build_nutrition_profile
 from logic.program_builder import build_program
 from logic.cardio_builder import build_cardio_program
 from logic.pdf_generator import generate_pdf
+from logic.menu_builder import build_menu
 from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages
 from logic.db import init_db
 
@@ -801,9 +802,22 @@ def download_order(order_id):
     _record_commission_if_needed(order_id, order, data)
 
     buffer = io.BytesIO()
+    inclut_nutrition = _include_nutrition(_normalize_formule(data))
+    # Menus et recettes de la semaine (retour Samy : "le plus de repas
+    # possible, le plus de recettes possible"). Construits uniquement pour les
+    # formules qui vendent la partie alimentation, et jamais si le programme
+    # est bloque pour raison de securite (mineur, grossesse) : dans ce cas le
+    # PDF n'affiche que le message d'orientation medicale.
+    menu_semaine = None
+    if inclut_nutrition and not nutrition.get("blocked"):
+        try:
+            menu_semaine = build_menu(data, kcal_objectif=nutrition.get("kcal_objectif"))
+        except Exception:
+            app.logger.exception("Construction des menus impossible, PDF genere sans")
     generate_pdf(
         buffer, profile, nutrition, program, cardio, lifestyle,
-        include_nutrition=_include_nutrition(_normalize_formule(data)),
+        include_nutrition=inclut_nutrition,
+        menu_semaine=menu_semaine,
     )
     buffer.seek(0)
 
@@ -1128,9 +1142,22 @@ def admin_programme_pdf(order_id):
         return error
 
     buffer = io.BytesIO()
+    inclut_nutrition = _include_nutrition(_normalize_formule(data))
+    # Menus et recettes de la semaine (retour Samy : "le plus de repas
+    # possible, le plus de recettes possible"). Construits uniquement pour les
+    # formules qui vendent la partie alimentation, et jamais si le programme
+    # est bloque pour raison de securite (mineur, grossesse) : dans ce cas le
+    # PDF n'affiche que le message d'orientation medicale.
+    menu_semaine = None
+    if inclut_nutrition and not nutrition.get("blocked"):
+        try:
+            menu_semaine = build_menu(data, kcal_objectif=nutrition.get("kcal_objectif"))
+        except Exception:
+            app.logger.exception("Construction des menus impossible, PDF genere sans")
     generate_pdf(
         buffer, profile, nutrition, program, cardio, lifestyle,
-        include_nutrition=_include_nutrition(_normalize_formule(data)),
+        include_nutrition=inclut_nutrition,
+        menu_semaine=menu_semaine,
     )
     buffer.seek(0)
     return send_file(buffer, mimetype="application/pdf", as_attachment=False,

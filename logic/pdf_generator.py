@@ -16,6 +16,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 from . import cardio_zones
+from .recipes_db import MOMENT_LABELS
 from .supplements import recommend_supplements
 from .food_lists import get_food_recommendations
 from .exercises_db import MUSCLE_LABELS
@@ -299,7 +300,8 @@ def _build_blocked_pdf(story, profile, nutrition):
         story.append(Spacer(1, 0.5 * cm))
 
 
-def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include_nutrition=True):
+def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include_nutrition=True,
+                 menu_semaine=None):
     """
     output      : chemin fichier ou objet BytesIO
     profile     : dict prenom, sexe, poids, taille, age, niveau_musculation, objectif_principal
@@ -572,6 +574,68 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include
                 story.append(_bullet(f"&nbsp;&nbsp;→ Forme : {s['forme']}. Quand la prendre : {s['moment']}."))
             story.append(_p("Ces suggestions découlent de ton profil (blessures, sommeil, sexe, objectif, "
                              "restriction alimentaire...) ; elles restent facultatives.", note_style))
+
+        # ---------- Menus de la semaine et recettes ----------
+        # Retour Samy : « je veux énormément plus de contenu : le plus de repas
+        # possible, le plus de recettes possible. Les repas doivent être
+        # gourmands, healthy, diététiques et adaptés aux objectifs. »
+        # Le PDF ne donnait jusqu'ici que des règles générales (règle de
+        # l'assiette, hydratation, 80/20) sans un seul repas concret.
+        if menu_semaine and menu_semaine.get("menu"):
+            story.append(PageBreak())
+            story.append(_p("Tes menus de la semaine", h2_style))
+            story.append(_p(
+                "Ces menus sont construits à partir de tes réponses : restriction alimentaire, "
+                "aliments que tu n'aimes pas, aliments que tu apprécies, temps de préparation "
+                "disponible et budget. Les recettes détaillées suivent juste après.", body_style))
+
+            for avertissement in menu_semaine.get("avertissements", []):
+                story.append(_p("⚠ " + avertissement, warn_style))
+            story.append(Spacer(1, 6))
+
+            lignes_menu = [["Jour", "Repas", "Calories"]]
+            for jour in menu_semaine["menu"]:
+                repas_texte = "<br/>".join(
+                    f"<b>{MOMENT_LABELS.get(r['moment'], r['moment'])}</b> : {r['recette']['nom']}"
+                    for r in jour["repas"]
+                )
+                lignes_menu.append([
+                    jour["jour"],
+                    Paragraph(repas_texte, ParagraphStyle("menu", parent=body_style, fontSize=8.5, leading=11)),
+                    f"{jour.get('kcal_ajuste', jour['kcal_total'])} kcal",
+                ])
+            table_menu = Table(lignes_menu, colWidths=[2.2 * cm, 11 * cm, 2.3 * cm])
+            table_menu.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), BLUE),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), 8.5),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LIGHT_BLUE]),
+                ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cccccc")),
+            ]))
+            story.append(table_menu)
+
+            story.append(PageBreak())
+            story.append(_p("Les recettes", h2_style))
+            story.append(_p(
+                "Quantités indiquées pour une portion. Toutes ces recettes sont compatibles "
+                "avec ton profil : tu peux les échanger librement d'un jour à l'autre.", note_style))
+
+            for recette in menu_semaine.get("recettes_utilisees", []):
+                bloc = [
+                    _p(f"{recette['nom']} — {MOMENT_LABELS.get(recette['moment'], '')}", h3_style),
+                    _p(f"<b>{recette['kcal']} kcal</b> · {recette['proteines']} g de protéines · "
+                       f"{recette['glucides']} g de glucides · {recette['lipides']} g de lipides · "
+                       f"{recette['minutes']} min de préparation", note_style),
+                    _p("<b>Ingrédients :</b> " + ", ".join(recette["ingredients"]) + ".", body_style),
+                ]
+                for numero, etape in enumerate(recette["preparation"], start=1):
+                    bloc.append(_bullet(f"{numero}. {etape}"))
+                story.append(KeepTogether(bloc))
+                story.append(Spacer(1, 6))
 
         story.append(PageBreak())
 
