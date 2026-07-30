@@ -437,21 +437,130 @@ def morphologie_pour(pattern, muscle_principal):
 # 5) Génération des fiches
 # --------------------------------------------------------------------------
 
-def joint_stress_pour(muscle_principal, pattern, nom):
+def joint_stress_pour(muscle_principal, pattern, nom, movement_type=None, equipment=None):
+    """Stress articulaire estimé, par zone : 0 aucun, 1 modéré, 2 élevé,
+    3 très élevé.
+
+    C'EST LE SEUL CRITÈRE D'EXCLUSION EN CAS DE BLESSURE DÉCLARÉE
+    (cf. logic/recommendation/filters.py::_blessure_exclusion_reason) : une
+    zone absente de ce dict n'a JAMAIS d'effet, quelle que soit la gravité de
+    la douleur déclarée par l'utilisateur.
+
+    Retour Samy (vérification demandée après activation du catalogue) : la
+    version précédente ne couvrait qu'une poignée de mots-clés et laissait 273
+    fiches sur 365 entièrement vides. Mesure faite avant correction : un
+    utilisateur déclarant une DOULEUR INVALIDANTE à l'épaule ne voyait que
+    6 exercices exclus sur 365 — le développé militaire, les dips et les
+    développés lourds lui étaient toujours prescrits. Le trou existait déjà
+    dans le générateur, mais il était masqué tant que la production tournait
+    sur l'ancien catalogue de 111 exercices, lui renseigné.
+
+    Principe retenu : partir du schéma de mouvement (qui porte l'essentiel de
+    l'information mécanique), puis affiner par le matériel et le nom. Une
+    estimation par règles ne remplace pas une revue exercice par exercice,
+    mais elle vaut infiniment mieux qu'un champ vide — et la sécurité doit
+    pencher du côté prudent : en cas de doute, on déclare le stress plutôt que
+    de l'ignorer.
+
+    Les clés sont celles attendues par filters.ZONE_LABEL_TO_JOINT_STRESS_KEY :
+    epaule, dos_lombaire, genou, cheville, poignet, coude.
+    """
     n = nom.lower()
+    equipment = equipment or []
     js = {}
-    if pattern in ("squat", "fente") or "leg press" in n or "hack squat" in n:
-        js["genou"] = 2
-    if pattern == "hinge" or "soulevé de terre" in n or "deadlift" in n or "good morning" in n:
-        js["dos_lombaire"] = 2
-    if muscle_principal in ("pecs", "epaules", "triceps") and pattern == "presse":
-        js["epaule"] = 1
-    if any(k in n for k in ("militaire", "overhead", "développé épaules", "arnold")):
-        js["epaule"] = 2
-    if any(k in n for k in ("wrist", "poignet")):
-        js["poignet"] = 1
-    if "sissy squat" in n or "genou" in n:
-        js["genou"] = max(js.get("genou", 0), 2)
+
+    def poser(zone, valeur):
+        js[zone] = max(js.get(zone, 0), valeur)
+
+    libre = any(e in ("barre", "haltere") for e in equipment)
+    guide = any(e in ("machine", "poulie", "smith") for e in equipment)
+
+    # ---------- Épaule ----------
+    # Tout ce qui pousse au-dessus de la tête, tire en arrière du plan du
+    # corps, ou met l'épaule en rotation externe/extension forcée.
+    if movement_type == "push" or pattern in ("developpe", "presse"):
+        poser("epaule", 1)
+    if any(k in n for k in ("militaire", "overhead", "au-dessus", "développé épaules",
+                            "arnold", "nuque", "derrière la nuque", "push press",
+                            "élévation", "elevation", "shoulder press", "landmine press")):
+        poser("epaule", 2)
+    if any(k in n for k in ("dips", "développé couché", "developpe couche", "bench",
+                            "écarté", "ecarte", "fly", "pull-over", "pullover",
+                            "papillon", "pec deck")):
+        # Amplitude d'étirement importante à l'épaule, surtout en charge libre.
+        poser("epaule", 2 if libre else 1)
+    if any(k in n for k in ("traction", "pull-up", "chin-up", "tirage vertical",
+                            "lat pulldown", "muscle-up")):
+        poser("epaule", 2)
+    if muscle_principal in ("pecs", "epaules") and libre:
+        poser("epaule", 2)
+    if muscle_principal in ("pecs", "epaules", "dos") and guide and "epaule" not in js:
+        poser("epaule", 1)
+
+    # ---------- Dos / lombaires ----------
+    if movement_type == "hinge" or pattern in ("hinge", "rdl", "souleve_de_terre"):
+        poser("dos_lombaire", 2)
+    if any(k in n for k in ("soulevé de terre", "souleve de terre", "deadlift",
+                            "good morning", "extension du buste", "hyperextension",
+                            "banc 45", "lombaire", "rack pull", "snatch", "clean")):
+        poser("dos_lombaire", 3 if libre else 2)
+    if any(k in n for k in ("rowing", "row ", "meadow", "pendlay", "t-bar", "yates")):
+        # Un rowing buste penché maintient les lombaires en isométrie sous
+        # charge ; un rowing appuyé sur banc les décharge.
+        buste_soutenu = any(k in n for k in ("appui", "supported", "banc", "chest"))
+        poser("dos_lombaire", 1 if buste_soutenu else 2)
+    if movement_type == "squat" or pattern == "squat":
+        poser("dos_lombaire", 2 if libre else 1)
+    if any(k in n for k in ("crunch", "sit-up", "relevé de jambes", "releve de jambes",
+                            "dragon flag", "hollow")):
+        poser("dos_lombaire", 1)
+    if "smith" in n or "presse" in n or "hack squat" in n:
+        poser("dos_lombaire", 1)
+
+    # ---------- Genou ----------
+    if movement_type in ("squat", "lunge") or pattern in ("squat", "fente", "presse"):
+        poser("genou", 2)
+    if any(k in n for k in ("squat", "fente", "lunge", "presse à cuisses", "leg press",
+                            "hack squat", "step-up", "montée de banc", "bulgare",
+                            "pistol", "sissy", "belt squat", "split squat")):
+        poser("genou", 2)
+    if any(k in n for k in ("sissy squat", "profond", "deep", "saut", "jump", "pliométrie",
+                            "plyo", "box jump")):
+        poser("genou", 3)
+    if "leg extension" in n or "extension des jambes" in n or "leg curl" in n:
+        # Cisaillement rotulien sur le leg extension, tension sur l'insertion
+        # postérieure au leg curl : modéré, pas anodin.
+        poser("genou", 2 if "extension" in n else 1)
+    if muscle_principal in ("quadriceps", "fessiers") and "genou" not in js:
+        poser("genou", 1)
+
+    # ---------- Cheville ----------
+    if muscle_principal == "mollets" or "mollet" in n or "calf" in n:
+        poser("cheville", 2)
+    if any(k in n for k in ("saut", "jump", "corde à sauter", "pliométrie", "plyo",
+                            "fente", "lunge", "step-up")):
+        poser("cheville", 2)
+    if movement_type in ("squat", "lunge"):
+        poser("cheville", 1)
+
+    # ---------- Poignet ----------
+    if any(k in n for k in ("wrist", "poignet", "curl inversé", "reverse curl",
+                            "prise serrée", "close grip", "pompes", "push-up",
+                            "front squat", "barre au front", "skull")):
+        poser("poignet", 2)
+    if any(k in n for k in ("barre ez", "barre z", "prise neutre", "corde")):
+        # Matériel justement choisi pour ménager le poignet.
+        poser("poignet", 1)
+    elif "barre" in equipment:
+        poser("poignet", 1)
+
+    # ---------- Coude ----------
+    if muscle_principal in ("biceps", "triceps"):
+        poser("coude", 2)
+    if any(k in n for k in ("skull", "barre au front", "extension nuque", "overhead extension",
+                            "dips", "prise serrée", "close grip", "preacher", "pupitre")):
+        poser("coude", 2)
+
     return js
 
 
@@ -515,7 +624,11 @@ def build_fiches():
                     "muscles_secondaires": [],
                     "unilateral": unilateral,
                     "difficulty_level": arche["difficulty_level"],
-                    "joint_stress": joint_stress_pour(muscle_principal, pattern, nom),
+                    "joint_stress": joint_stress_pour(
+                        muscle_principal, pattern, nom,
+                        movement_type=arche.get("movement_type"),
+                        equipment=equipment,
+                    ),
                     "technical_complexity": arche["technical_complexity"],
                     "stability_demand": arche["stability_demand"],
                     "morphologie_adaptee": morphologie_pour(pattern, muscle_principal),

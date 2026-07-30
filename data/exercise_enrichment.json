@@ -13,7 +13,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -52,7 +55,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -92,7 +97,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -131,7 +140,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -170,7 +181,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -209,7 +222,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -248,7 +263,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -287,7 +304,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -326,7 +346,10 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -365,7 +388,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -404,7 +430,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -443,7 +471,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -482,7 +512,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -522,7 +554,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -555,7 +589,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -594,7 +630,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -633,7 +672,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -673,7 +714,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -712,7 +757,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -751,7 +798,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -790,7 +839,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -829,7 +880,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -868,7 +921,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -907,7 +963,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -946,7 +1004,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -985,7 +1045,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -1024,7 +1087,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -1063,7 +1128,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1102,7 +1169,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1141,7 +1210,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -1180,7 +1251,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1219,7 +1292,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1258,7 +1333,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1298,7 +1375,7 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "genou": 2
+        "epaule": 1
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -1338,7 +1415,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1377,7 +1456,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -1416,7 +1497,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1458,7 +1541,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1500,7 +1586,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1542,7 +1630,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1584,7 +1674,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1626,7 +1718,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -1669,7 +1764,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -1712,7 +1810,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -1754,7 +1855,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -1796,7 +1899,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1839,7 +1945,8 @@
       "unilateral": true,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "epaule": 1,
+        "dos_lombaire": 2
       },
       "technical_complexity": 3,
       "stability_demand": "modere",
@@ -1882,7 +1989,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1924,7 +2034,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -1966,7 +2078,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2008,7 +2122,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2051,7 +2167,7 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "epaule": 2
       },
       "technical_complexity": 3,
       "stability_demand": "modere",
@@ -2094,7 +2210,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2136,7 +2254,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2178,7 +2299,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2220,7 +2344,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2263,7 +2389,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2305,7 +2435,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2347,7 +2479,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2389,7 +2525,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2431,7 +2570,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2473,7 +2614,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2515,7 +2659,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -2558,7 +2704,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -2685,7 +2835,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -2728,7 +2882,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -2770,7 +2927,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -2812,7 +2972,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2854,7 +3016,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2896,7 +3061,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2938,7 +3106,10 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -2981,7 +3152,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3025,7 +3197,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3069,7 +3242,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3113,7 +3287,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3158,7 +3333,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "epaule": 1,
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3202,7 +3379,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3246,7 +3423,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3291,7 +3468,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "epaule": 1,
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3335,7 +3514,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3379,7 +3558,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3423,6 +3603,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
+        "epaule": 1,
         "dos_lombaire": 2
       },
       "technical_complexity": 4,
@@ -3467,6 +3648,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
+        "epaule": 1,
         "dos_lombaire": 2
       },
       "technical_complexity": 4,
@@ -3511,6 +3693,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
+        "epaule": 1,
         "dos_lombaire": 2
       },
       "technical_complexity": 4,
@@ -3555,7 +3738,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3599,8 +3783,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2,
-        "genou": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -3689,7 +3873,9 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "epaule": 2
+        "epaule": 2,
+        "dos_lombaire": 1,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "modere",
@@ -3820,7 +4006,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -3862,7 +4050,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -3904,7 +4095,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -3946,7 +4139,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -3989,7 +4185,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4031,7 +4230,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4073,7 +4274,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4159,7 +4362,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4201,7 +4406,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4243,7 +4450,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "modere",
       "morphologie_adaptee": {
@@ -4285,7 +4494,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4327,7 +4538,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4369,7 +4582,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4411,7 +4626,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4453,7 +4670,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4495,7 +4714,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4537,7 +4758,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4579,7 +4804,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4621,7 +4849,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4664,7 +4895,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4706,7 +4941,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4748,7 +4985,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4790,7 +5029,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4832,7 +5073,10 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4874,7 +5118,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 2,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4916,7 +5164,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -4958,7 +5208,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5000,7 +5252,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5042,7 +5296,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5084,7 +5341,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5126,7 +5386,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5168,7 +5430,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5210,7 +5474,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5252,7 +5518,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5294,7 +5562,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5336,7 +5606,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5378,7 +5651,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -5420,7 +5695,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5459,7 +5738,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5498,7 +5780,10 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5537,7 +5822,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5576,7 +5864,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5616,7 +5907,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5655,7 +5949,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5694,7 +5991,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5733,7 +6032,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5773,7 +6074,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5812,7 +6116,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5852,7 +6159,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5891,7 +6202,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5931,7 +6244,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -5971,7 +6288,8 @@
       "unilateral": true,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "epaule": 2
+        "epaule": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -6012,7 +6330,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6051,7 +6373,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6091,7 +6416,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6131,7 +6459,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6170,7 +6501,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6209,7 +6542,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6248,7 +6583,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6287,7 +6626,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6327,7 +6670,12 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "dos_lombaire": 1,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6366,7 +6714,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6405,7 +6755,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6444,7 +6798,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6483,7 +6841,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6522,7 +6882,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6561,7 +6923,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6601,7 +6966,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6640,7 +7008,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6679,7 +7049,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6718,7 +7090,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6757,7 +7131,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2,
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -6796,7 +7174,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -6838,7 +7219,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -6880,7 +7263,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -6922,7 +7308,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -6964,7 +7352,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7006,7 +7396,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7048,7 +7441,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7090,7 +7485,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7132,7 +7529,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7174,7 +7573,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7216,7 +7617,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7259,7 +7662,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7301,7 +7707,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7344,7 +7752,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7386,7 +7798,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7428,7 +7842,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7470,7 +7886,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7512,7 +7930,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7554,7 +7974,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7596,7 +8018,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7638,7 +8062,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7680,7 +8107,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7722,7 +8152,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7764,7 +8196,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7806,7 +8241,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7849,7 +8286,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7891,7 +8332,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7933,7 +8376,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -7975,7 +8420,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8017,7 +8464,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8059,7 +8508,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8101,7 +8552,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8143,7 +8597,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8185,7 +8642,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8227,7 +8686,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8269,7 +8730,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8311,7 +8774,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8353,7 +8818,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8395,7 +8862,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8437,7 +8907,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8479,7 +8951,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8521,7 +8995,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8563,7 +9039,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8605,7 +9083,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8647,7 +9128,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8689,7 +9173,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8731,7 +9217,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8773,7 +9262,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8815,7 +9307,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -8858,7 +9352,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -8902,7 +9397,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -8946,7 +9442,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -8990,7 +9487,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -9034,7 +9532,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -9078,7 +9577,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -9114,7 +9615,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -9150,7 +9654,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {
@@ -9193,7 +9699,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -9237,7 +9744,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "poignet": 1
+        "poignet": 2,
+        "coude": 2
       },
       "technical_complexity": 2,
       "stability_demand": "faible",
@@ -9280,7 +9788,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 2,
+        "coude": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {
@@ -9322,7 +9833,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9361,7 +9875,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9400,7 +9916,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9439,7 +9957,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9480,7 +10000,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9520,9 +10043,7 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {
-        "genou": 2
-      },
+      "joint_stress": {},
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9601,9 +10122,7 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {
-        "genou": 2
-      },
+      "joint_stress": {},
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9642,7 +10161,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9681,7 +10202,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -9718,7 +10241,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9757,7 +10283,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9796,7 +10324,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9835,7 +10365,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 1,
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -9872,7 +10405,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9911,7 +10447,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -9950,7 +10488,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -10026,7 +10566,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10066,7 +10608,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10298,7 +10842,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 3
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10488,7 +11034,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10563,7 +11111,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "epaule": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -10598,7 +11148,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10637,7 +11189,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10715,7 +11269,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10755,7 +11311,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "poignet": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "modere",
       "morphologie_adaptee": {},
@@ -10834,7 +11393,8 @@
       "unilateral": true,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 2,
       "stability_demand": "modere",
@@ -10872,7 +11432,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -10917,7 +11479,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -10961,7 +11525,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11005,7 +11570,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11050,7 +11617,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11094,7 +11663,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11138,7 +11709,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "genou": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11182,7 +11754,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11224,7 +11797,10 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11265,7 +11841,9 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11306,7 +11884,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11348,7 +11927,10 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11390,7 +11972,9 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11431,7 +12015,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11475,7 +12060,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11519,7 +12105,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11563,7 +12151,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "genou": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -11606,7 +12195,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -11645,7 +12238,12 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
+      },
       "technical_complexity": 3,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -11683,7 +12281,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
+      },
       "technical_complexity": 4,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -11721,7 +12323,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -11760,7 +12364,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -11799,7 +12405,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -11838,7 +12446,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -11877,7 +12487,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -11917,7 +12529,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11959,7 +12572,10 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -11999,7 +12615,12 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -12037,7 +12658,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -12076,7 +12701,8 @@
       "unilateral": true,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -12120,7 +12746,9 @@
       "unilateral": true,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -12164,7 +12792,8 @@
       "unilateral": true,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "genou": 1
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -12209,7 +12838,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "intermediaire",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -12243,7 +12874,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -12283,7 +12915,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -12322,7 +12956,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -12355,7 +12991,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -12396,7 +13034,9 @@
       "unilateral": true,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "genou": 1,
+        "poignet": 1
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -12440,7 +13080,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -12480,7 +13121,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -12520,7 +13163,10 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12564,7 +13210,10 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 2
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12608,7 +13257,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12652,7 +13303,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12696,7 +13349,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12740,7 +13395,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12783,7 +13440,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 2
+      },
       "technical_complexity": 4,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -12818,7 +13477,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 2
+      },
       "technical_complexity": 4,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -12854,7 +13515,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 3,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -12898,7 +13561,9 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -12943,7 +13608,10 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -12987,7 +13655,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13031,7 +13701,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13076,7 +13748,10 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13120,7 +13795,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13164,7 +13841,10 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13208,7 +13888,10 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13252,7 +13935,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -13287,7 +13971,9 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13331,7 +14017,10 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 1,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13374,7 +14063,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -13413,7 +14104,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -13452,7 +14145,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -13491,7 +14186,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -13531,7 +14228,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13575,7 +14273,7 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13619,7 +14317,7 @@
       "unilateral": true,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13664,7 +14362,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13708,7 +14407,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13753,7 +14453,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -13879,7 +14580,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -13919,7 +14622,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -14042,7 +14746,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -14086,7 +14791,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 2,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -14129,7 +14835,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "avance",
-      "joint_stress": {},
+      "joint_stress": {
+        "genou": 1
+      },
       "technical_complexity": 2,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14169,7 +14877,8 @@
       "unilateral": false,
       "difficulty_level": "avance",
       "joint_stress": {
-        "dos_lombaire": 2
+        "dos_lombaire": 3,
+        "poignet": 1
       },
       "technical_complexity": 4,
       "stability_demand": "eleve",
@@ -14212,7 +14921,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14251,7 +14962,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14290,7 +15003,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14329,7 +15046,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14369,7 +15089,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "cheville": 2,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14408,7 +15132,9 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14447,7 +15173,10 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14487,7 +15216,9 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "genou": 2
+        "dos_lombaire": 1,
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -14528,7 +15259,11 @@
       "muscles_secondaires": [],
       "unilateral": true,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 1,
+        "cheville": 2,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14568,7 +15303,8 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "genou": 2
+        "cheville": 2,
+        "poignet": 1
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -14609,7 +15345,7 @@
       "unilateral": false,
       "difficulty_level": "debutant",
       "joint_stress": {
-        "genou": 2
+        "cheville": 2
       },
       "technical_complexity": 1,
       "stability_demand": "faible",
@@ -14649,7 +15385,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14688,7 +15426,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14727,7 +15467,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14767,7 +15509,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 2,
       "stability_demand": "eleve",
       "morphologie_adaptee": {},
@@ -14800,7 +15544,11 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14837,7 +15585,12 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14874,7 +15627,8 @@
       "unilateral": false,
       "difficulty_level": "intermediaire",
       "joint_stress": {
-        "genou": 2
+        "genou": 2,
+        "cheville": 2
       },
       "technical_complexity": 3,
       "stability_demand": "eleve",
@@ -14908,7 +15662,12 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "dos_lombaire": 2,
+        "genou": 2,
+        "cheville": 2,
+        "poignet": 1
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
@@ -14944,7 +15703,9 @@
       "muscles_secondaires": [],
       "unilateral": false,
       "difficulty_level": "debutant",
-      "joint_stress": {},
+      "joint_stress": {
+        "cheville": 2
+      },
       "technical_complexity": 1,
       "stability_demand": "faible",
       "morphologie_adaptee": {},
