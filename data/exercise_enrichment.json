@@ -3,7 +3,7 @@
     {
       "exercise_id": "developpe_incline_a_la_barre_libre_pecs",
       "name": "Développé incliné à la barre libre",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -48,7 +48,7 @@
     {
       "exercise_id": "developpe_incline_aux_halteres_pecs",
       "name": "Développé incliné aux haltères",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -92,7 +92,7 @@
     {
       "exercise_id": "developpe_incline_a_la_smith_machine_pecs",
       "name": "Développé incliné à la Smith machine",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -139,7 +139,7 @@
     {
       "exercise_id": "developpe_incline_a_la_machine_convergente_pecs",
       "name": "Développé incliné à la machine convergente",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -183,7 +183,7 @@
     {
       "exercise_id": "ecarte_incline_a_la_poulie_basse_trajectoire_montante_pecs",
       "name": "Écarté incliné à la poulie basse (trajectoire montante)",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -224,7 +224,7 @@
     {
       "exercise_id": "low_to_high_cable_fly_ecarte_vis_a_vis_bas_haut_debout_pecs",
       "name": "Low-to-High Cable Fly (Écarté vis-à-vis bas-haut debout)",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -265,7 +265,7 @@
     {
       "exercise_id": "low_to_high_cable_fly_unilateral_a_la_poulie_pecs",
       "name": "Low-to-High Cable Fly unilatéral à la poulie",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -306,7 +306,7 @@
     {
       "exercise_id": "landmine_press_a_deux_mains_barre_coincee_au_sol_support_pecs",
       "name": "Landmine Press à deux mains (Barre coincée au sol/support)",
-      "family": "pecs",
+      "family": "pecs_developpe",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -351,7 +351,7 @@
     {
       "exercise_id": "landmine_press_unilateral_pecs",
       "name": "Landmine Press unilatéral",
-      "family": "pecs",
+      "family": "pecs_developpe",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -396,7 +396,7 @@
     {
       "exercise_id": "reverse_grip_incline_bench_press_incline_barre_supination_pecs",
       "name": "Reverse-Grip Incline Bench Press (Incliné barre supination)",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -441,7 +441,7 @@
     {
       "exercise_id": "developpe_incline_aux_halteres_en_rotation_pronation_vers_neutre_pecs",
       "name": "Développé incliné aux haltères en rotation (Pronation vers Neutre)",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -485,7 +485,7 @@
     {
       "exercise_id": "ecarte_incline_sur_banc_30_a_la_poulie_basse_pecs",
       "name": "Écarté incliné sur banc 30° à la poulie basse",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -526,7 +526,7 @@
     {
       "exercise_id": "incline_chest_fly_a_la_poulie_haute_en_declinant_le_buste_vers_l_avant_pecs",
       "name": "Incline Chest Fly à la poulie haute en déclinant le buste vers l'avant",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -567,7 +567,7 @@
     {
       "exercise_id": "developpe_incline_unilateral_aux_halteres_gainage_buste_pecs",
       "name": "Développé incliné unilatéral aux haltères (Gainage buste)",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "gainage",
       "movement_type": "isometrique",
       "equipment": [
@@ -603,7 +603,7 @@
     {
       "exercise_id": "developpe_incline_a_la_machine_guidee_assis_pecs",
       "name": "Développé incliné à la machine guidée assis",
-      "family": "pecs",
+      "family": "pecs_developpe_incline",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -647,7 +647,7 @@
     {
       "exercise_id": "developpe_couche_a_la_barre_libre_pecs",
       "name": "Développé couché à la barre libre",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -692,7 +692,7 @@
     {
       "exercise_id": "developpe_couche_aux_halteres_pecs",
       "name": "Développé couché aux haltères",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -736,7 +736,7 @@
     {
       "exercise_id": "developpe_couche_a_la_smith_machine_pecs",
       "name": "Développé couché à la Smith machine",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -783,7 +783,7 @@
     {
       "exercise_id": "developpe_plat_a_la_machine_convergente_pecs",
       "name": "Développé plat à la machine convergente",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -827,7 +827,7 @@
     {
       "exercise_id": "pec_deck_machine_papillon_pecs",
       "name": "Pec Deck / Machine Papillon",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -868,7 +868,7 @@
     {
       "exercise_id": "ecarte_vis_a_vis_a_la_poulie_hauteur_de_poitrine_pecs",
       "name": "Écarté vis-à-vis à la poulie (Hauteur de poitrine)",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -909,7 +909,7 @@
     {
       "exercise_id": "ecarte_vis_a_vis_a_la_poulie_unilateral_pecs",
       "name": "Écarté vis-à-vis à la poulie unilatéral",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -950,7 +950,7 @@
     {
       "exercise_id": "floor_press_a_la_barre_libre_pecs",
       "name": "Floor Press à la barre libre",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -995,7 +995,7 @@
     {
       "exercise_id": "floor_press_aux_halteres_pecs",
       "name": "Floor Press aux haltères",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -1039,7 +1039,7 @@
     {
       "exercise_id": "developpe_plat_unilateral_aux_halteres_pecs",
       "name": "Développé plat unilatéral aux haltères",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -1083,7 +1083,7 @@
     {
       "exercise_id": "developpe_couche_prise_neutre_aux_halteres_hex_press_squeeze_press_pecs",
       "name": "Développé couché prise neutre aux haltères (Hex Press/Squeeze Press)",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -1128,7 +1128,7 @@
     {
       "exercise_id": "developpe_couche_poulie_basse_assis_sur_banc_pecs",
       "name": "Développé couché poulie basse assis sur banc",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -1172,7 +1172,7 @@
     {
       "exercise_id": "ecarte_couche_a_la_poulie_basse_sur_banc_plat_pecs",
       "name": "Écarté couché à la poulie basse sur banc plat",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1213,7 +1213,7 @@
     {
       "exercise_id": "developpe_a_la_machine_guidee_assis_pec_fly_press_combo_pecs",
       "name": "Développé à la machine guidée assis (Pec Fly/Press combo)",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1254,7 +1254,7 @@
     {
       "exercise_id": "cable_chest_press_plat_debout_avec_poulies_a_hauteur_de_poitrine_pecs",
       "name": "Cable Chest Press plat (Debout avec poulies à hauteur de poitrine)",
-      "family": "pecs",
+      "family": "pecs_developpe_plat",
       "pattern": "developpe",
       "movement_type": "push",
       "equipment": [
@@ -1298,7 +1298,7 @@
     {
       "exercise_id": "ecarte_decline_a_la_poulie_basse_sur_banc_decline_pecs",
       "name": "Écarté décliné à la poulie basse sur banc décliné",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1339,7 +1339,7 @@
     {
       "exercise_id": "high_to_low_cable_fly_poulie_haute_vers_le_bas_pecs",
       "name": "High-to-Low Cable Fly (Poulie haute vers le bas)",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1380,7 +1380,7 @@
     {
       "exercise_id": "high_to_low_cable_fly_unilateral_pecs",
       "name": "High-to-Low Cable Fly unilatéral",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1421,7 +1421,7 @@
     {
       "exercise_id": "high_to_low_cable_fly_a_genoux_pecs",
       "name": "High-to-Low Cable Fly à genoux",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1462,7 +1462,7 @@
     {
       "exercise_id": "cable_crossover_decline_debout_croisement_des_cables_vers_le_bas_pecs",
       "name": "Cable Crossover décliné debout (Croisement des câbles vers le bas)",
-      "family": "pecs",
+      "family": "pecs_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1503,7 +1503,7 @@
     {
       "exercise_id": "ecarte_vis_a_vis_assis_avec_poulies_hautes_pecs",
       "name": "Écarté vis-à-vis assis avec poulies hautes",
-      "family": "pecs",
+      "family": "pecs_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1544,7 +1544,7 @@
     {
       "exercise_id": "tirage_vertical_prise_large_pronation_lat_pulldown_dos",
       "name": "Tirage vertical prise large pronation (Lat Pulldown)",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -1590,7 +1590,7 @@
     {
       "exercise_id": "tirage_vertical_prise_neutre_triangle_v_bar_dos",
       "name": "Tirage vertical prise neutre (Triangle V-Bar)",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -1637,7 +1637,7 @@
     {
       "exercise_id": "tirage_vertical_prise_large_neutre_barre_double_poignee_dos",
       "name": "Tirage vertical prise large neutre (Barre double poignée)",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -1683,7 +1683,7 @@
     {
       "exercise_id": "tirage_vertical_unilateral_a_la_poulie_dos",
       "name": "Tirage vertical unilatéral à la poulie",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -1729,7 +1729,7 @@
     {
       "exercise_id": "tirage_vertical_a_la_machine_convergente_dos",
       "name": "Tirage vertical à la machine convergente",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -1775,7 +1775,7 @@
     {
       "exercise_id": "pull_over_a_la_poulie_haute_avec_corde_dos",
       "name": "Pull-over à la poulie haute avec corde",
-      "family": "dos",
+      "family": "dos_pullover",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1817,7 +1817,7 @@
     {
       "exercise_id": "pull_over_a_la_poulie_haute_avec_barre_droite_dos",
       "name": "Pull-over à la poulie haute avec barre droite",
-      "family": "dos",
+      "family": "dos_pullover",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1860,7 +1860,7 @@
     {
       "exercise_id": "pull_over_a_la_poulie_haute_avec_barre_z_dos",
       "name": "Pull-over à la poulie haute avec barre Z",
-      "family": "dos",
+      "family": "dos_pullover",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1903,7 +1903,7 @@
     {
       "exercise_id": "pull_over_unilateral_a_la_poulie_haute_dos",
       "name": "Pull-over unilatéral à la poulie haute",
-      "family": "dos",
+      "family": "dos_pullover",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -1944,7 +1944,7 @@
     {
       "exercise_id": "tirage_horizontal_poulie_basse_en_prise_neutre_serree_dos",
       "name": "Tirage horizontal poulie basse en prise neutre serrée",
-      "family": "dos",
+      "family": "dos_tirage_horizontal",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -1989,7 +1989,7 @@
     {
       "exercise_id": "row_unilateral_a_la_poulie_haute_genou_au_sol_dos",
       "name": "Row unilatéral à la poulie haute (Genou au sol)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2034,7 +2034,7 @@
     {
       "exercise_id": "meadow_row_a_la_landmine_barre_au_sol_dos",
       "name": "Meadow Row à la Landmine (Barre au sol)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2079,7 +2079,7 @@
     {
       "exercise_id": "lat_pulldown_unilateral_a_la_machine_convergente_dos",
       "name": "Lat Pulldown unilatéral à la machine convergente",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2123,7 +2123,7 @@
     {
       "exercise_id": "tirage_vertical_derriere_la_nuque_a_la_poulie_machine_dos",
       "name": "Tirage vertical derrière la nuque à la poulie (Machine)",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2169,7 +2169,7 @@
     {
       "exercise_id": "lat_pulldown_bras_tendus_a_la_poulie_haute_assis_dos",
       "name": "Lat Pulldown bras tendus à la poulie haute assis",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2213,7 +2213,7 @@
     {
       "exercise_id": "tirage_vertical_a_genoux_avec_poulies_vis_a_vis_dos",
       "name": "Tirage vertical à genoux avec poulies vis-à-vis",
-      "family": "dos",
+      "family": "dos_tirage_vertical",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2259,7 +2259,7 @@
     {
       "exercise_id": "tirage_unilateral_a_la_machine_guidee_dos",
       "name": "Tirage unilatéral à la machine guidée",
-      "family": "dos",
+      "family": "dos_tirage",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2303,7 +2303,7 @@
     {
       "exercise_id": "rowing_barre_buste_penche_en_pronation_dos",
       "name": "Rowing barre buste penché en pronation",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2348,7 +2348,7 @@
     {
       "exercise_id": "rowing_barre_en_supination_yates_row_dos",
       "name": "Rowing barre en supination (Yates Row)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2393,7 +2393,7 @@
     {
       "exercise_id": "rowing_halteres_buste_penche_deux_mains_dos",
       "name": "Rowing haltères buste penché (Deux mains)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2437,7 +2437,7 @@
     {
       "exercise_id": "rowing_t_bar_barre_en_t_guidee_ou_libre_dos",
       "name": "Rowing T-Bar (Barre en T guidée ou libre)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2484,7 +2484,7 @@
     {
       "exercise_id": "rowing_unilateral_avec_haltere_un_bras_sur_banc_dos",
       "name": "Rowing unilatéral avec haltère (Un bras sur banc)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2528,7 +2528,7 @@
     {
       "exercise_id": "rowing_machine_a_charge_guidee_prise_neutre_dos",
       "name": "Rowing machine à charge guidée (Prise neutre)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2574,7 +2574,7 @@
     {
       "exercise_id": "rowing_machine_a_charge_guidee_prise_pronation_large_dos",
       "name": "Rowing machine à charge guidée (Prise pronation large)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2619,7 +2619,7 @@
     {
       "exercise_id": "rowing_seal_seal_row_couche_a_plat_ventre_sur_banc_aux_halteres_dos",
       "name": "Rowing Seal / Seal Row (Couché à plat ventre sur banc) aux haltères",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2663,7 +2663,7 @@
     {
       "exercise_id": "rowing_seal_a_la_barre_libre_ou_z_dos",
       "name": "Rowing Seal à la barre libre ou Z",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -2708,7 +2708,7 @@
     {
       "exercise_id": "shrugs_a_la_barre_devant_le_corps_dos",
       "name": "Shrugs à la barre (Devant le corps)",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -2749,7 +2749,7 @@
     {
       "exercise_id": "shrugs_a_la_barre_derriere_le_corps_smith_machine_dos",
       "name": "Shrugs à la barre (Derrière le corps / Smith Machine)",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -2793,7 +2793,7 @@
     {
       "exercise_id": "shrugs_aux_halteres_debout_dos",
       "name": "Shrugs aux haltères debout",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -2832,7 +2832,7 @@
     {
       "exercise_id": "shrugs_aux_halteres_assis_dos",
       "name": "Shrugs aux haltères assis",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -2871,7 +2871,7 @@
     {
       "exercise_id": "shrugs_a_la_smith_machine_dos",
       "name": "Shrugs à la Smith machine",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -2915,7 +2915,7 @@
     {
       "exercise_id": "shrugs_a_la_poulie_basse_corde_ou_barre_dos",
       "name": "Shrugs à la poulie basse (Corde ou barre)",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -2958,7 +2958,7 @@
     {
       "exercise_id": "shrugs_sur_machine_a_mollets_epaules_guidee_dos",
       "name": "Shrugs sur machine à mollets/épaules guidée",
-      "family": "dos",
+      "family": "dos_shrug",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -3000,7 +3000,7 @@
     {
       "exercise_id": "chest_supported_row_rowing_appui_sternum_sur_banc_incline_aux_halteres_dos",
       "name": "Chest-Supported Row (Rowing appui sternum sur banc incliné aux haltères)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -3044,7 +3044,7 @@
     {
       "exercise_id": "low_row_a_la_machine_convergente_dos",
       "name": "Low Row à la machine convergente",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -3089,7 +3089,7 @@
     {
       "exercise_id": "high_to_low_row_tirage_horizontal_diagonal_a_la_poulie_dos",
       "name": "High-to-Low Row (Tirage horizontal diagonal à la poulie)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -3134,7 +3134,7 @@
     {
       "exercise_id": "rowing_landmine_unilateral_buste_penche_dos",
       "name": "Rowing Landmine unilatéral (Buste penché)",
-      "family": "dos",
+      "family": "dos_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -3179,7 +3179,7 @@
     {
       "exercise_id": "souleve_de_terre_traditionnel_deadlift_a_la_barre_dos",
       "name": "Soulevé de terre traditionnel (Deadlift) à la barre",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3224,7 +3224,7 @@
     {
       "exercise_id": "souleve_de_terre_sumo_a_la_barre_dos",
       "name": "Soulevé de terre Sumo à la barre",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3269,7 +3269,7 @@
     {
       "exercise_id": "souleve_de_terre_a_la_hex_bar_trap_bar_dos",
       "name": "Soulevé de terre à la Hex Bar / Trap Bar",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3314,7 +3314,7 @@
     {
       "exercise_id": "good_morning_a_la_barre_libre_dos",
       "name": "Good Morning à la barre libre",
-      "family": "dos",
+      "family": "dos_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3359,7 +3359,7 @@
     {
       "exercise_id": "good_morning_a_la_smith_machine_dos",
       "name": "Good Morning à la Smith machine",
-      "family": "dos",
+      "family": "dos_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3406,7 +3406,7 @@
     {
       "exercise_id": "extension_du_buste_au_banc_45_leste_avec_disque_dos",
       "name": "Extension du buste au banc 45° (Lesté avec disque)",
-      "family": "dos",
+      "family": "dos_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3450,7 +3450,7 @@
     {
       "exercise_id": "extension_du_buste_au_banc_45_leste_avec_halteres_dos",
       "name": "Extension du buste au banc 45° (Lesté avec haltères)",
-      "family": "dos",
+      "family": "dos_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3494,7 +3494,7 @@
     {
       "exercise_id": "souleve_de_terre_partiel_rack_pull_a_la_smith_machine_ou_cage_dos",
       "name": "Soulevé de terre partiel (Rack Pull) à la Smith machine ou cage",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3541,7 +3541,7 @@
     {
       "exercise_id": "souleve_de_terre_roumain_avec_halteres_dos",
       "name": "Soulevé de terre roumain avec haltères",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3585,7 +3585,7 @@
     {
       "exercise_id": "souleve_de_terre_roumain_a_la_barre_dos",
       "name": "Soulevé de terre roumain à la barre",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3630,7 +3630,7 @@
     {
       "exercise_id": "good_morning_a_la_poulie_basse_cable_entre_les_jambes_dos",
       "name": "Good Morning à la poulie basse (Câble entre les jambes)",
-      "family": "dos",
+      "family": "dos_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3675,7 +3675,7 @@
     {
       "exercise_id": "souleve_de_terre_a_la_poulie_basse_cable_deadlift_dos",
       "name": "Soulevé de terre à la poulie basse (Cable Deadlift)",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3720,7 +3720,7 @@
     {
       "exercise_id": "machine_a_extension_lombaire_guidee_back_extension_machine_dos",
       "name": "Machine à extension lombaire guidée (Back Extension Machine)",
-      "family": "dos",
+      "family": "dos_hinge",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3765,7 +3765,7 @@
     {
       "exercise_id": "deficit_deadlift_souleve_de_terre_sureleve_dos",
       "name": "Deficit Deadlift (Soulevé de terre surélevé)",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3810,7 +3810,7 @@
     {
       "exercise_id": "paused_deadlift_souleve_de_terre_avec_pause_sous_les_genoux_dos",
       "name": "Paused Deadlift (Soulevé de terre avec pause sous les genoux)",
-      "family": "dos",
+      "family": "dos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -3855,7 +3855,7 @@
     {
       "exercise_id": "developpe_epaules_assis_aux_halteres_epaules",
       "name": "Développé épaules assis aux haltères",
-      "family": "epaules",
+      "family": "epaules_developpe_vertical",
       "pattern": "developpe_militaire",
       "movement_type": "push",
       "equipment": [
@@ -3901,7 +3901,7 @@
     {
       "exercise_id": "developpe_epaules_a_la_smith_machine_epaules",
       "name": "Développé épaules à la Smith machine",
-      "family": "epaules",
+      "family": "epaules_developpe_vertical",
       "pattern": "developpe_militaire",
       "movement_type": "push",
       "equipment": [
@@ -3950,7 +3950,7 @@
     {
       "exercise_id": "developpe_arnold_aux_halteres_epaules",
       "name": "Développé Arnold aux haltères",
-      "family": "epaules",
+      "family": "epaules_developpe_vertical",
       "pattern": "developpe_militaire",
       "movement_type": "push",
       "equipment": [
@@ -3996,7 +3996,7 @@
     {
       "exercise_id": "developpe_epaules_sur_machine_convergente_epaules",
       "name": "Développé épaules sur machine convergente",
-      "family": "epaules",
+      "family": "epaules_developpe_vertical",
       "pattern": "developpe_militaire",
       "movement_type": "push",
       "equipment": [
@@ -4042,7 +4042,7 @@
     {
       "exercise_id": "elevations_frontales_aux_halteres_alternees_simultanees_epaules",
       "name": "Élévations frontales aux haltères (Alternées / Simultanées)",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4086,7 +4086,7 @@
     {
       "exercise_id": "elevations_frontales_a_la_barre_droite_ou_ez_epaules",
       "name": "Élévations frontales à la barre droite ou EZ",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4131,7 +4131,7 @@
     {
       "exercise_id": "elevations_frontales_avec_disque_a_deux_mains_epaules",
       "name": "Élévations frontales avec disque à deux mains",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4175,7 +4175,7 @@
     {
       "exercise_id": "elevations_frontales_a_la_poulie_basse_avec_corde_epaules",
       "name": "Élévations frontales à la poulie basse avec corde",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4220,7 +4220,7 @@
     {
       "exercise_id": "elevations_frontales_a_la_poulie_basse_avec_barre_epaules",
       "name": "Élévations frontales à la poulie basse avec barre",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4266,7 +4266,7 @@
     {
       "exercise_id": "elevations_frontales_unilaterales_a_la_poulie_basse_epaules",
       "name": "Élévations frontales unilatérales à la poulie basse",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4310,7 +4310,7 @@
     {
       "exercise_id": "elevations_frontales_sur_banc_incline_aux_halteres_epaules",
       "name": "Élévations frontales sur banc incliné aux haltères",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4354,7 +4354,7 @@
     {
       "exercise_id": "developpe_epaules_assis_a_la_machine_guidee_epaules",
       "name": "Développé épaules assis à la machine guidée",
-      "family": "epaules",
+      "family": "epaules_developpe_vertical",
       "pattern": "developpe_militaire",
       "movement_type": "push",
       "equipment": [
@@ -4400,7 +4400,7 @@
     {
       "exercise_id": "driver_press_avec_disque_elevation_frontale_rotation_epaules",
       "name": "Driver Press avec disque (Élévation frontale + rotation)",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4444,7 +4444,7 @@
     {
       "exercise_id": "elevations_frontales_prise_marteau_aux_halteres_epaules",
       "name": "Élévations frontales prise marteau aux haltères",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4488,7 +4488,7 @@
     {
       "exercise_id": "incline_cable_front_raise_poulie_basse_derriere_le_banc_epaules",
       "name": "Incline Cable Front Raise (Poulie basse derrière le banc)",
-      "family": "epaules",
+      "family": "epaules_elevation_frontale",
       "pattern": "developpe_militaire",
       "movement_type": "push",
       "equipment": [
@@ -4534,7 +4534,7 @@
     {
       "exercise_id": "elevations_laterales_aux_halteres_debout_epaules",
       "name": "Élévations latérales aux haltères debout",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4578,7 +4578,7 @@
     {
       "exercise_id": "elevations_laterales_aux_halteres_assis_epaules",
       "name": "Élévations latérales aux haltères assis",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4622,7 +4622,7 @@
     {
       "exercise_id": "elevations_laterales_a_la_poulie_basse_derriere_le_corps_epaules",
       "name": "Élévations latérales à la poulie basse (Derrière le corps)",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4666,7 +4666,7 @@
     {
       "exercise_id": "elevations_laterales_a_la_poulie_basse_devant_le_corps_epaules",
       "name": "Élévations latérales à la poulie basse (Devant le corps)",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4710,7 +4710,7 @@
     {
       "exercise_id": "elevations_laterales_unilaterales_au_cable_en_inclinaison_lean_away_epaules",
       "name": "Élévations latérales unilatérales au câble en inclinaison (Lean-away)",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4754,7 +4754,7 @@
     {
       "exercise_id": "elevations_laterales_a_la_machine_guidee_epaules",
       "name": "Élévations latérales à la machine guidée",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -4798,7 +4798,7 @@
     {
       "exercise_id": "rowing_vertical_a_la_barre_prise_large_upright_row_epaules",
       "name": "Rowing vertical à la barre prise large (Upright Row)",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -4846,7 +4846,7 @@
     {
       "exercise_id": "rowing_vertical_aux_halteres_epaules",
       "name": "Rowing vertical aux haltères",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -4893,7 +4893,7 @@
     {
       "exercise_id": "rowing_vertical_a_la_poulie_basse_epaules",
       "name": "Rowing vertical à la poulie basse",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -4940,7 +4940,7 @@
     {
       "exercise_id": "rowing_vertical_a_la_smith_machine_epaules",
       "name": "Rowing vertical à la Smith machine",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -4989,7 +4989,7 @@
     {
       "exercise_id": "heavy_partial_lateral_raise_elevations_lourdes_partielles_aux_halteres_epaules",
       "name": "Heavy Partial Lateral Raise (Élévations lourdes partielles aux haltères)",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5033,7 +5033,7 @@
     {
       "exercise_id": "y_raise_aux_halteres_sur_banc_incline_epaules",
       "name": "Y-Raise aux haltères sur banc incliné",
-      "family": "epaules",
+      "family": "epaules_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5077,7 +5077,7 @@
     {
       "exercise_id": "y_raise_a_la_poulie_basse_epaules",
       "name": "Y-Raise à la poulie basse",
-      "family": "epaules",
+      "family": "epaules_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5121,7 +5121,7 @@
     {
       "exercise_id": "upright_row_unilateral_a_la_poulie_basse_epaules",
       "name": "Upright Row unilatéral à la poulie basse",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -5168,7 +5168,7 @@
     {
       "exercise_id": "upright_row_a_la_landmine_epaules",
       "name": "Upright Row à la Landmine",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "tirage",
       "movement_type": "pull",
       "equipment": [
@@ -5216,7 +5216,7 @@
     {
       "exercise_id": "elevations_laterales_aux_halteres_avec_pause_en_haut_epaules",
       "name": "Élévations latérales aux haltères avec pause en haut",
-      "family": "epaules",
+      "family": "epaules_elevation_laterale",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5260,7 +5260,7 @@
     {
       "exercise_id": "oiseau_aux_halteres_buste_penche_epaules",
       "name": "Oiseau aux haltères buste penché",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5304,7 +5304,7 @@
     {
       "exercise_id": "oiseau_sur_banc_incline_aux_halteres_poitrine_appuyee_epaules",
       "name": "Oiseau sur banc incliné aux haltères (Poitrine appuyée)",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5348,7 +5348,7 @@
     {
       "exercise_id": "face_pull_a_la_poulie_haute_avec_corde_epaules",
       "name": "Face Pull à la poulie haute avec corde",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5393,7 +5393,7 @@
     {
       "exercise_id": "face_pull_assis_a_la_poulie_basse_moyenne_avec_corde_epaules",
       "name": "Face Pull assis à la poulie basse/moyenne avec corde",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5438,7 +5438,7 @@
     {
       "exercise_id": "reverse_fly_sur_machine_pec_deck_rear_delt_fly_epaules",
       "name": "Reverse Fly sur machine Pec Deck (Rear Delt Fly)",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5482,7 +5482,7 @@
     {
       "exercise_id": "ecarte_arriere_a_la_poulie_vis_a_vis_cable_rear_delt_fly_epaules",
       "name": "Écarté arrière à la poulie vis-à-vis (Cable Rear Delt Fly)",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5526,7 +5526,7 @@
     {
       "exercise_id": "ecarte_arriere_unilateral_a_la_poulie_haute_sans_poignee_epaules",
       "name": "Écarté arrière unilatéral à la poulie haute (sans poignée)",
-      "family": "epaules",
+      "family": "epaules_ecarte",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5570,7 +5570,7 @@
     {
       "exercise_id": "w_raise_aux_halteres_sur_banc_incline_epaules",
       "name": "W-Raise aux haltères sur banc incliné",
-      "family": "epaules",
+      "family": "epaules_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5614,7 +5614,7 @@
     {
       "exercise_id": "cable_y_raise_inverse_a_la_poulie_haute_epaules",
       "name": "Cable Y-Raise inversé à la poulie haute",
-      "family": "epaules",
+      "family": "epaules_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5658,7 +5658,7 @@
     {
       "exercise_id": "high_row_a_la_machine_guidee_coudes_hauts_epaules",
       "name": "High Row à la machine guidée (Coudes hauts)",
-      "family": "epaules",
+      "family": "epaules_rowing",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5703,7 +5703,7 @@
     {
       "exercise_id": "oiseau_assis_aux_halteres_epaules",
       "name": "Oiseau assis aux haltères",
-      "family": "epaules",
+      "family": "epaules_rear_delt",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5747,7 +5747,7 @@
     {
       "exercise_id": "extension_triceps_au_dessus_de_la_tete_a_la_poulie_haute_avec_corde_triceps",
       "name": "Extension triceps au-dessus de la tête à la poulie haute avec corde",
-      "family": "triceps",
+      "family": "triceps_extension_nuque",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5793,7 +5793,7 @@
     {
       "exercise_id": "extension_triceps_au_dessus_de_la_tete_avec_haltere_a_deux_mains_assis_debout_triceps",
       "name": "Extension triceps au-dessus de la tête avec haltère à deux mains (Assis/Debout)",
-      "family": "triceps",
+      "family": "triceps_extension_nuque",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5838,7 +5838,7 @@
     {
       "exercise_id": "extension_triceps_unilaterale_au_dessus_de_la_tete_avec_haltere_triceps",
       "name": "Extension triceps unilatérale au-dessus de la tête avec haltère",
-      "family": "triceps",
+      "family": "triceps_extension_nuque",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5883,7 +5883,7 @@
     {
       "exercise_id": "barre_au_front_french_press_sur_banc_plat_avec_barre_ez_triceps",
       "name": "Barre au front (French Press) sur banc plat avec barre EZ",
-      "family": "triceps",
+      "family": "triceps_skull_crusher",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5928,7 +5928,7 @@
     {
       "exercise_id": "barre_au_front_sur_banc_incline_avec_barre_ez_triceps",
       "name": "Barre au front sur banc incliné avec barre EZ",
-      "family": "triceps",
+      "family": "triceps_skull_crusher",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -5973,7 +5973,7 @@
     {
       "exercise_id": "barre_au_front_aux_halteres_banc_plat_incline_triceps",
       "name": "Barre au front aux haltères (Banc plat / incliné)",
-      "family": "triceps",
+      "family": "triceps_skull_crusher",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6019,7 +6019,7 @@
     {
       "exercise_id": "extension_triceps_assis_a_la_barre_ez_derriere_la_tete_triceps",
       "name": "Extension triceps assis à la barre EZ derrière la tête",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6064,7 +6064,7 @@
     {
       "exercise_id": "tate_press_aux_halteres_sur_banc_plat_triceps",
       "name": "Tate Press aux haltères sur banc plat",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6108,7 +6108,7 @@
     {
       "exercise_id": "tate_press_aux_halteres_sur_banc_incline_triceps",
       "name": "Tate Press aux haltères sur banc incliné",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6152,7 +6152,7 @@
     {
       "exercise_id": "extension_triceps_couche_sur_banc_a_la_poulie_basse_avec_corde_ou_barre_ez_triceps",
       "name": "Extension triceps couché sur banc à la poulie basse (avec corde ou barre EZ)",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6198,7 +6198,7 @@
     {
       "exercise_id": "jm_press_a_la_barre_libre_triceps",
       "name": "JM Press à la barre libre",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6243,7 +6243,7 @@
     {
       "exercise_id": "jm_press_a_la_smith_machine_triceps",
       "name": "JM Press à la Smith machine",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6290,7 +6290,7 @@
     {
       "exercise_id": "kickback_a_la_poulie_basse_tronc_penche_triceps",
       "name": "Kickback à la poulie basse (Tronc penché)",
-      "family": "triceps",
+      "family": "triceps_dips_triceps",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6334,7 +6334,7 @@
     {
       "exercise_id": "extension_triceps_au_dessus_de_la_tete_a_la_poulie_basse_avec_barre_corde_triceps",
       "name": "Extension triceps au-dessus de la tête à la poulie basse avec barre/corde",
-      "family": "triceps",
+      "family": "triceps_extension_nuque",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6381,7 +6381,7 @@
     {
       "exercise_id": "extension_triceps_unilaterale_au_cable_haut_overhead_cable_extension_triceps",
       "name": "Extension triceps unilatérale au câble haut (Overhead cable extension)",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6426,7 +6426,7 @@
     {
       "exercise_id": "barre_au_front_a_la_smith_machine_triceps",
       "name": "Barre au front à la Smith machine",
-      "family": "triceps",
+      "family": "triceps_skull_crusher",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6473,7 +6473,7 @@
     {
       "exercise_id": "extension_triceps_a_la_poulie_haute_avec_corde_triceps",
       "name": "Extension triceps à la poulie haute avec corde",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6518,7 +6518,7 @@
     {
       "exercise_id": "extension_triceps_a_la_poulie_haute_avec_barre_droite_triceps",
       "name": "Extension triceps à la poulie haute avec barre droite",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6564,7 +6564,7 @@
     {
       "exercise_id": "extension_triceps_a_la_poulie_haute_avec_barre_en_v_triceps",
       "name": "Extension triceps à la poulie haute avec barre en V",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6610,7 +6610,7 @@
     {
       "exercise_id": "extension_triceps_prise_inversee_supination_a_la_poulie_haute_triceps",
       "name": "Extension triceps prise inversée (Supination) à la poulie haute",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6654,7 +6654,7 @@
     {
       "exercise_id": "extension_triceps_unilaterale_a_la_poulie_haute_sans_poignee_directement_au_cable_triceps",
       "name": "Extension triceps unilatérale à la poulie haute (sans poignée, directement au câble)",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6698,7 +6698,7 @@
     {
       "exercise_id": "developpe_couche_prise_serree_a_la_barre_libre_triceps",
       "name": "Développé couché prise serrée à la barre libre",
-      "family": "triceps",
+      "family": "triceps_developpe_plat",
       "pattern": "close_grip_press",
       "movement_type": "push",
       "equipment": [
@@ -6744,7 +6744,7 @@
     {
       "exercise_id": "developpe_couche_prise_serree_aux_halteres_hex_press_triceps",
       "name": "Développé couché prise serrée aux haltères (Hex Press)",
-      "family": "triceps",
+      "family": "triceps_developpe_plat",
       "pattern": "close_grip_press",
       "movement_type": "push",
       "equipment": [
@@ -6790,7 +6790,7 @@
     {
       "exercise_id": "developpe_couche_prise_serree_a_la_smith_machine_triceps",
       "name": "Développé couché prise serrée à la Smith machine",
-      "family": "triceps",
+      "family": "triceps_developpe_plat",
       "pattern": "close_grip_press",
       "movement_type": "push",
       "equipment": [
@@ -6838,7 +6838,7 @@
     {
       "exercise_id": "extension_triceps_assis_sur_machine_guidee_a_charge_libre_triceps",
       "name": "Extension triceps assis sur machine guidée à charge libre",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -6882,7 +6882,7 @@
     {
       "exercise_id": "floor_press_prise_serree_aux_halteres_triceps",
       "name": "Floor Press prise serrée aux haltères",
-      "family": "triceps",
+      "family": "triceps_developpe_plat",
       "pattern": "close_grip_press",
       "movement_type": "push",
       "equipment": [
@@ -6928,7 +6928,7 @@
     {
       "exercise_id": "floor_press_prise_serree_a_la_barre_triceps",
       "name": "Floor Press prise serrée à la barre",
-      "family": "triceps",
+      "family": "triceps_developpe_plat",
       "pattern": "close_grip_press",
       "movement_type": "push",
       "equipment": [
@@ -6974,7 +6974,7 @@
     {
       "exercise_id": "kickback_aux_halteres_buste_penche_triceps",
       "name": "Kickback aux haltères buste penché",
-      "family": "triceps",
+      "family": "triceps_dips_triceps",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7018,7 +7018,7 @@
     {
       "exercise_id": "kickback_unilateral_aux_halteres_appuye_sur_banc_triceps",
       "name": "Kickback unilatéral aux haltères appuyé sur banc",
-      "family": "triceps",
+      "family": "triceps_dips_triceps",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7062,7 +7062,7 @@
     {
       "exercise_id": "extension_triceps_barre_ez_couchee_contre_le_front_skullcrusher_basique_triceps",
       "name": "Extension triceps barre EZ couchée contre le front (Skullcrusher basique)",
-      "family": "triceps",
+      "family": "triceps_skull_crusher",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7107,7 +7107,7 @@
     {
       "exercise_id": "extension_triceps_a_la_poulie_haute_avec_barre_ez_triceps",
       "name": "Extension triceps à la poulie haute avec barre EZ",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7153,7 +7153,7 @@
     {
       "exercise_id": "extension_triceps_croisee_aux_cables_dual_cable_tricep_pushdown_triceps",
       "name": "Extension triceps croisée aux câbles (Dual cable tricep pushdown)",
-      "family": "triceps",
+      "family": "triceps_extension_poulie",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7197,7 +7197,7 @@
     {
       "exercise_id": "extension_triceps_unilaterale_a_la_poulie_haute_poignee_neutre_triceps",
       "name": "Extension triceps unilatérale à la poulie haute (Poignée neutre)",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7241,7 +7241,7 @@
     {
       "exercise_id": "machine_a_triceps_guidee_selection_par_goupille_triceps",
       "name": "Machine à triceps guidée (Sélection par goupille)",
-      "family": "triceps",
+      "family": "triceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7285,7 +7285,7 @@
     {
       "exercise_id": "board_press_developpe_couche_amplitude_reduite_prise_serree_triceps",
       "name": "Board Press (Développé couché amplitude réduite) prise serrée",
-      "family": "triceps",
+      "family": "triceps_developpe_plat",
       "pattern": "close_grip_press",
       "movement_type": "push",
       "equipment": [
@@ -7331,7 +7331,7 @@
     {
       "exercise_id": "curl_a_la_barre_ez_prise_large_biceps",
       "name": "Curl à la barre EZ prise large",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7376,7 +7376,7 @@
     {
       "exercise_id": "curl_aux_halteres_prise_large_supination_forcee_biceps",
       "name": "Curl aux haltères prise large (Supination forcée)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7420,7 +7420,7 @@
     {
       "exercise_id": "curl_au_banc_larry_scott_preacher_curl_a_la_barre_ez_prise_large_biceps",
       "name": "Curl au banc Larry Scott (Preacher Curl) à la barre EZ prise large",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7465,7 +7465,7 @@
     {
       "exercise_id": "curl_larry_scott_aux_halteres_unilateral_biceps",
       "name": "Curl Larry Scott aux haltères unilatéral",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7509,7 +7509,7 @@
     {
       "exercise_id": "curl_larry_scott_a_la_machine_guidee_biceps",
       "name": "Curl Larry Scott à la machine guidée",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7553,7 +7553,7 @@
     {
       "exercise_id": "curl_araignee_spider_curl_a_la_barre_ez_prise_large_biceps",
       "name": "Curl araignée (Spider Curl) à la barre EZ prise large",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7598,7 +7598,7 @@
     {
       "exercise_id": "curl_araignee_aux_halteres_biceps",
       "name": "Curl araignée aux haltères",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7642,7 +7642,7 @@
     {
       "exercise_id": "curl_vis_a_vis_aux_poulies_hautes_cable_high_curl_biceps_pose_biceps",
       "name": "Curl vis-à-vis aux poulies hautes (Cable High Curl / Biceps Pose)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7686,7 +7686,7 @@
     {
       "exercise_id": "curl_concentre_assis_avec_haltere_biceps",
       "name": "Curl concentré assis avec haltère",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7730,7 +7730,7 @@
     {
       "exercise_id": "curl_concentre_a_la_poulie_basse_biceps",
       "name": "Curl concentré à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7774,7 +7774,7 @@
     {
       "exercise_id": "curl_sur_banc_incline_prise_large_aux_halteres_biceps",
       "name": "Curl sur banc incliné prise large aux haltères",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7818,7 +7818,7 @@
     {
       "exercise_id": "curl_a_la_poulie_basse_avec_barre_droite_prise_large_biceps",
       "name": "Curl à la poulie basse avec barre droite prise large",
-      "family": "biceps",
+      "family": "biceps_curl_standard",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7864,7 +7864,7 @@
     {
       "exercise_id": "curl_couche_sur_le_dos_a_la_poulie_haute_biceps",
       "name": "Curl couché sur le dos à la poulie haute",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7908,7 +7908,7 @@
     {
       "exercise_id": "curl_larry_scott_a_la_smith_machine_biceps",
       "name": "Curl Larry Scott à la Smith machine",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7955,7 +7955,7 @@
     {
       "exercise_id": "curl_pupitre_unilateral_a_la_poulie_basse_biceps",
       "name": "Curl pupitre unilatéral à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -7999,7 +7999,7 @@
     {
       "exercise_id": "curl_court_assis_aux_halteres_supination_constante_biceps",
       "name": "Curl court assis aux haltères (Supination constante)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8043,7 +8043,7 @@
     {
       "exercise_id": "curl_araignee_a_la_poulie_basse_biceps",
       "name": "Curl araignée à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8087,7 +8087,7 @@
     {
       "exercise_id": "curl_au_cable_croise_bas_biceps",
       "name": "Curl au câble croisé bas",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8131,7 +8131,7 @@
     {
       "exercise_id": "curl_concentre_debout_buste_penche_avec_haltere_biceps",
       "name": "Curl concentré debout buste penché avec haltère",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8175,7 +8175,7 @@
     {
       "exercise_id": "machine_a_biceps_convergente_prise_externe_biceps",
       "name": "Machine à biceps convergente (Prise externe)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8219,7 +8219,7 @@
     {
       "exercise_id": "curl_a_la_barre_ez_prise_serree_biceps",
       "name": "Curl à la barre EZ prise serrée",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8264,7 +8264,7 @@
     {
       "exercise_id": "curl_a_la_barre_droite_debout_biceps",
       "name": "Curl à la barre droite (Debout)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8309,7 +8309,7 @@
     {
       "exercise_id": "curl_sur_banc_incline_aux_halteres_45_60_biceps",
       "name": "Curl sur banc incliné aux haltères (45-60°)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8353,7 +8353,7 @@
     {
       "exercise_id": "drag_curl_a_la_barre_libre_biceps",
       "name": "Drag Curl à la barre libre",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8398,7 +8398,7 @@
     {
       "exercise_id": "drag_curl_aux_halteres_biceps",
       "name": "Drag Curl aux haltères",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8442,7 +8442,7 @@
     {
       "exercise_id": "drag_curl_a_la_smith_machine_biceps",
       "name": "Drag Curl à la Smith machine",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8489,7 +8489,7 @@
     {
       "exercise_id": "drag_curl_a_la_poulie_basse_biceps",
       "name": "Drag Curl à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_curl_standard",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8533,7 +8533,7 @@
     {
       "exercise_id": "bayesian_curl_curl_a_la_poulie_basse_dos_a_la_poulie_bras_en_arriere_biceps",
       "name": "Bayesian Curl (Curl à la poulie basse, dos à la poulie, bras en arrière)",
-      "family": "biceps",
+      "family": "biceps_curl_standard",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8577,7 +8577,7 @@
     {
       "exercise_id": "curl_alterne_aux_halteres_avec_supination_biceps",
       "name": "Curl alterné aux haltères avec supination",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8621,7 +8621,7 @@
     {
       "exercise_id": "curl_unilateral_a_la_poulie_basse_biceps",
       "name": "Curl unilatéral à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8665,7 +8665,7 @@
     {
       "exercise_id": "curl_assis_aux_halteres_stricte_sur_banc_droit_biceps",
       "name": "Curl assis aux haltères (Stricte sur banc droit)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8709,7 +8709,7 @@
     {
       "exercise_id": "curl_araignee_prise_serree_a_la_barre_ez_biceps",
       "name": "Curl araignée prise serrée à la barre EZ",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8754,7 +8754,7 @@
     {
       "exercise_id": "curl_au_banc_larry_scott_prise_serree_biceps",
       "name": "Curl au banc Larry Scott prise serrée",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8799,7 +8799,7 @@
     {
       "exercise_id": "curl_a_la_poulie_haute_assis_face_au_cable_biceps",
       "name": "Curl à la poulie haute assis (Face au câble)",
-      "family": "biceps",
+      "family": "biceps_curl_standard",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8843,7 +8843,7 @@
     {
       "exercise_id": "waiter_curl_curl_avec_un_seul_disque_tenu_a_deux_mains_plat_biceps",
       "name": "Waiter Curl (Curl avec un seul disque tenu à deux mains plat)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8887,7 +8887,7 @@
     {
       "exercise_id": "curl_sur_banc_inclinable_unilateral_au_cable_biceps",
       "name": "Curl sur banc inclinable unilatéral au câble",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8931,7 +8931,7 @@
     {
       "exercise_id": "curl_alterne_au_cable_bas_biceps",
       "name": "Curl alterné au câble bas",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -8975,7 +8975,7 @@
     {
       "exercise_id": "single_arm_preacher_curl_a_la_poulie_biceps",
       "name": "Single-arm Preacher Curl à la poulie",
-      "family": "biceps",
+      "family": "biceps_curl_standard",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9019,7 +9019,7 @@
     {
       "exercise_id": "curl_a_la_barre_olympique_droite_biceps",
       "name": "Curl à la barre olympique droite",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9064,7 +9064,7 @@
     {
       "exercise_id": "machine_a_biceps_guidee_prise_interne_biceps",
       "name": "Machine à biceps guidée (Prise interne)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9108,7 +9108,7 @@
     {
       "exercise_id": "curl_marteau_hammer_curl_aux_halteres_debout_biceps",
       "name": "Curl marteau (Hammer Curl) aux haltères debout",
-      "family": "biceps",
+      "family": "biceps_curl_marteau",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9152,7 +9152,7 @@
     {
       "exercise_id": "curl_marteau_aux_halteres_assis_biceps",
       "name": "Curl marteau aux haltères assis",
-      "family": "biceps",
+      "family": "biceps_curl_marteau",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9196,7 +9196,7 @@
     {
       "exercise_id": "curl_marteau_sur_banc_incline_aux_halteres_biceps",
       "name": "Curl marteau sur banc incliné aux haltères",
-      "family": "biceps",
+      "family": "biceps_curl_marteau",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9240,7 +9240,7 @@
     {
       "exercise_id": "curl_marteau_avec_corde_a_la_poulie_basse_biceps",
       "name": "Curl marteau avec corde à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_curl_marteau",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9285,7 +9285,7 @@
     {
       "exercise_id": "curl_marteau_avec_barre_ez_prise_sur_les_courbures_biceps",
       "name": "Curl marteau avec barre EZ (Prise sur les courbures)",
-      "family": "biceps",
+      "family": "biceps_curl_marteau",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9330,7 +9330,7 @@
     {
       "exercise_id": "curl_marteau_au_banc_larry_scott_aux_halteres_biceps",
       "name": "Curl marteau au banc Larry Scott aux haltères",
-      "family": "biceps",
+      "family": "biceps_curl_pupitre",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9374,7 +9374,7 @@
     {
       "exercise_id": "curl_inverse_a_la_barre_droite_ez_pronation_biceps",
       "name": "Curl inversé à la barre droite/EZ (Pronation)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9419,7 +9419,7 @@
     {
       "exercise_id": "curl_inverse_a_la_poulie_basse_biceps",
       "name": "Curl inversé à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9464,7 +9464,7 @@
     {
       "exercise_id": "curl_marteau_en_travers_du_corps_pinwheel_curl_biceps",
       "name": "Curl marteau en travers du corps (Pinwheel Curl)",
-      "family": "biceps",
+      "family": "biceps_curl_marteau",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9508,7 +9508,7 @@
     {
       "exercise_id": "flexion_des_poignets_a_la_barre_supination_sur_banc_biceps",
       "name": "Flexion des poignets à la barre (Supination sur banc)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9553,7 +9553,7 @@
     {
       "exercise_id": "flexion_des_poignets_aux_halteres_supination_biceps",
       "name": "Flexion des poignets aux haltères (Supination)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9598,7 +9598,7 @@
     {
       "exercise_id": "extension_des_poignets_a_la_barre_pronation_sur_banc_biceps",
       "name": "Extension des poignets à la barre (Pronation sur banc)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9643,7 +9643,7 @@
     {
       "exercise_id": "extension_des_poignets_aux_halteres_pronation_biceps",
       "name": "Extension des poignets aux haltères (Pronation)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9688,7 +9688,7 @@
     {
       "exercise_id": "roll_up_avec_bobine_de_andrieu_wrist_roller_leste_si_disponible_biceps",
       "name": "Roll-up avec bobine de Andrieu / Wrist Roller lesté (si disponible)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9733,7 +9733,7 @@
     {
       "exercise_id": "farmer_walk_marche_du_fermier_avec_halteres_lourds_biceps",
       "name": "Farmer Walk / Marche du fermier avec haltères lourds",
-      "family": "biceps",
+      "family": "biceps_portage",
       "pattern": "portage",
       "movement_type": "carry",
       "equipment": [
@@ -9774,7 +9774,7 @@
     {
       "exercise_id": "farmer_walk_avec_piege_hex_bar_trap_bar_biceps",
       "name": "Farmer Walk avec piège Hex Bar / Trap Bar",
-      "family": "biceps",
+      "family": "biceps_portage",
       "pattern": "portage",
       "movement_type": "carry",
       "equipment": [
@@ -9816,7 +9816,7 @@
     {
       "exercise_id": "maintien_de_disque_lourd_a_bout_de_doigts_pinch_grip_hold_biceps",
       "name": "Maintien de disque lourd à bout de doigts (Pinch Grip Hold)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9861,7 +9861,7 @@
     {
       "exercise_id": "flexion_des_poignets_a_la_poulie_basse_biceps",
       "name": "Flexion des poignets à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9906,7 +9906,7 @@
     {
       "exercise_id": "extension_des_poignets_a_la_poulie_basse_biceps",
       "name": "Extension des poignets à la poulie basse",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9951,7 +9951,7 @@
     {
       "exercise_id": "reverse_spider_curl_curl_inverse_sur_banc_incline_biceps",
       "name": "Reverse Spider Curl (Curl inversé sur banc incliné)",
-      "family": "biceps",
+      "family": "biceps_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -9996,7 +9996,7 @@
     {
       "exercise_id": "crunch_a_la_poulie_haute_avec_corde_cable_crunch_abdos",
       "name": "Crunch à la poulie haute avec corde (Cable Crunch)",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10038,7 +10038,7 @@
     {
       "exercise_id": "crunch_sur_machine_guidee_a_abdos_selection_par_goupille_abdos",
       "name": "Crunch sur machine guidée à abdos (Sélection par goupille)",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10079,7 +10079,7 @@
     {
       "exercise_id": "crunch_leste_sur_banc_decline_avec_disque_sur_la_poitrine_abdos",
       "name": "Crunch lesté sur banc décliné (avec disque sur la poitrine)",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10120,7 +10120,7 @@
     {
       "exercise_id": "crunch_leste_sur_fitball_avec_haltere_disque_abdos",
       "name": "Crunch lesté sur Fitball avec haltère/disque",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10161,7 +10161,7 @@
     {
       "exercise_id": "releve_de_jambes_suspendu_a_la_barre_fixe_avec_haltere_entre_les_pieds_abdos",
       "name": "Relevé de jambes suspendu à la barre fixe avec haltère entre les pieds",
-      "family": "abdos",
+      "family": "abdos_releve_jambes",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10205,7 +10205,7 @@
     {
       "exercise_id": "releve_de_genoux_jambes_leste_sur_chaise_romaine_captain_s_chair_abdos",
       "name": "Relevé de genoux/jambes lesté sur chaise romaine (Captain's Chair)",
-      "family": "abdos",
+      "family": "abdos_flexion_tronc",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10245,7 +10245,7 @@
     {
       "exercise_id": "releve_de_bassin_sur_banc_incline_avec_lest_aux_chevilles_abdos",
       "name": "Relevé de bassin sur banc incliné avec lest aux chevilles",
-      "family": "abdos",
+      "family": "abdos_flexion_tronc",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10285,7 +10285,7 @@
     {
       "exercise_id": "ab_wheel_roulette_a_abdos_sur_genoux_avec_disque_gilet_leste_abdos",
       "name": "Ab Wheel / Roulette à abdos (sur genoux avec disque/gilet lesté)",
-      "family": "abdos",
+      "family": "abdos_flexion_tronc",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10324,7 +10324,7 @@
     {
       "exercise_id": "crunch_a_la_poulie_basse_avec_sangle_aux_chevilles_abdos",
       "name": "Crunch à la poulie basse avec sangle aux chevilles",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10365,7 +10365,7 @@
     {
       "exercise_id": "landmine_ab_press_poussee_maintien_au_sol_abdos",
       "name": "Landmine Ab Press (Poussée/maintien au sol)",
-      "family": "abdos",
+      "family": "abdos_gainage",
       "pattern": "gainage",
       "movement_type": "isometrique",
       "equipment": [
@@ -10403,7 +10403,7 @@
     {
       "exercise_id": "crunch_a_la_smith_machine_poussee_de_barre_verticale_avec_les_pieds_abdos",
       "name": "Crunch à la Smith machine (Poussée de barre verticale avec les pieds)",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10446,7 +10446,7 @@
     {
       "exercise_id": "reverse_crunch_sur_banc_plat_avec_haltere_entre_les_pieds_abdos",
       "name": "Reverse Crunch sur banc plat avec haltère entre les pieds",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10487,7 +10487,7 @@
     {
       "exercise_id": "machine_crunch_a_charge_libre_plate_loaded_abdos",
       "name": "Machine Crunch à charge libre (Plate-loaded)",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10528,7 +10528,7 @@
     {
       "exercise_id": "pull_over_crunch_combo_a_la_poulie_haute_abdos",
       "name": "Pull-over/Crunch combo à la poulie haute",
-      "family": "abdos",
+      "family": "abdos_pullover",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -10566,7 +10566,7 @@
     {
       "exercise_id": "sit_up_leste_avec_disque_ou_barre_sur_banc_plat_abdos",
       "name": "Sit-up lesté avec disque ou barre sur banc plat",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10610,7 +10610,7 @@
     {
       "exercise_id": "sit_up_leste_sur_banc_decline_abdos",
       "name": "Sit-up lesté sur banc décliné",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10651,7 +10651,7 @@
     {
       "exercise_id": "dragon_flag_assiste_leste_sur_banc_plat_abdos",
       "name": "Dragon Flag assisté/lesté sur banc plat",
-      "family": "abdos",
+      "family": "abdos_releve_jambes",
       "pattern": "gainage",
       "movement_type": "isometrique",
       "equipment": [
@@ -10689,7 +10689,7 @@
     {
       "exercise_id": "jackknife_v_up_avec_haltere_dans_les_mains_abdos",
       "name": "Jackknife / V-Up avec haltère dans les mains",
-      "family": "abdos",
+      "family": "abdos_flexion_tronc",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10729,7 +10729,7 @@
     {
       "exercise_id": "releve_de_jambes_couche_sur_banc_avec_haltere_abdos",
       "name": "Relevé de jambes couché sur banc avec haltère",
-      "family": "abdos",
+      "family": "abdos_releve_jambes",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10770,7 +10770,7 @@
     {
       "exercise_id": "rollout_a_la_barre_olympique_chargee_sur_disques_abdos",
       "name": "Rollout à la barre olympique chargée sur disques",
-      "family": "abdos",
+      "family": "abdos_flexion_tronc",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -10812,7 +10812,7 @@
     {
       "exercise_id": "rotation_du_buste_a_la_poulie_woodchopper_du_haut_vers_le_bas_abdos",
       "name": "Rotation du buste à la poulie (Woodchopper) du haut vers le bas",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -10851,7 +10851,7 @@
     {
       "exercise_id": "rotation_du_buste_a_la_poulie_woodchopper_du_bas_vers_le_haut_abdos",
       "name": "Rotation du buste à la poulie (Woodchopper) du bas vers le haut",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -10890,7 +10890,7 @@
     {
       "exercise_id": "rotation_du_buste_a_la_poulie_woodchopper_horizontale_abdos",
       "name": "Rotation du buste à la poulie (Woodchopper) horizontale",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -10929,7 +10929,7 @@
     {
       "exercise_id": "flexion_laterale_du_buste_avec_haltere_side_bend_debout_abdos",
       "name": "Flexion latérale du buste avec haltère (Side Bend) debout",
-      "family": "abdos",
+      "family": "abdos_flexion_laterale",
       "pattern": "flexion_laterale",
       "movement_type": "rotation",
       "equipment": [
@@ -10967,7 +10967,7 @@
     {
       "exercise_id": "flexion_laterale_du_buste_a_la_poulie_basse_abdos",
       "name": "Flexion latérale du buste à la poulie basse",
-      "family": "abdos",
+      "family": "abdos_flexion_laterale",
       "pattern": "flexion_laterale",
       "movement_type": "rotation",
       "equipment": [
@@ -11005,7 +11005,7 @@
     {
       "exercise_id": "flexion_laterale_sur_banc_a_hyperextension_banc_45_avec_disque_abdos",
       "name": "Flexion latérale sur banc à hyperextension (Banc 45°) avec disque",
-      "family": "abdos",
+      "family": "abdos_extension_lombaire",
       "pattern": "flexion_laterale",
       "movement_type": "rotation",
       "equipment": [
@@ -11045,7 +11045,7 @@
     {
       "exercise_id": "russian_twist_assis_avec_disque_ou_kettlebell_abdos",
       "name": "Russian Twist assis avec disque ou kettlebell",
-      "family": "abdos",
+      "family": "abdos_rotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -11084,7 +11084,7 @@
     {
       "exercise_id": "machine_a_obliques_guidee_torso_rotation_machine_abdos",
       "name": "Machine à obliques guidée (Torso Rotation Machine)",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -11123,7 +11123,7 @@
     {
       "exercise_id": "windmill_avec_kettlebell_ou_haltere_abdos",
       "name": "Windmill avec kettlebell ou haltère",
-      "family": "abdos",
+      "family": "abdos_rotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -11162,7 +11162,7 @@
     {
       "exercise_id": "suitcase_carry_marche_de_la_valise_avec_haltere_lourd_unilateral_abdos",
       "name": "Suitcase Carry (Marche de la valise avec haltère lourd unilatéral)",
-      "family": "abdos",
+      "family": "abdos_portage",
       "pattern": "portage",
       "movement_type": "carry",
       "equipment": [
@@ -11196,7 +11196,7 @@
     {
       "exercise_id": "crunch_oblique_leste_sur_banc_decline_abdos",
       "name": "Crunch oblique lesté sur banc décliné",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -11238,7 +11238,7 @@
     {
       "exercise_id": "pallof_press_a_la_poulie_maintien_anti_rotation_abdos",
       "name": "Pallof Press à la poulie (Maintien anti-rotation)",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "gainage",
       "movement_type": "isometrique",
       "equipment": [
@@ -11274,7 +11274,7 @@
     {
       "exercise_id": "pallof_press_avec_elevation_verticale_du_cable_abdos",
       "name": "Pallof Press avec élévation verticale du câble",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -11311,7 +11311,7 @@
     {
       "exercise_id": "landmine_rotation_twist_rotation_du_buste_avec_barre_abdos",
       "name": "Landmine Rotation / Twist (Rotation du buste avec barre)",
-      "family": "abdos",
+      "family": "abdos_antirotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -11352,7 +11352,7 @@
     {
       "exercise_id": "releve_de_jambes_lateral_suspendu_a_la_chaise_romaine_abdos",
       "name": "Relevé de jambes latéral suspendu à la chaise romaine",
-      "family": "abdos",
+      "family": "abdos_releve_jambes",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -11393,7 +11393,7 @@
     {
       "exercise_id": "gainage_lateral_side_plank_avec_haltere_sur_la_hanche_abdos",
       "name": "Gainage latéral (Side Plank) avec haltère sur la hanche",
-      "family": "abdos",
+      "family": "abdos_gainage",
       "pattern": "flexion_laterale",
       "movement_type": "isometrique",
       "equipment": [
@@ -11432,7 +11432,7 @@
     {
       "exercise_id": "cable_cross_crunch_crunch_croise_a_la_poulie_haute_abdos",
       "name": "Cable Cross Crunch (Crunch croisé à la poulie haute)",
-      "family": "abdos",
+      "family": "abdos_crunch",
       "pattern": "flexion_tronc",
       "movement_type": "rotation",
       "equipment": [
@@ -11473,7 +11473,7 @@
     {
       "exercise_id": "flexion_laterale_a_la_smith_machine_abdos",
       "name": "Flexion latérale à la Smith machine",
-      "family": "abdos",
+      "family": "abdos_flexion_laterale",
       "pattern": "flexion_laterale",
       "movement_type": "rotation",
       "equipment": [
@@ -11515,7 +11515,7 @@
     {
       "exercise_id": "russian_twist_sur_fitball_avec_disque_abdos",
       "name": "Russian Twist sur Fitball avec disque",
-      "family": "abdos",
+      "family": "abdos_rotation",
       "pattern": "rotation",
       "movement_type": "rotation",
       "equipment": [
@@ -11554,7 +11554,7 @@
     {
       "exercise_id": "suitcase_deadlift_souleve_de_terre_unilateral_avec_une_seule_barre_haltere_abdos",
       "name": "Suitcase Deadlift (Soulevé de terre unilatéral avec une seule barre/haltère)",
-      "family": "abdos",
+      "family": "abdos_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11594,7 +11594,7 @@
     {
       "exercise_id": "hip_thrust_a_la_barre_olympique_sur_banc_fessiers",
       "name": "Hip Thrust à la barre olympique (sur banc)",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11640,7 +11640,7 @@
     {
       "exercise_id": "hip_thrust_a_la_smith_machine_fessiers",
       "name": "Hip Thrust à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11687,7 +11687,7 @@
     {
       "exercise_id": "hip_thrust_sur_machine_dediee_booty_builder_plate_loaded_fessiers",
       "name": "Hip Thrust sur machine dédiée (Booty Builder / Plate-loaded)",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11732,7 +11732,7 @@
     {
       "exercise_id": "kas_glute_bridge_a_la_barre_fessiers",
       "name": "Kas Glute Bridge à la barre",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11778,7 +11778,7 @@
     {
       "exercise_id": "kas_glute_bridge_a_la_smith_machine_fessiers",
       "name": "Kas Glute Bridge à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11825,7 +11825,7 @@
     {
       "exercise_id": "souleve_de_terre_jambes_tendues_semi_tendues_rdl_a_la_barre_fessiers",
       "name": "Soulevé de terre jambes tendues / semi-tendues (RDL) à la barre",
-      "family": "fessiers",
+      "family": "fessiers_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11871,7 +11871,7 @@
     {
       "exercise_id": "souleve_de_terre_roumain_rdl_aux_halteres_fessiers",
       "name": "Soulevé de terre roumain (RDL) aux haltères",
-      "family": "fessiers",
+      "family": "fessiers_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -11916,7 +11916,7 @@
     {
       "exercise_id": "step_up_lourd_sur_banc_avec_halteres_fessiers",
       "name": "Step-up lourd sur banc avec haltères",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -11961,7 +11961,7 @@
     {
       "exercise_id": "step_up_sur_banc_a_la_smith_machine_fessiers",
       "name": "Step-up sur banc à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12009,7 +12009,7 @@
     {
       "exercise_id": "fentes_arriere_reverse_lunges_avec_barre_fessiers",
       "name": "Fentes arrière (Reverse Lunges) avec barre",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12055,7 +12055,7 @@
     {
       "exercise_id": "fentes_arriere_avec_halteres_fessiers",
       "name": "Fentes arrière avec haltères",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12100,7 +12100,7 @@
     {
       "exercise_id": "fentes_arriere_a_la_smith_machine_fessiers",
       "name": "Fentes arrière à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12148,7 +12148,7 @@
     {
       "exercise_id": "fentes_marchees_lestees_halteres_ou_barre_fessiers",
       "name": "Fentes marchées lestées (Haltères ou barre)",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12195,7 +12195,7 @@
     {
       "exercise_id": "cable_pull_through_tirage_entre_les_jambes_a_la_poulie_basse_fessiers",
       "name": "Cable Pull-Through (Tirage entre les jambes à la poulie basse)",
-      "family": "fessiers",
+      "family": "fessiers_hinge",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -12240,7 +12240,7 @@
     {
       "exercise_id": "back_extension_45_cible_fessiers_dos_rond_pieds_ouverts_avec_disque_fessiers",
       "name": "Back Extension 45° ciblé fessiers (Dos rond, pieds ouverts) avec disque",
-      "family": "fessiers",
+      "family": "fessiers_hinge",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -12285,7 +12285,7 @@
     {
       "exercise_id": "back_extension_45_cible_fessiers_a_la_barre_libre_fessiers",
       "name": "Back Extension 45° ciblé fessiers à la barre libre",
-      "family": "fessiers",
+      "family": "fessiers_hinge",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -12331,7 +12331,7 @@
     {
       "exercise_id": "reverse_hyperextension_au_banc_avec_haltere_entre_les_pieds_fessiers",
       "name": "Reverse Hyperextension au banc avec haltère entre les pieds",
-      "family": "fessiers",
+      "family": "fessiers_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -12376,7 +12376,7 @@
     {
       "exercise_id": "squat_bulgare_bulgarian_split_squat_cible_fessiers_buste_penche_avec_halteres_fessiers",
       "name": "Squat bulgare (Bulgarian Split Squat) ciblé fessiers (Buste penché) avec haltères",
-      "family": "fessiers",
+      "family": "fessiers_squat",
       "pattern": "squat_fessiers",
       "movement_type": "squat",
       "equipment": [
@@ -12421,7 +12421,7 @@
     {
       "exercise_id": "squat_bulgare_a_la_smith_machine_fessiers",
       "name": "Squat bulgare à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_squat",
       "pattern": "squat_fessiers",
       "movement_type": "squat",
       "equipment": [
@@ -12468,7 +12468,7 @@
     {
       "exercise_id": "belt_squat_cible_fessiers_incline_vers_l_arriere_fessiers",
       "name": "Belt Squat ciblé fessiers (Incliné vers l'arrière)",
-      "family": "fessiers",
+      "family": "fessiers_squat",
       "pattern": "squat_fessiers",
       "movement_type": "squat",
       "equipment": [
@@ -12513,7 +12513,7 @@
     {
       "exercise_id": "abduction_des_hanches_a_la_machine_assise_machine_a_abducteurs_fessiers",
       "name": "Abduction des hanches à la machine assise (Machine à abducteurs)",
-      "family": "fessiers",
+      "family": "fessiers_abduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -12554,7 +12554,7 @@
     {
       "exercise_id": "abduction_des_hanches_a_la_machine_penche_en_avant_fessiers",
       "name": "Abduction des hanches à la machine penché en avant",
-      "family": "fessiers",
+      "family": "fessiers_abduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -12595,7 +12595,7 @@
     {
       "exercise_id": "cable_kickback_extension_arriere_a_la_poulie_basse_avec_sangle_de_cheville_fessiers",
       "name": "Cable Kickback (Extension arrière) à la poulie basse avec sangle de cheville",
-      "family": "fessiers",
+      "family": "fessiers_dips_triceps",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -12636,7 +12636,7 @@
     {
       "exercise_id": "cable_kickback_diagonal_30_45_a_la_poulie_basse_fessiers",
       "name": "Cable Kickback diagonal (30-45°) à la poulie basse",
-      "family": "fessiers",
+      "family": "fessiers_dips_triceps",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -12677,7 +12677,7 @@
     {
       "exercise_id": "cable_hip_abduction_abduction_laterale_a_la_poulie_basse_fessiers",
       "name": "Cable Hip Abduction (Abduction latérale) à la poulie basse",
-      "family": "fessiers",
+      "family": "fessiers_abduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -12718,7 +12718,7 @@
     {
       "exercise_id": "fentes_croisees_curtsy_lunges_aux_halteres_fessiers",
       "name": "Fentes croisées (Curtsy Lunges) aux haltères",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12763,7 +12763,7 @@
     {
       "exercise_id": "fentes_croisees_a_la_smith_machine_fessiers",
       "name": "Fentes croisées à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -12811,7 +12811,7 @@
     {
       "exercise_id": "squat_sumo_a_la_barre_libre_fessiers",
       "name": "Squat sumo à la barre libre",
-      "family": "fessiers",
+      "family": "fessiers_squat",
       "pattern": "squat_fessiers",
       "movement_type": "squat",
       "equipment": [
@@ -12857,7 +12857,7 @@
     {
       "exercise_id": "squat_sumo_avec_kettlebell_haltere_lourd_sur_deux_bancs_pylones_fessiers",
       "name": "Squat sumo avec Kettlebell / Haltère lourd sur deux bancs/pylônes",
-      "family": "fessiers",
+      "family": "fessiers_squat",
       "pattern": "squat_fessiers",
       "movement_type": "squat",
       "equipment": [
@@ -12902,7 +12902,7 @@
     {
       "exercise_id": "hip_thrust_unilateral_aux_halteres_fessiers",
       "name": "Hip Thrust unilatéral aux haltères",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -12947,7 +12947,7 @@
     {
       "exercise_id": "landmine_single_leg_rdl_fessiers",
       "name": "Landmine Single-Leg RDL",
-      "family": "fessiers",
+      "family": "fessiers_rdl",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -12993,7 +12993,7 @@
     {
       "exercise_id": "souleve_de_terre_unilateral_aux_halteres_single_leg_rdl_fessiers",
       "name": "Soulevé de terre unilatéral aux haltères (Single-leg RDL)",
-      "family": "fessiers",
+      "family": "fessiers_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -13038,7 +13038,7 @@
     {
       "exercise_id": "monster_walk_avec_bande_de_resistance_et_halteres_fessiers",
       "name": "Monster Walk avec bande de résistance et haltères",
-      "family": "fessiers",
+      "family": "fessiers_portage",
       "pattern": "portage",
       "movement_type": "carry",
       "equipment": [
@@ -13075,7 +13075,7 @@
     {
       "exercise_id": "step_up_lateral_sur_banc_avec_halteres_fessiers",
       "name": "Step-up latéral sur banc avec haltères",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -13120,7 +13120,7 @@
     {
       "exercise_id": "abduction_laterale_a_la_poulie_basse_sur_banc_couche_sur_le_cote_fessiers",
       "name": "Abduction latérale à la poulie basse sur banc (Couché sur le côté)",
-      "family": "fessiers",
+      "family": "fessiers_abduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -13161,7 +13161,7 @@
     {
       "exercise_id": "side_plank_avec_abduction_de_la_jambe_du_dessus_lestee_fessiers",
       "name": "Side Plank avec abduction de la jambe du dessus lestée",
-      "family": "fessiers",
+      "family": "fessiers_abduction",
       "pattern": "flexion_laterale",
       "movement_type": "isometrique",
       "equipment": [
@@ -13196,7 +13196,7 @@
     {
       "exercise_id": "cable_kickback_sur_banc_incline_fessiers",
       "name": "Cable Kickback sur banc incliné",
-      "family": "fessiers",
+      "family": "fessiers_dips_triceps",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -13237,7 +13237,7 @@
     {
       "exercise_id": "glute_bridge_unilateral_a_la_smith_machine_fessiers",
       "name": "Glute Bridge unilatéral à la Smith machine",
-      "family": "fessiers",
+      "family": "fessiers_hip_thrust",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -13284,7 +13284,7 @@
     {
       "exercise_id": "deficit_reverse_lunge_fente_arriere_surelevee_aux_halteres_fessiers",
       "name": "Deficit Reverse Lunge (Fente arrière surélevée) aux haltères",
-      "family": "fessiers",
+      "family": "fessiers_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -13329,7 +13329,7 @@
     {
       "exercise_id": "frog_pumps_lestes_avec_disque_sur_le_bassin_fessiers",
       "name": "Frog Pumps lestés avec disque sur le bassin",
-      "family": "fessiers",
+      "family": "fessiers_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -13370,7 +13370,7 @@
     {
       "exercise_id": "squat_arriere_a_la_barre_back_squat_quadriceps",
       "name": "Squat arrière à la barre (Back Squat)",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13417,7 +13417,7 @@
     {
       "exercise_id": "squat_avant_a_la_barre_front_squat_quadriceps",
       "name": "Squat avant à la barre (Front Squat)",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13464,7 +13464,7 @@
     {
       "exercise_id": "presse_a_cuisses_a_45_leg_press_quadriceps",
       "name": "Presse à cuisses à 45° (Leg Press)",
-      "family": "quadriceps",
+      "family": "quadriceps_presse",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13510,7 +13510,7 @@
     {
       "exercise_id": "presse_a_cuisses_horizontale_quadriceps",
       "name": "Presse à cuisses horizontale",
-      "family": "quadriceps",
+      "family": "quadriceps_presse",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13556,7 +13556,7 @@
     {
       "exercise_id": "hack_squat_a_la_machine_quadriceps",
       "name": "Hack Squat à la machine",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13602,7 +13602,7 @@
     {
       "exercise_id": "reverse_hack_squat_a_la_machine_face_a_la_machine_quadriceps",
       "name": "Reverse Hack Squat à la machine (Face à la machine)",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13648,7 +13648,7 @@
     {
       "exercise_id": "leg_extension_machine_quadriceps_quadriceps",
       "name": "Leg Extension (Machine quadriceps)",
-      "family": "quadriceps",
+      "family": "quadriceps_leg_extension",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -13685,7 +13685,7 @@
     {
       "exercise_id": "leg_extension_unilateral_a_la_machine_quadriceps",
       "name": "Leg Extension unilatéral à la machine",
-      "family": "quadriceps",
+      "family": "quadriceps_leg_extension",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -13722,7 +13722,7 @@
     {
       "exercise_id": "sissy_squat_sur_support_dedie_avec_disque_haltere_quadriceps",
       "name": "Sissy Squat sur support dédié avec disque/haltère",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13768,7 +13768,7 @@
     {
       "exercise_id": "bulgarian_split_squat_squat_bulgare_buste_droit_avec_halteres_quadriceps",
       "name": "Bulgarian Split Squat (Squat bulgare buste droit) avec haltères",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13814,7 +13814,7 @@
     {
       "exercise_id": "bulgarian_split_squat_a_la_smith_machine_quadriceps",
       "name": "Bulgarian Split Squat à la Smith machine",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13862,7 +13862,7 @@
     {
       "exercise_id": "belt_squat_a_la_machine_quadriceps",
       "name": "Belt Squat à la machine",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13908,7 +13908,7 @@
     {
       "exercise_id": "goblet_squat_avec_haltere_ou_kettlebell_quadriceps",
       "name": "Goblet Squat avec haltère ou kettlebell",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -13954,7 +13954,7 @@
     {
       "exercise_id": "squat_a_la_smith_machine_pieds_sous_la_barre_verticaux_quadriceps",
       "name": "Squat à la Smith machine (Pieds sous la barre / verticaux)",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -14002,7 +14002,7 @@
     {
       "exercise_id": "pendulum_squat_machine_quadriceps",
       "name": "Pendulum Squat machine",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -14048,7 +14048,7 @@
     {
       "exercise_id": "zercher_squat_a_la_barre_libre_quadriceps",
       "name": "Zercher Squat à la barre libre",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -14095,7 +14095,7 @@
     {
       "exercise_id": "landmine_squat_barre_au_sol_bloquee_quadriceps",
       "name": "Landmine Squat (Barre au sol bloquée)",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -14142,7 +14142,7 @@
     {
       "exercise_id": "step_up_avant_sur_box_banc_haut_avec_halteres_quadriceps",
       "name": "Step-up avant sur box/banc haut avec haltères",
-      "family": "quadriceps",
+      "family": "quadriceps_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -14181,7 +14181,7 @@
     {
       "exercise_id": "squat_talon_sureleve_heels_elevated_squat_aux_halteres_quadriceps",
       "name": "Squat talon surélevé (Heels-elevated squat) aux haltères",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -14227,7 +14227,7 @@
     {
       "exercise_id": "safety_bar_squat_avec_barre_ssb_quadriceps",
       "name": "Safety Bar Squat (avec barre SSB)",
-      "family": "quadriceps",
+      "family": "quadriceps_squat",
       "pattern": "squat",
       "movement_type": "squat",
       "equipment": [
@@ -14274,7 +14274,7 @@
     {
       "exercise_id": "leg_curl_allonge_a_la_machine_lying_leg_curl_ischio",
       "name": "Leg Curl allongé à la machine (Lying Leg Curl)",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14315,7 +14315,7 @@
     {
       "exercise_id": "leg_curl_allonge_unilateral_a_la_machine_ischio",
       "name": "Leg Curl allongé unilatéral à la machine",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14356,7 +14356,7 @@
     {
       "exercise_id": "leg_curl_assis_a_la_machine_seated_leg_curl_ischio",
       "name": "Leg Curl assis à la machine (Seated Leg Curl)",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14397,7 +14397,7 @@
     {
       "exercise_id": "leg_curl_debout_unilateral_a_la_machine_ischio",
       "name": "Leg Curl debout unilatéral à la machine",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14438,7 +14438,7 @@
     {
       "exercise_id": "souleve_de_terre_roumain_rdl_a_la_barre_ischio",
       "name": "Soulevé de terre roumain (RDL) à la barre",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14483,7 +14483,7 @@
     {
       "exercise_id": "souleve_de_terre_roumain_aux_halteres_ischio",
       "name": "Soulevé de terre roumain aux haltères",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14527,7 +14527,7 @@
     {
       "exercise_id": "souleve_de_terre_roumain_unilateral_aux_halteres_ischio",
       "name": "Soulevé de terre roumain unilatéral aux haltères",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14571,7 +14571,7 @@
     {
       "exercise_id": "souleve_de_terre_jambes_tendues_a_la_smith_machine_ischio",
       "name": "Soulevé de terre jambes tendues à la Smith machine",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14617,7 +14617,7 @@
     {
       "exercise_id": "good_morning_a_la_barre_z_ou_droite_ischio",
       "name": "Good Morning à la barre Z ou droite",
-      "family": "ischio",
+      "family": "ischio_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14662,7 +14662,7 @@
     {
       "exercise_id": "good_morning_a_la_smith_machine_ischio",
       "name": "Good Morning à la Smith machine",
-      "family": "ischio",
+      "family": "ischio_extension_lombaire",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14708,7 +14708,7 @@
     {
       "exercise_id": "glute_ham_raise_ghr_leste_d_un_disque_ischio",
       "name": "Glute Ham Raise (GHR) lesté d'un disque",
-      "family": "ischio",
+      "family": "ischio_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14747,7 +14747,7 @@
     {
       "exercise_id": "single_leg_rdl_a_la_poulie_basse_ischio",
       "name": "Single-Leg RDL à la poulie basse",
-      "family": "ischio",
+      "family": "ischio_rdl",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14791,7 +14791,7 @@
     {
       "exercise_id": "leg_curl_avec_haltere_serre_entre_les_pieds_sur_banc_plat_ischio",
       "name": "Leg Curl avec haltère serré entre les pieds (sur banc plat)",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14832,7 +14832,7 @@
     {
       "exercise_id": "souleve_de_terre_jambes_tendues_depuis_un_deficit_sureleve_ischio",
       "name": "Soulevé de terre jambes tendues depuis un déficit (surélevé)",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -14877,7 +14877,7 @@
     {
       "exercise_id": "jefferson_curl_lourd_aux_halteres_ischio",
       "name": "Jefferson Curl lourd aux haltères",
-      "family": "ischio",
+      "family": "ischio_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14916,7 +14916,7 @@
     {
       "exercise_id": "nordic_hamstring_curl_assiste_a_la_poulie_ou_leste_ischio",
       "name": "Nordic Hamstring Curl assisté à la poulie ou lesté",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -14956,7 +14956,7 @@
     {
       "exercise_id": "souleve_de_terre_jambes_tendues_a_la_hex_bar_ischio",
       "name": "Soulevé de terre jambes tendues à la Hex Bar",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -15001,7 +15001,7 @@
     {
       "exercise_id": "romanian_deadlift_a_la_poulie_basse_avec_corde_ischio",
       "name": "Romanian Deadlift à la poulie basse avec corde",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -15046,7 +15046,7 @@
     {
       "exercise_id": "leg_curl_debout_a_la_poulie_basse_avec_sangle_de_cheville_ischio",
       "name": "Leg Curl debout à la poulie basse avec sangle de cheville",
-      "family": "ischio",
+      "family": "ischio_leg_curl",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15087,7 +15087,7 @@
     {
       "exercise_id": "landmine_romanian_deadlift_a_deux_mains_ischio",
       "name": "Landmine Romanian Deadlift à deux mains",
-      "family": "ischio",
+      "family": "ischio_souleve_de_terre",
       "pattern": "hinge",
       "movement_type": "hinge",
       "equipment": [
@@ -15132,7 +15132,7 @@
     {
       "exercise_id": "mollets_debout_a_la_machine_standing_calf_raise_mollets",
       "name": "Mollets debout à la machine (Standing Calf Raise)",
-      "family": "mollets",
+      "family": "mollets_mollets_debout",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15173,7 +15173,7 @@
     {
       "exercise_id": "mollets_assis_a_la_machine_seated_calf_raise_soleaire_mollets",
       "name": "Mollets assis à la machine (Seated Calf Raise - Soléaire)",
-      "family": "mollets",
+      "family": "mollets_mollets_assis",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15214,7 +15214,7 @@
     {
       "exercise_id": "extension_des_mollets_a_la_presse_a_cuisses_a_45_mollets",
       "name": "Extension des mollets à la presse à cuisses à 45°",
-      "family": "mollets",
+      "family": "mollets_presse",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15257,7 +15257,7 @@
     {
       "exercise_id": "extension_des_mollets_a_la_presse_horizontale_mollets",
       "name": "Extension des mollets à la presse horizontale",
-      "family": "mollets",
+      "family": "mollets_presse",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15299,7 +15299,7 @@
     {
       "exercise_id": "extension_des_mollets_a_la_smith_machine_sur_cale_step_mollets",
       "name": "Extension des mollets à la Smith machine (Sur cale/step)",
-      "family": "mollets",
+      "family": "mollets_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15343,7 +15343,7 @@
     {
       "exercise_id": "extension_des_mollets_unilaterale_avec_haltere_sur_step_mollets",
       "name": "Extension des mollets unilatérale avec haltère (Sur step)",
-      "family": "mollets",
+      "family": "mollets_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15384,7 +15384,7 @@
     {
       "exercise_id": "extension_des_mollets_debout_a_la_barre_libre_mollets",
       "name": "Extension des mollets debout à la barre libre",
-      "family": "mollets",
+      "family": "mollets_mollets_debout",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15426,7 +15426,7 @@
     {
       "exercise_id": "extension_des_mollets_a_la_machine_hack_squat_mollets",
       "name": "Extension des mollets à la machine Hack Squat",
-      "family": "mollets",
+      "family": "mollets_squat",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15469,7 +15469,7 @@
     {
       "exercise_id": "extension_des_mollets_unilaterale_a_la_smith_machine_mollets",
       "name": "Extension des mollets unilatérale à la Smith machine",
-      "family": "mollets",
+      "family": "mollets_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15513,7 +15513,7 @@
     {
       "exercise_id": "mollets_assis_avec_barre_chargee_sur_les_genoux_avec_cale_mollets",
       "name": "Mollets assis avec barre chargée sur les genoux (avec cale)",
-      "family": "mollets",
+      "family": "mollets_mollets_assis",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15555,7 +15555,7 @@
     {
       "exercise_id": "mollets_assis_aux_halteres_sur_les_genoux_mollets",
       "name": "Mollets assis aux haltères sur les genoux",
-      "family": "mollets",
+      "family": "mollets_mollets_assis",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15596,7 +15596,7 @@
     {
       "exercise_id": "don_key_calf_raise_a_la_machine_ou_guide_mollets",
       "name": "Don Key Calf Raise à la machine ou guidé",
-      "family": "mollets",
+      "family": "mollets_isolation",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15637,7 +15637,7 @@
     {
       "exercise_id": "adducteurs_a_la_machine_assise_adductor_machine_mollets",
       "name": "Adducteurs à la machine assise (Adductor Machine)",
-      "family": "mollets",
+      "family": "mollets_adduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15678,7 +15678,7 @@
     {
       "exercise_id": "adducteurs_a_la_poulie_basse_avec_sangle_de_cheville_cable_adduction_mollets",
       "name": "Adducteurs à la poulie basse avec sangle de cheville (Cable Adduction)",
-      "family": "mollets",
+      "family": "mollets_adduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [
@@ -15719,7 +15719,7 @@
     {
       "exercise_id": "copenhagen_plank_lestee_avec_disque_sur_la_hanche_mollets",
       "name": "Copenhagen Plank lestée avec disque sur la hanche",
-      "family": "mollets",
+      "family": "mollets_gainage",
       "pattern": "gainage",
       "movement_type": "isometrique",
       "equipment": [
@@ -15755,7 +15755,7 @@
     {
       "exercise_id": "squat_lateral_avec_haltere_kettlebell_cossack_squat_mollets",
       "name": "Squat latéral avec haltère / Kettlebell (Cossack Squat)",
-      "family": "mollets",
+      "family": "mollets_squat",
       "pattern": "squat_mollets",
       "movement_type": "squat",
       "equipment": [
@@ -15798,7 +15798,7 @@
     {
       "exercise_id": "squat_sumo_tres_large_a_la_smith_machine_cible_adducteurs_mollets",
       "name": "Squat sumo très large à la Smith machine (Ciblé adducteurs)",
-      "family": "mollets",
+      "family": "mollets_squat",
       "pattern": "squat_mollets",
       "movement_type": "squat",
       "equipment": [
@@ -15843,7 +15843,7 @@
     {
       "exercise_id": "fentes_laterales_side_lunges_avec_halteres_mollets",
       "name": "Fentes latérales (Side Lunges) avec haltères",
-      "family": "mollets",
+      "family": "mollets_fente",
       "pattern": "fente",
       "movement_type": "lunge",
       "equipment": [
@@ -15882,7 +15882,7 @@
     {
       "exercise_id": "landmine_cossack_squat_mollets",
       "name": "Landmine Cossack Squat",
-      "family": "mollets",
+      "family": "mollets_squat",
       "pattern": "squat_mollets",
       "movement_type": "squat",
       "equipment": [
@@ -15926,7 +15926,7 @@
     {
       "exercise_id": "adduction_des_hanches_couche_au_sol_a_la_poulie_basse_mollets",
       "name": "Adduction des hanches couché au sol à la poulie basse",
-      "family": "mollets",
+      "family": "mollets_adduction",
       "pattern": "isolation",
       "movement_type": "rotation",
       "equipment": [

@@ -522,6 +522,94 @@ def morphologie_pour(pattern, muscle_principal, nom="", movement_type=None, equi
 # 5) Génération des fiches
 # --------------------------------------------------------------------------
 
+# --- Famille de mouvement -----------------------------------------------------
+# Retour Samy : « sur la partie épaule j'ai 3x élévation frontale sur 4
+# exercices », et « pour les pecs il n'y a que du développé couché ».
+#
+# Cause : le champ `family` valait simplement le nom du muscle. Les 42
+# exercices d'épaules du catalogue avaient donc tous `family = "epaules"`, et
+# les 7 variantes d'élévations frontales étaient rigoureusement indiscernables
+# pour le moteur. Or c'est précisément sur ce champ que reposent
+# `diversity.calculate_diversity_bonus` et `calculate_family_penalty` : privés
+# d'information, ils appliquaient le même malus à tout le monde et ne
+# poussaient vers aucune variété réelle.
+#
+# On extrait donc une vraie famille de MOUVEMENT depuis le nom. Deux exercices
+# de la même famille sont des variantes du même geste (élévation frontale à la
+# barre, à la poulie, aux haltères) : le moteur n'en retiendra qu'une tant
+# qu'il reste d'autres familles disponibles. C'est ce qui garantit qu'une
+# séance d'épaules couvre antérieur, moyen et postérieur au lieu de répéter
+# trois fois le même mouvement.
+#
+# Ordre important : les motifs les plus spécifiques d'abord.
+FAMILLES_MOUVEMENT = [
+    # Épaules
+    ("elevation_laterale", ("élévation latérale", "élévations latérales", "lateral raise", "l-fly")),
+    ("elevation_frontale", ("élévation frontale", "élévations frontales", "front raise", "driver press")),
+    ("rear_delt", ("oiseau", "rear delt", "face pull", "reverse fly", "reverse pec deck", "postérieur")),
+    ("developpe_vertical", ("développé militaire", "développé épaules", "overhead press", "arnold", "push press", "développé nuque")),
+    ("shrug", ("shrug", "haussement")),
+    # Pectoraux
+    ("developpe_incline", ("développé incliné", "incline press", "incline chest")),
+    ("developpe_decline", ("développé décliné", "decline press")),
+    ("developpe_plat", ("développé couché", "développé plat", "bench press", "floor press", "chest press")),
+    ("ecarte", ("écarté", "fly", "pec deck", "papillon", "butterfly")),
+    ("dips_pecs", ("dips",)),
+    ("pompes", ("pompe", "push-up")),
+    # Dos
+    ("tirage_vertical", ("traction", "pull-up", "chin-up", "tirage vertical", "lat pulldown", "pulldown")),
+    ("rowing", ("rowing", "row ", "meadow", "pendlay", "yates", "t-bar")),
+    ("tirage_horizontal", ("tirage horizontal", "seated row", "tirage assis")),
+    ("pullover", ("pull-over", "pullover", "straight arm")),
+    ("souleve_de_terre", ("soulevé de terre", "deadlift", "rack pull")),
+    ("extension_lombaire", ("extension du buste", "hyperextension", "banc 45", "good morning")),
+    # Jambes
+    ("squat", ("squat",)),
+    ("presse", ("presse", "leg press", "hack")),
+    ("fente", ("fente", "lunge", "bulgare", "split squat", "step-up", "montée de banc")),
+    ("hip_thrust", ("hip thrust", "pont fessier", "glute bridge")),
+    ("rdl", ("soulevé de terre roumain", "romanian", "rdl", "jambes tendues")),
+    ("leg_curl", ("leg curl", "ischio-jambiers à la machine", "nordic")),
+    ("leg_extension", ("leg extension", "extension des jambes")),
+    ("abduction", ("abduction", "abducteur", "moyen fessier machine")),
+    ("adduction", ("adduction", "adducteur")),
+    ("mollets_debout", ("mollets debout", "standing calf")),
+    ("mollets_assis", ("mollets assis", "seated calf")),
+    # Bras
+    ("curl_standard", ("curl barre", "curl haltères", "curl à la poulie", "curl debout")),
+    ("curl_incline", ("curl incliné", "incline curl")),
+    ("curl_pupitre", ("pupitre", "preacher", "larry scott")),
+    ("curl_marteau", ("marteau", "hammer")),
+    ("extension_poulie", ("extension à la poulie", "pushdown", "extension triceps poulie")),
+    ("extension_nuque", ("extension nuque", "overhead extension", "au-dessus de la tête")),
+    ("skull_crusher", ("barre au front", "skull")),
+    ("dips_triceps", ("dips triceps", "dips buste droit", "kickback")),
+    # Abdos / core
+    ("crunch", ("crunch", "sit-up", "enroulement")),
+    ("releve_jambes", ("relevé de jambes", "leg raise", "dragon flag")),
+    ("gainage", ("planche", "plank", "gainage")),
+    ("antirotation", ("pallof", "anti-rotation", "rotation")),
+]
+
+
+def famille_mouvement(nom, muscle_principal, pattern):
+    """Famille de mouvement d'un exercice, extraite de son nom.
+
+    Deux exercices de la même famille sont des variantes du même geste et ne
+    doivent pas se retrouver ensemble dans une séance tant qu'il reste d'autres
+    familles disponibles.
+
+    Repli sur `muscle_pattern` si aucun motif ne correspond : jamais sur le seul
+    muscle, sinon on retomberait exactement dans le problème d'origine (tous
+    les exercices d'un muscle dans une seule famille fourre-tout).
+    """
+    n = nom.lower()
+    for famille, motifs in FAMILLES_MOUVEMENT:
+        if any(motif in n for motif in motifs):
+            return f"{muscle_principal}_{famille}"
+    return f"{muscle_principal}_{pattern}"
+
+
 def joint_stress_pour(muscle_principal, pattern, nom, movement_type=None, equipment=None):
     """Stress articulaire estimé, par zone : 0 aucun, 1 modéré, 2 élevé,
     3 très élevé.
@@ -701,7 +789,7 @@ def build_fiches():
                 fiche = {
                     "exercise_id": exercise_id,
                     "name": nom,
-                    "family": muscle_principal,
+                    "family": famille_mouvement(nom, muscle_principal, pattern),
                     "pattern": pattern,
                     "movement_type": arche["movement_type"],
                     "equipment": equipment,

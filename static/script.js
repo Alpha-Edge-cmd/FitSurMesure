@@ -529,7 +529,7 @@ const steps = [
       { id: "grossesse", label: "Grossesse en cours ?", type: "select", options: ["Non", "Oui"],
         showIf: d => d.sexe === "Femme" },
       { id: "code_promo", label: "Code promo / parrainage (facultatif)", type: "text",
-        placeholder: "Ex : KARIM-7F3B" },
+        placeholder: "Ex : ALEX-7F3B" },
     ],
     consentAtEnd: true,
   },

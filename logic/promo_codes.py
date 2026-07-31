@@ -72,7 +72,7 @@ _price_to_float = price_to_float
 
 def generate_code(base=""):
     """Génère un code lisible : préfixe basé sur le nom si fourni + suffixe aléatoire,
-    ex: KARIM-7F3B. Garantit l'unicité par rapport aux codes déjà stockés."""
+    ex: ALEX-7F3B. Garantit l'unicité par rapport aux codes déjà stockés."""
     store = _load()
     prefix = re.sub(r"[^A-Z0-9]", "", (base or "").upper())[:10] or "AMI"
     while True:
