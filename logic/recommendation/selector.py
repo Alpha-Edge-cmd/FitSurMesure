@@ -241,7 +241,38 @@ def select_exercises(
                 deja = [s["exercise"] for s in selected]
                 adjusted += diversity.calculate_diversity_bonus(candidate["exercise"], deja)
                 adjusted += diversity.calculate_family_penalty(candidate["exercise"], deja)
+                # Retour Samy (« le problème c'est vraiment la diversité des
+                # exercices ») : la famille seule ne suffisait pas. Quatre
+                # développés à la barre de familles différentes restent quatre
+                # fois le même stimulus. On pénalise aussi la répétition du
+                # matériel et du format de travail.
+                adjusted += diversity.calculate_equipment_penalty(candidate["exercise"], deja)
+                adjusted += diversity.calculate_format_penalty(candidate["exercise"], deja)
             evalues.append((adjusted, i, candidate))
+
+        # --- Exclusion STRICTE des doublons de famille ---------------------
+        # Retour Samy : « j'ai 3x développé couché sur 4 exercices ».
+        #
+        # Les malus de diversité ne suffisaient pas : ils abaissent le score,
+        # mais la rotation choisit ensuite dans un GROUPE de candidats jugés
+        # équivalents. Un exercice de la même famille, même pénalisé, pouvait
+        # rester dans ce groupe et être retenu.
+        #
+        # Tant qu'il existe au moins un exercice d'une famille non encore
+        # utilisée, on n'en prend aucun d'une famille déjà présente. Ce n'est
+        # plus une préférence, c'est une règle. On ne retombe sur les doublons
+        # que si le muscle n'offre pas assez de familles distinctes — cas où
+        # il vaut mieux une variante proche qu'un trou dans la séance.
+        if enforce_family_diversity and selected:
+            familles_prises = {
+                getattr(s["exercise"], "family", None) for s in selected
+            }
+            inedits = [
+                (a, i, c) for a, i, c in evalues
+                if getattr(c["exercise"], "family", None) not in familles_prises
+            ]
+            if inedits:
+                evalues = inedits
 
         meilleur = max(a for a, _, _ in evalues)
         # Groupe des candidats "à égalité pratique" avec le meilleur.
