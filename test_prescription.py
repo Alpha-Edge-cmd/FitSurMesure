@@ -227,7 +227,19 @@ def run():
         # plancher + avertissement dédié émis par `workout_generator` au
         # niveau séance, cf. `MESSAGE_BUDGET_PLANCHER`).
         if total_projete > budget6 + 1e-6:
-            assert all(e["sets"] == MIN_SETS_FLOOR for e in presc6["exercises"]), presc6["exercises"]
+            # Retour Samy (« toujours bloqué à 3 séries ») : cette assertion
+            # encodait exactement le défaut signalé — dès que le budget de
+            # fatigue était dépassé, TOUT le programme tombait au plancher, et
+            # la hiérarchie entre mouvements composés et isolations
+            # disparaissait. Déclarer « moins de 6h » de sommeil suffisait à
+            # aplatir 56 exercices sur 56.
+            #
+            # Nouveau comportement attendu : le volume est bien réduit (aucun
+            # exercice au-dessus de 4 séries, plus de bonus de niveau), mais
+            # les mouvements composés gardent une série de plus que les
+            # isolations.
+            assert all(MIN_SETS_FLOOR <= e["sets"] <= 4 for e in presc6["exercises"]), presc6["exercises"]
+            assert len({e["sets"] for e in presc6["exercises"]}) >= 2, presc6["exercises"]
             warnings_texte = " ".join(w6.get("warnings", []))
             assert "plancher" in warnings_texte.lower(), w6.get("warnings")
         for e in presc6["exercises"]:

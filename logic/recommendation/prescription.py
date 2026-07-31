@@ -768,8 +768,31 @@ def _sets_de_base(profile, exercise, dominant, recuperation_degradee=False):
     ramener à 3 produisait un volume de travail dérisoire."""
     tier = exercise_order.classify_exercise(exercise)
 
+    # Retour Samy : « toujours bloqué à 3 séries ».
+    #
+    # Cause trouvée après mesure : déclarer « moins de 6h » de sommeil OU un
+    # stress « élevé » ramenait TOUT le programme au plancher — 56 exercices
+    # sur 56 à 3 séries, contre 29 à 4 séries et 27 à 3 pour le même profil
+    # bien reposé. Une seule case du questionnaire écrasait donc l'intégralité
+    # de la prescription, sans que rien ne l'explique dans le PDF.
+    #
+    # Retirer une série ne suffisait pas non plus : la base d'hypertrophie
+    # étant 4/4/3/3, un simple -1 redonnait 3/3/3/3 — le même aplatissement.
+    #
+    # La récupération dégradée annule donc le BONUS de niveau, sans jamais
+    # entamer la dose de base. Concrètement, un pratiquant avancé mal reposé
+    # travaille comme un intermédiaire bien reposé, au lieu de tomber au
+    # plancher. C'est cohérent avec le principe « réduire le volume, pas
+    # l'intensité ni la fréquence » : on réduit le SURPLUS de volume, pas la
+    # dose minimale efficace.
+    #
+    # Le vrai levier de réduction pour un profil fatigué reste ailleurs et
+    # existe déjà : le nombre d'exercices par séance (workout_generator) et le
+    # budget de fatigue global, tous deux calculés en amont.
     if recuperation_degradee:
-        return MIN_SETS_FLOOR, tier
+        sets = SETS_PAR_PALIER.get((dominant, tier), SETS_DEFAUT)
+        sets = min(sets, PLAFOND_SETS_PAR_PALIER.get(tier, 4))
+        return max(MIN_SETS_FLOOR, sets), tier
 
     niveau = getattr(profile, "niveau_musculation", None)
     sets = SETS_PAR_PALIER.get((dominant, tier), SETS_DEFAUT)
