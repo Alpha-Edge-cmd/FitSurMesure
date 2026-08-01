@@ -590,7 +590,12 @@ def create_checkout_session():
     # fréquence...) et reçoit un programme recalculé sur cet état actuel.
     # Concrètement, il repasse par le questionnaire normal et arrive ici — on
     # se contente de ne pas lui redemander de payer.
-    email_session = session.get("utilisateur")
+    # `auth.current_user()` renvoie un objet User, pas une chaîne : lire
+    # session["utilisateur"] ne donnait jamais rien et la détection d'abonné
+    # ne se déclenchait donc JAMAIS. Bug attrapé en relisant le mécanisme de
+    # session avant de brancher l'interface.
+    utilisateur_connecte = auth.current_user()
+    email_session = getattr(utilisateur_connecte, "email", None) if utilisateur_connecte else None
     if email_session and subscriptions.est_actif(email_session):
         is_free = True
         order_code_promo = ""
@@ -1001,7 +1006,9 @@ def mon_compte(utilisateur):
     programmes, feedback exercices, évolution du profil (consigne). Lecture
     seule stricte (cf. `program_service.get_user_dashboard`)."""
     dashboard = program_service.get_user_dashboard(utilisateur)
-    return render_template("mon_compte.html", utilisateur=utilisateur, dashboard=dashboard)
+    abonnement = subscriptions.details(getattr(utilisateur, "email", None))
+    return render_template("mon_compte.html", utilisateur=utilisateur,
+                            dashboard=dashboard, abonnement=abonnement)
 
 
 @app.route("/mon-compte/nouveau-programme")
@@ -1019,7 +1026,7 @@ def nouveau_programme(utilisateur):
     son poids, son niveau, sa fréquence, ses records, ses douleurs — et le
     paiement est automatiquement sauté (cf. /create-checkout-session).
     """
-    if not subscriptions.est_actif(utilisateur):
+    if not subscriptions.est_actif(getattr(utilisateur, "email", utilisateur)):
         return redirect(url_for("mon_compte"))
     return redirect(url_for("questionnaire") + "?abonne=1")
 
@@ -1033,7 +1040,7 @@ def evolution_profil(utilisateur):
     niveau, fréquence) entre deux programmes, plutôt qu'une simple pile de
     PDF sans lien entre eux.
     """
-    commandes = _commandes_payees_pour_email(utilisateur)
+    commandes = _commandes_payees_pour_email(getattr(utilisateur, "email", utilisateur))
     if len(commandes) < 2:
         return jsonify({"evolution": [], "message": "Pas encore assez de programmes pour comparer."})
 

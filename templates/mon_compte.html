@@ -50,6 +50,57 @@
     </div>
   </header>
 
+  {% if abonnement and abonnement.actif %}
+  <!-- Retour Samy : « le but c'est qu'avec l'abonnement annuel on change de
+       programme dès qu'on évolue en poids, en force, en expérience ». Le
+       droit existait côté serveur mais rien ne l'exposait ici : l'abonné
+       n'avait aucun moyen de s'en servir. -->
+  <div class="panel" style="border-left:4px solid #2e5aac;">
+    <h2>Ton abonnement annuel</h2>
+    <p>
+      Actif jusqu'au {{ abonnement.valide_jusqu_au[:10] }}.
+      {% if abonnement.resilie %}
+        Résilié — tu gardes l'accès jusqu'à cette date.
+      {% endif %}
+    </p>
+    <p>
+      Tu as évolué en poids, en force, en expérience ou en disponibilité ?
+      Refais le questionnaire avec tes données actuelles : ton programme sera
+      entièrement recalculé, sans repayer.
+    </p>
+    <p>
+      <a href="/mon-compte/nouveau-programme" class="btn"
+         style="display:inline-block; background:#2e5aac; color:#fff; padding:10px 18px;
+                border-radius:8px; text-decoration:none;">
+        Mettre à jour mon programme
+      </a>
+    </p>
+
+    <div id="evolutionBloc" style="margin-top:1rem;"></div>
+  </div>
+  <script>
+    // Progression entre les deux derniers questionnaires : c'est ce qui donne
+    // du sens au réabonnement, plutôt qu'une pile de PDF sans lien.
+    fetch("/mon-compte/evolution")
+      .then(r => r.json())
+      .then(d => {
+        const bloc = document.getElementById("evolutionBloc");
+        if (!bloc) return;
+        if (!d.evolution || !d.evolution.length) {
+          bloc.innerHTML = d.message
+            ? `<p style="color:#5b6473; font-size:13px;">${d.message}</p>` : "";
+          return;
+        }
+        bloc.innerHTML =
+          `<p style="font-weight:600; margin-bottom:6px;">Ce qui a changé depuis ton programme précédent</p>` +
+          d.evolution.map(e =>
+            `<div style="font-size:14px;">${e.libelle} : <s>${e.avant}${e.unite}</s> → <strong>${e.apres}${e.unite}</strong></div>`
+          ).join("");
+      })
+      .catch(() => {});
+  </script>
+  {% endif %}
+
   <div class="panel">
     <h2>Programme actuel</h2>
     {% if dashboard.programme_actuel %}
