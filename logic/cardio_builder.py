@@ -45,6 +45,25 @@ from logic import cardio_protocols, cardio_zones
 # le recopier dans chaque test d'égalité.
 COURSE_OBJECTIF = "Me préparer à une course (5km, 10km, semi, marathon)"
 
+# Types de séance qui n'ont de sens QU'EN COURSE À PIED : ils désignent une
+# allure de course précise, non transposable au vélo ou à la natation.
+ALLURES_SPECIFIQUES_COURSE = (
+    "Allure spécifique 5 km",
+    "Allure spécifique 10 km",
+    "Allure semi-marathon",
+    "Allure marathon",
+)
+
+# Équivalent d'intensité retenu sur les autres disciplines. On conserve la
+# ZONE de travail (c'est elle qui porte l'effet physiologique), on abandonne
+# seulement la référence à une distance de course.
+EQUIVALENT_HORS_COURSE = {
+    "Allure spécifique 5 km": "Seuil",       # Zone 4
+    "Allure spécifique 10 km": "Seuil",      # Zone 4
+    "Allure semi-marathon": "Tempo",         # Zone 3
+    "Allure marathon": "Tempo",              # Zone 3
+}
+
 
 def _variante_jitter(signature, cle):
     """Nombre stable dérivé de la signature du profil + d'une clé (nom de
@@ -673,6 +692,20 @@ def build_cardio_program(data):
                 f"Retour noté sur {seance_nom} : n'hésite pas à en discuter plus précisément pour "
                 f"un ajustement sur mesure."
             )
+
+        # Retour Samy : « tu as mis allure objectif 10 km, ça c'est pas bon
+        # pour du vélo mais seulement pour de la course ».
+        #
+        # Le protocole était déjà correct (les disciplines autres que la course
+        # se repliaient sur l'équivalent seuil ou tempo), mais le NOM de la
+        # séance restait « Allure spécifique 10 km » — affiché tel quel dans le
+        # PDF à côté d'une séance de vélo ou de natation. Une allure de course
+        # à pied n'a aucun sens sur un vélo : ni la vitesse, ni la cadence, ni
+        # le repère d'effort ne se transposent.
+        #
+        # On remplace donc le TYPE lui-même, pas seulement son contenu.
+        if discipline != "Course" and type_seance in ALLURES_SPECIFIQUES_COURSE:
+            type_seance = EQUIVALENT_HORS_COURSE.get(type_seance, "Tempo")
 
         protocole = _choisir_protocole(
             type_seance, discipline, niveau_cardio,

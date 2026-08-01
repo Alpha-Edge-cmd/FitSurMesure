@@ -452,6 +452,13 @@ const steps = [
   },
   {
     title: "Alimentation",
+    // Retour Samy : « enlève cette partie Alimentation dans le questionnaire
+    // du programme cardio et musculation ». Ces formules ne vendent pas de
+    // plan alimentaire (cf. app.py::_include_nutrition) : poser des questions
+    // sur les restrictions, les aliments détestés ou le budget n'a donc aucun
+    // effet sur le PDF livré. Chaque question doit avoir un rapport avec le
+    // programme, sinon elle allonge le questionnaire pour rien.
+    showIf: d => d.formule !== "musculation" && d.formule !== "cardio",
     fields: [
       { id: "restriction_alimentaire", label: "Restriction alimentaire", type: "select",
         options: ["Aucune", "Végétarien", "Végan", "Sans lactose", "Sans gluten", "Allergie"] },
@@ -1145,6 +1152,12 @@ async function submitForm() {
 }
 
 function stepHasVisibleContent(s) {
+  // Une ÉTAPE entière peut désormais porter un `showIf` (et pas seulement ses
+  // champs) — cf. l'étape "Alimentation", masquée pour les formules
+  // Musculation seule et Cardio seule, qui ne vendent aucun plan alimentaire.
+  // Sans ce test, l'étape restait affichée avec toutes ses questions.
+  if (s.showIf && !s.showIf(formData)) return false;
+
   const visibleFields = s.fields.filter(f => !f.showIf || f.showIf(formData));
   return visibleFields.length > 0 || !!s.consentAtEnd;
 }
