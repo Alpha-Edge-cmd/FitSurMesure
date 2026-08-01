@@ -581,7 +581,26 @@ def create_checkout_session():
     commission_pct = 0.0
     order_code_promo = code_promo
 
-    if code_promo_normalized and code_promo_normalized == re.sub(r"\s+", "", OWNER_ACCESS_CODE).upper():
+    # Abonnement annuel en cours : le programme est déjà payé pour l'année.
+    #
+    # Retour Samy : « le but c'est qu'avec l'abonnement annuel on change de
+    # programme dès qu'on évolue en poids, en force, en expérience ».
+    # L'abonné ne rejoue donc PAS son ancien questionnaire : il le refait avec
+    # ses nouvelles données (nouveau poids, nouveau niveau, nouvelle
+    # fréquence...) et reçoit un programme recalculé sur cet état actuel.
+    # Concrètement, il repasse par le questionnaire normal et arrive ici — on
+    # se contente de ne pas lui redemander de payer.
+    email_session = session.get("utilisateur")
+    if email_session and subscriptions.est_actif(email_session):
+        is_free = True
+        order_code_promo = ""
+        abonnement_actif = True
+    else:
+        abonnement_actif = False
+
+    if abonnement_actif:
+        pass
+    elif code_promo_normalized and code_promo_normalized == re.sub(r"\s+", "", OWNER_ACCESS_CODE).upper():
         # Accès illimité réservé au propriétaire du site : ne touche jamais aux
         # codes promo influenceurs/amis, pas de suivi de parrainage/commission.
         is_free = True
@@ -760,13 +779,11 @@ def stripe_webhook():
     return jsonify({"received": True})
 
 
-def _dernieres_reponses_questionnaire(email):
-    """Réponses au questionnaire de la commande payée la plus récente de cet
-    email. Sert à régénérer un programme sans redemander à l'abonné de tout
-    ressaisir."""
+def _commandes_payees_pour_email(email):
+    """Commandes payées de cet email, de la plus récente à la plus ancienne."""
     email_normalise = (email or "").strip().lower()
     if not email_normalise:
-        return None
+        return []
 
     candidates = []
     for order in (orders._load().get("orders") or {}).values():
@@ -778,10 +795,8 @@ def _dernieres_reponses_questionnaire(email):
         except Exception:
             continue
 
-    if not candidates:
-        return None
     candidates.sort(key=lambda o: o.get("created_at") or "", reverse=True)
-    return candidates[0].get("data")
+    return candidates
 
 
 def _activer_abonnement_si_besoin(order, stripe_subscription_id=None):
@@ -989,48 +1004,58 @@ def mon_compte(utilisateur):
     return render_template("mon_compte.html", utilisateur=utilisateur, dashboard=dashboard)
 
 
-@app.route("/mon-compte/regenerer", methods=["POST"])
+@app.route("/mon-compte/nouveau-programme")
 @_login_required
-def regenerer_programme(utilisateur):
-    """Régénère un programme complet — réservé aux abonnés annuels.
+def nouveau_programme(utilisateur):
+    """Point d'entrée abonné : refaire le questionnaire avec ses données à jour.
 
-    Retour Samy (audit de l'abonnement) : c'est LA contrepartie de
-    l'abonnement annoncée sur la page d'accueil (« régénérer un nouveau
-    programme aussi souvent que nécessaire »). Elle n'existait nulle part dans
-    le code : un abonné à 59 € avait exactement les mêmes droits qu'un
-    acheteur ponctuel à 22,99 €.
+    Retour Samy : « le but c'est qu'avec l'abonnement annuel on change de
+    programme dès qu'on évolue en poids, en force, en expérience ».
 
-    Un achat unique conserve évidemment le droit d'AJUSTER le programme déjà
-    payé (retirer un exercice qui ne plaît pas) : c'est un mécanisme distinct,
-    inchangé. Ce qui est réservé ici, c'est la génération d'un programme
-    entièrement neuf.
+    Ma première version rejouait l'ANCIEN questionnaire à l'identique — ça ne
+    servait à rien : le programme aurait été recalculé sur des données
+    périmées. L'intérêt de l'abonnement, c'est justement de repartir de l'état
+    ACTUEL. On renvoie donc l'abonné vers le questionnaire, où il met à jour
+    son poids, son niveau, sa fréquence, ses records, ses douleurs — et le
+    paiement est automatiquement sauté (cf. /create-checkout-session).
     """
     if not subscriptions.est_actif(utilisateur):
-        return _error(
-            "La régénération illimitée est réservée à l'abonnement annuel. "
-            "Tu peux toujours ajuster ton programme actuel depuis ta page programme.",
-            403,
-        )
+        return redirect(url_for("mon_compte"))
+    return redirect(url_for("questionnaire") + "?abonne=1")
 
-    donnees = _dernieres_reponses_questionnaire(utilisateur)
-    if not donnees:
-        return _error(
-            "Aucun questionnaire trouvé pour ton compte. Refais le questionnaire "
-            "pour générer un nouveau programme.",
-            404,
-        )
 
-    try:
-        programme = program_service.generate_user_program(utilisateur, donnees)
-    except Exception:
-        app.logger.exception("Régénération du programme impossible")
-        return _error("La régénération a échoué, réessaie dans un instant.", 500)
+@app.route("/mon-compte/evolution")
+@_login_required
+def evolution_profil(utilisateur):
+    """Comparaison entre le dernier questionnaire et le précédent.
 
-    return jsonify({
-        "ok": True,
-        "message": "Nouveau programme généré.",
-        "program_id": (programme or {}).get("id") if isinstance(programme, dict) else None,
-    })
+    C'est ce qui donne du sens au réabonnement : voir ce qui a bougé (poids,
+    niveau, fréquence) entre deux programmes, plutôt qu'une simple pile de
+    PDF sans lien entre eux.
+    """
+    commandes = _commandes_payees_pour_email(utilisateur)
+    if len(commandes) < 2:
+        return jsonify({"evolution": [], "message": "Pas encore assez de programmes pour comparer."})
+
+    recent = commandes[0].get("data") or {}
+    precedent = commandes[1].get("data") or {}
+
+    suivis = [
+        ("poids", "Poids", "kg"),
+        ("niveau_musculation", "Niveau", ""),
+        ("frequence_entrainement", "Séances par semaine", ""),
+        ("objectif_principal", "Objectif", ""),
+    ]
+    evolution = []
+    for cle, libelle, unite in suivis:
+        avant, apres = precedent.get(cle), recent.get(cle)
+        if avant in (None, "") or apres in (None, "") or str(avant) == str(apres):
+            continue
+        evolution.append({
+            "libelle": libelle, "avant": avant, "apres": apres, "unite": unite,
+        })
+
+    return jsonify({"evolution": evolution})
 
 
 @app.route("/my-program")
