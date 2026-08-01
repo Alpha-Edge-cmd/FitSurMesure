@@ -12,7 +12,7 @@ from logic.program_builder import build_program
 from logic.cardio_builder import build_cardio_program
 from logic.pdf_generator import generate_pdf
 from logic.menu_builder import build_menu
-from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages
+from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages, subscriptions
 from logic.db import init_db
 
 # Prompt hors 24 phases (décision explicite de Samy, cf. discussion sur le
@@ -659,6 +659,7 @@ def payment_success():
                                   stripe_subscription_id=checkout_session.get("subscription"))
                 order = orders.get_order(order_id)
                 _essayer_generer_programme_v2(order_id, order)
+                _activer_abonnement_si_besoin(order, checkout_session.get("subscription"))
         except Exception:
             pass
 
@@ -735,9 +736,73 @@ def stripe_webhook():
                 stripe_session_id=checkout_session.get("id"),
                 stripe_subscription_id=checkout_session.get("subscription"),
             )
-            _essayer_generer_programme_v2(order_id, orders.get_order(order_id))
+            commande = orders.get_order(order_id)
+            _essayer_generer_programme_v2(order_id, commande)
+            _activer_abonnement_si_besoin(commande, checkout_session.get("subscription"))
+
+    # Retour Samy (audit de l'abonnement annuel) : ces deux événements
+    # n'étaient PAS écoutés. Stripe prélevait bien la deuxième année sans que
+    # le site le sache, et une résiliation ne retirait jamais l'accès.
+    elif event["type"] == "invoice.paid":
+        # Renouvellement annuel facturé : on prolonge la validité.
+        facture = event["data"]["object"]
+        abonnement_id = facture.get("subscription")
+        email = facture.get("customer_email")
+        if email and abonnement_id:
+            subscriptions.activer(email, stripe_subscription_id=abonnement_id)
+
+    elif event["type"] == "customer.subscription.deleted":
+        # Résiliation : on coupe le renouvellement, sans retirer l'accès déjà
+        # payé jusqu'à l'échéance en cours.
+        abonnement = event["data"]["object"]
+        subscriptions.resilier(stripe_subscription_id=abonnement.get("id"))
 
     return jsonify({"received": True})
+
+
+def _dernieres_reponses_questionnaire(email):
+    """Réponses au questionnaire de la commande payée la plus récente de cet
+    email. Sert à régénérer un programme sans redemander à l'abonné de tout
+    ressaisir."""
+    email_normalise = (email or "").strip().lower()
+    if not email_normalise:
+        return None
+
+    candidates = []
+    for order in (orders._load().get("orders") or {}).values():
+        if not order.get("paid"):
+            continue
+        try:
+            if (order_migration._resolve_email(order) or "").strip().lower() == email_normalise:
+                candidates.append(order)
+        except Exception:
+            continue
+
+    if not candidates:
+        return None
+    candidates.sort(key=lambda o: o.get("created_at") or "", reverse=True)
+    return candidates[0].get("data")
+
+
+def _activer_abonnement_si_besoin(order, stripe_subscription_id=None):
+    """Ouvre les droits d'abonnement après un paiement de la formule annuelle.
+
+    Sans cet appel, la promesse commerciale de la landing (« régénérer un
+    nouveau programme aussi souvent que nécessaire ») n'était rattachée à
+    aucun droit réel : un abonné à 59 € avait exactement les mêmes
+    possibilités qu'un acheteur ponctuel à 22,99 €.
+    """
+    if not order or order.get("formule") != subscriptions.FORMULE_ABONNEMENT:
+        return
+    try:
+        email = order_migration._resolve_email(order)
+        if email:
+            subscriptions.activer(
+                email,
+                stripe_subscription_id=stripe_subscription_id or order.get("stripe_subscription_id"),
+            )
+    except Exception:
+        app.logger.exception("Activation de l'abonnement impossible")
 
 
 def _record_commission_if_needed(order_id, order, data):
@@ -922,6 +987,50 @@ def mon_compte(utilisateur):
     seule stricte (cf. `program_service.get_user_dashboard`)."""
     dashboard = program_service.get_user_dashboard(utilisateur)
     return render_template("mon_compte.html", utilisateur=utilisateur, dashboard=dashboard)
+
+
+@app.route("/mon-compte/regenerer", methods=["POST"])
+@_login_required
+def regenerer_programme(utilisateur):
+    """Régénère un programme complet — réservé aux abonnés annuels.
+
+    Retour Samy (audit de l'abonnement) : c'est LA contrepartie de
+    l'abonnement annoncée sur la page d'accueil (« régénérer un nouveau
+    programme aussi souvent que nécessaire »). Elle n'existait nulle part dans
+    le code : un abonné à 59 € avait exactement les mêmes droits qu'un
+    acheteur ponctuel à 22,99 €.
+
+    Un achat unique conserve évidemment le droit d'AJUSTER le programme déjà
+    payé (retirer un exercice qui ne plaît pas) : c'est un mécanisme distinct,
+    inchangé. Ce qui est réservé ici, c'est la génération d'un programme
+    entièrement neuf.
+    """
+    if not subscriptions.est_actif(utilisateur):
+        return _error(
+            "La régénération illimitée est réservée à l'abonnement annuel. "
+            "Tu peux toujours ajuster ton programme actuel depuis ta page programme.",
+            403,
+        )
+
+    donnees = _dernieres_reponses_questionnaire(utilisateur)
+    if not donnees:
+        return _error(
+            "Aucun questionnaire trouvé pour ton compte. Refais le questionnaire "
+            "pour générer un nouveau programme.",
+            404,
+        )
+
+    try:
+        programme = program_service.generate_user_program(utilisateur, donnees)
+    except Exception:
+        app.logger.exception("Régénération du programme impossible")
+        return _error("La régénération a échoué, réessaie dans un instant.", 500)
+
+    return jsonify({
+        "ok": True,
+        "message": "Nouveau programme généré.",
+        "program_id": (programme or {}).get("id") if isinstance(programme, dict) else None,
+    })
 
 
 @app.route("/my-program")
