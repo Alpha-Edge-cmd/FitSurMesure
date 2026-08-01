@@ -79,7 +79,13 @@ const steps = [
           // désormais masquées pour cette formule aussi).
           { value: "nutrition", label: "Programme Alimentation seul" },
           { value: "les_deux", label: "Programme Complet (Musculation + Cardio)" },
-          { value: "abonnement", label: "Abonnement annuel (programmes illimités)" },
+          // Retour Samy : l'abonnement annuel est retiré de la vente le temps
+          // qu'il finalise la création de sa micro-entreprise et le passage de
+          // Stripe en mode réel. Le code reste en place (logic/subscriptions.py,
+          // routes /mon-compte/nouveau-programme et /mon-compte/evolution,
+          // gestion des webhooks) : réactiver l'offre = remettre cette ligne
+          // et la carte tarifaire de la landing, rien d'autre.
+          // { value: "abonnement", label: "Abonnement annuel (programmes illimités)" },
         ] },
     ],
   },
