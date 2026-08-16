@@ -8,6 +8,19 @@ function _generateNonce() {
   return "nonce-" + Date.now() + "-" + Math.random().toString(36).slice(2);
 }
 
+// Audit du questionnaire (retour Samy : « je veux vraiment que chaque question
+// qui est posée ait un rapport avec le programme, sinon elle peut être
+// supprimée »). Sur les 88 questions, 3 n'étaient lues NULLE PART dans le
+// moteur — ni pour choisir un exercice, ni pour calculer, ni même pour
+// s'afficher dans le PDF. Elles ont été retirées :
+//   - annees_pratique : redondante avec `niveau_musculation`, qui pilote déjà
+//     séries, répétitions, intensité et sélection d'exercices ;
+//   - particularites_morphologiques : texte libre qu'aucun code ne pouvait
+//     interpréter ; les cas réels (douleur, mobilité) sont déjà couverts par
+//     `blessures`, `amplitude_squat` et `amplitude_epaule` ;
+//   - preferences_libres : texte libre sans effet, les préférences réelles
+//     passent par `preference_materiel` et `exercices_incapables`.
+// Chaque question retirée, c'est du temps gagné et un abandon en moins.
 const formData = {
   blessures: [],
   severite_blessure: {},
@@ -121,10 +134,6 @@ const steps = [
       // Retour Samy (séparation stricte des programmes) : question purement
       // musculation, sans effet sur les calculs nutritionnels — masquée en
       // formule Alimentation seule.
-      { id: "annees_pratique", label: "Depuis combien de temps pratiques-tu la musculation régulièrement ? (facultatif)",
-        type: "select",
-        showIf: d => d.formule !== "nutrition",
-        options: ["Moins de 6 mois", "6 mois à 2 ans", "2 à 5 ans", "Plus de 5 ans"] },
       // As-tu déjà testé ton 1RM (record perso) sur ces 4 mouvements de référence ?
       // Sert à calibrer le conseil d'exécution (cf. logic/recommendation/prescription.py,
       // conseil_execution) : monter progressivement si jamais testé, ou se
@@ -289,10 +298,6 @@ const steps = [
         type: "select",
         showIf: d => (d.formule !== "cardio" && d.formule !== "nutrition"),
         options: ["Je ne sais pas", "Plutôt étroites", "Moyennes", "Plutôt larges"] },
-      { id: "particularites_morphologiques", label: "Une particularité qui pourrait influencer certains exercices ? (facultatif)",
-        type: "textarea",
-        placeholder: "Ex : hyperlaxité, scoliose légère, une jambe plus courte que l'autre...",
-        showIf: d => (d.formule !== "cardio" && d.formule !== "nutrition") },
     ],
   },
   // ---- Catégorie 4/7 : Mobilité et technique ---------------------------------
@@ -451,9 +456,6 @@ const steps = [
         showIf: d => (d.formule !== "cardio" && d.formule !== "nutrition"),
         options: ["Soulever lourd, peu de répétitions", "Contrôler le mouvement, plus de répétitions",
                    "Un mix des deux"] },
-      { id: "preferences_libres", label: "Autre chose à préciser sur tes préférences d'entraînement ? (facultatif)",
-        type: "textarea", showIf: d => d.formule !== "nutrition",
-        placeholder: "Ex : je préfère éviter les longues séries de cardio en fin de séance" },
     ],
   },
   {
