@@ -12,7 +12,7 @@ from logic.program_builder import build_program
 from logic.cardio_builder import build_cardio_program
 from logic.pdf_generator import generate_pdf
 from logic.menu_builder import build_menu
-from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages, subscriptions
+from logic import auth, promo_codes, orders, stripe_client, order_migration, program_service, program_interaction, contact_messages, subscriptions, legal
 from logic.db import init_db
 
 # Prompt hors 24 phases (décision explicite de Samy, cf. discussion sur le
@@ -179,6 +179,31 @@ def _preview_json(nutrition, program, cardio):
 @app.route("/")
 def landing():
     return render_template("landing.html", prix=PRIX_AFFICHE, prices=PRICES)
+
+
+@app.route("/mentions-legales")
+def mentions_legales():
+    """Obligatoires pour tout site marchand (article 6 III de la LCEN)."""
+    return render_template("legal.html", page="mentions",
+                            titre="Mentions légales",
+                            editeur=legal.editeur(),
+                            conservation=legal.DUREE_CONSERVATION,
+                            offres=legal.offres(PRICES),
+                            maj=date.today().strftime("%d/%m/%Y"))
+
+
+@app.route("/cgv")
+def cgv():
+    """Conditions générales de vente. L'article 5 contient la renonciation
+    expresse au droit de rétractation, indispensable sur un produit numérique
+    livré immédiatement : sans elle, un client peut demander le remboursement
+    pendant 14 jours après avoir téléchargé son programme."""
+    return render_template("legal.html", page="cgv",
+                            titre="Conditions générales de vente",
+                            editeur=legal.editeur(),
+                            conservation=legal.DUREE_CONSERVATION,
+                            offres=legal.offres(PRICES),
+                            maj=date.today().strftime("%d/%m/%Y"))
 
 
 @app.route("/questionnaire")

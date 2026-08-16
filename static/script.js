@@ -719,6 +719,12 @@ function renderStep() {
           J'accepte que mes données (âge, poids, santé) soient utilisées uniquement pour générer
           ce programme personnalisé, conformément au RGPD. Ce document ne remplace pas un avis
           médical.
+          <br><br>
+          Je reconnais avoir lu les <a href="/cgv" target="_blank">conditions générales de vente</a>
+          et les <a href="/mentions-legales" target="_blank">mentions légales</a>.
+          Je demande expressément la mise à disposition immédiate de mon programme et
+          <strong>je renonce à mon droit de rétractation de 14 jours</strong> dès sa livraison
+          (article L221-28 13° du Code de la consommation).
         </label>
       </div>
     `;

@@ -1,0 +1,259 @@
+{# Mentions légales et CGV — obligatoires pour vendre en ligne.
+   Retour Samy : le site encaissait sans aucune des deux.
+   Les valeurs entre crochets sont à remplacer dès réception du SIRET
+   (cf. logic/legal.py, un seul endroit à modifier). #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ titre }} — FitSurMesure</title>
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='landing.css') }}">
+<style>
+  .legal { max-width: 780px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  .legal h1 { margin-bottom: .3rem; }
+  .legal h2 { margin-top: 2rem; font-size: 19px; }
+  .legal p, .legal li { font-size: 15px; line-height: 1.65; }
+  .legal .maj { color: #5b6473; font-size: 13px; margin-bottom: 2rem; }
+  .legal .todo { background: #fff0eb; border-left: 3px solid #ff4d2e;
+                 padding: 10px 14px; font-size: 13.5px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+    <a href="/" class="brand">FitSurMesure</a>
+    <a href="/questionnaire" class="cta-small">Créer mon programme</a>
+  </div>
+</nav>
+
+<div class="legal">
+  <h1>{{ titre }}</h1>
+  <p class="maj">Dernière mise à jour : {{ maj }}</p>
+
+  {% if not editeur.siret %}
+  <p class="todo">
+    Ces pages sont publiées avec des informations d'identification incomplètes.
+    Elles doivent être complétées avant toute vente.
+  </p>
+  {% endif %}
+
+  {% if page == 'mentions' %}
+
+  <h2>Éditeur du site</h2>
+  <p>
+    Le site FitSurMesure est édité par <strong>{{ editeur.nom }}</strong>,
+    entrepreneur individuel sous le régime de la micro-entreprise.<br>
+    Adresse : {{ editeur.adresse }}<br>
+    Adresse électronique : {{ editeur.email }}<br>
+    SIRET : {{ editeur.siret or "[à compléter]" }}<br>
+    Numéro de TVA : non applicable, article 293 B du Code général des impôts
+    (franchise en base de TVA).
+  </p>
+  <p>Directeur de la publication : {{ editeur.nom }}.</p>
+
+  <h2>Hébergeur</h2>
+  <p>
+    Render Services, Inc.<br>
+    525 Brannan Street, Suite 300, San Francisco, CA 94107, États-Unis<br>
+    <a href="https://render.com">render.com</a>
+  </p>
+
+  <h2>Propriété intellectuelle</h2>
+  <p>
+    L'ensemble des contenus de ce site — textes, base d'exercices, protocoles
+    d'entraînement, recettes, code source, mise en page — est protégé par le
+    droit d'auteur. Les programmes générés sont destinés à un usage strictement
+    personnel : leur revente, leur diffusion ou leur partage public sont
+    interdits.
+  </p>
+
+  <h2>Données personnelles</h2>
+  <p>
+    Les informations collectées par le questionnaire (âge, sexe, poids, taille,
+    objectifs, blessures déclarées, habitudes de vie) servent uniquement à
+    générer votre programme et à vous permettre de le retrouver depuis votre
+    espace personnel. Elles ne sont ni vendues, ni cédées, ni transmises à des
+    tiers à des fins commerciales.
+  </p>
+  <p>
+    Certaines de ces données touchent à votre santé. Elles ne sont traitées
+    qu'avec votre consentement explicite, recueilli à la fin du questionnaire,
+    et uniquement pour la finalité annoncée. Vous pouvez le retirer à tout
+    moment.
+  </p>
+  <p>
+    Les données de paiement (numéro de carte notamment) ne transitent jamais par
+    nos serveurs et ne sont à aucun moment accessibles à l'éditeur : elles sont
+    traitées directement par Stripe Payments Europe, Ltd.
+  </p>
+  <p>
+    Conformément au RGPD et à la loi Informatique et Libertés, vous disposez
+    d'un droit d'accès, de rectification, d'effacement, de portabilité et
+    d'opposition sur vos données. Pour l'exercer, écrivez à
+    {{ editeur.email }} ; une réponse vous sera apportée sous un mois. Vous
+    pouvez également introduire une réclamation auprès de la CNIL
+    (<a href="https://www.cnil.fr">cnil.fr</a>).
+  </p>
+  <p>
+    Durée de conservation : {{ conservation }} à compter de votre dernière
+    commande, afin de vous permettre de retrouver vos programmes. Au-delà, les
+    données sont supprimées.
+  </p>
+
+  <h2>Cookies</h2>
+  <p>
+    Ce site n'utilise ni cookie publicitaire, ni traceur de mesure d'audience.
+    Seul un cookie de session strictement nécessaire au fonctionnement du site
+    est déposé lorsque vous vous connectez à votre espace personnel. Il ne
+    requiert pas de consentement préalable.
+  </p>
+
+  <h2>Avertissement santé</h2>
+  <p>
+    FitSurMesure est un outil automatisé. Il applique des formules et des règles
+    générales reconnues, mais <strong>ne constitue pas un avis médical</strong>
+    et ne remplace ni un médecin, ni un coach sportif diplômé, ni un
+    diététicien. En cas de pathologie, de blessure, de grossesse, de traitement
+    en cours, ou si vous êtes mineur, consultez un professionnel de santé avant
+    de suivre le programme.
+  </p>
+
+  {% else %}
+
+  <h2>Article 1 — Objet</h2>
+  <p>
+    Les présentes conditions générales de vente régissent la vente de programmes
+    personnalisés de musculation, de nutrition et de cardio, délivrés sous forme
+    de documents numériques au format PDF, par {{ editeur.nom }} (ci-après
+    « le vendeur ») à toute personne physique majeure (ci-après « le client »).
+  </p>
+  <p>
+    Toute commande implique l'acceptation sans réserve des présentes conditions.
+  </p>
+
+  <h2>Article 2 — Produits et prix</h2>
+  <p>
+    Le vendeur propose {{ offres|length }} formules, toutes en paiement unique :
+  </p>
+  <ul>
+    {% for offre in offres %}<li>{{ offre }}</li>{% endfor %}
+  </ul>
+  <p>
+    Les prix sont indiqués en euros toutes taxes comprises. TVA non applicable,
+    article 293 B du Code général des impôts. Le vendeur se réserve le droit de
+    modifier ses prix à tout moment, étant entendu que le prix applicable est
+    celui affiché au moment de la commande.
+  </p>
+
+  <h2>Article 3 — Commande et paiement</h2>
+  <p>
+    La commande s'effectue en ligne : le client remplit le questionnaire, en
+    consulte un aperçu, puis procède au paiement. Le paiement est traité par
+    Stripe Payments Europe, Ltd. Aucune donnée bancaire n'est conservée par le
+    vendeur.
+  </p>
+  <p>
+    La commande n'est définitive qu'après confirmation du paiement.
+  </p>
+
+  <h2>Article 4 — Livraison</h2>
+  <p>
+    Le programme est généré et mis à disposition immédiatement après
+    confirmation du paiement, sous forme de fichier PDF téléchargeable. Il reste
+    accessible depuis l'espace personnel du client.
+  </p>
+  <p>
+    En cas de difficulté d'accès, le client peut écrire à {{ editeur.email }} ;
+    le vendeur s'engage à lui transmettre son programme dans les meilleurs
+    délais.
+  </p>
+
+  <h2>Article 5 — Droit de rétractation</h2>
+  <p>
+    Conformément à l'article L221-28 13° du Code de la consommation, le droit de
+    rétractation ne peut être exercé pour la fourniture d'un contenu numérique
+    non fourni sur support matériel dont l'exécution a commencé après accord
+    préalable exprès du consommateur et renoncement exprès à son droit de
+    rétractation.
+  </p>
+  <p>
+    <strong>En validant sa commande, le client demande expressément l'exécution
+    immédiate de la prestation et reconnaît renoncer à son droit de rétractation
+    de quatorze jours dès la mise à disposition de son programme.</strong>
+  </p>
+  <p>
+    Cette renonciation ne fait pas obstacle au traitement des réclamations : si
+    le programme livré ne correspond pas aux réponses fournies, ou en cas de
+    problème technique, le client peut écrire à {{ editeur.email }}. Le vendeur
+    s'engage à corriger le programme ou, à défaut, à procéder au remboursement.
+  </p>
+
+  <h2>Article 6 — Nature du service et responsabilité</h2>
+  <p>
+    Le programme est généré automatiquement à partir des réponses fournies par
+    le client. Sa pertinence dépend donc directement de l'exactitude et de la
+    sincérité de ces réponses.
+  </p>
+  <p>
+    <strong>Le service ne constitue pas un avis médical.</strong> Il ne remplace
+    ni un médecin, ni un coach sportif diplômé, ni un diététicien. Le client
+    demeure seul responsable de l'exécution des exercices et du respect de ses
+    propres limites. Il lui appartient de consulter un professionnel de santé
+    avant de débuter, notamment en cas de pathologie, de blessure, de grossesse
+    ou de traitement en cours.
+  </p>
+  <p>
+    La responsabilité du vendeur ne saurait être engagée en cas de blessure ou
+    de dommage résultant de l'exécution des exercices, d'une mauvaise
+    interprétation des consignes, ou de réponses inexactes au questionnaire.
+  </p>
+
+  <h2>Article 7 — Usage personnel</h2>
+  <p>
+    Le programme est destiné à l'usage personnel et exclusif du client. Toute
+    revente, diffusion, mise à disposition publique ou reproduction à des fins
+    commerciales est interdite.
+  </p>
+
+  <h2>Article 8 — Données personnelles</h2>
+  <p>
+    Le traitement des données est décrit dans les
+    <a href="/mentions-legales">mentions légales</a>, qui font partie
+    intégrante des présentes conditions.
+  </p>
+
+  <h2>Article 9 — Réclamations et litiges</h2>
+  <p>
+    Toute réclamation doit être adressée à {{ editeur.email }}.
+  </p>
+  <p>
+    Conformément à l'article L612-1 du Code de la consommation, le client peut
+    recourir gratuitement à un médiateur de la consommation en vue de la
+    résolution amiable d'un litige. Les coordonnées du médiateur retenu par le
+    vendeur sont : {{ editeur.mediateur or "[à compléter]" }}.
+  </p>
+  <p>
+    La plateforme européenne de règlement en ligne des litiges est accessible à
+    l'adresse <a href="https://ec.europa.eu/consumers/odr">ec.europa.eu/consumers/odr</a>.
+  </p>
+  <p>
+    Les présentes conditions sont soumises au droit français.
+  </p>
+
+  {% endif %}
+
+  <p style="margin-top:2.5rem;">
+    <a href="/">← Retour à l'accueil</a> ·
+    <a href="/mentions-legales">Mentions légales</a> ·
+    <a href="/cgv">Conditions générales de vente</a> ·
+    <a href="/contact">Nous contacter</a>
+  </p>
+</div>
+
+</body>
+</html>
