@@ -393,6 +393,10 @@ def _build_everything(data):
         "taille": taille,
         "niveau_musculation": data.get("niveau_musculation", "Débutant complet"),
         "objectif_principal": data.get("objectif_principal", "Condition physique générale"),
+        # Retour Samy : l'objectif annexe declenche desormais un bloc
+        # echauffement + etirements dans le PDF (logic/objectifs_annexes.py).
+        # Il etait collecte et normalise mais ne produisait aucun contenu.
+        "objectif_secondaire": data.get("objectif_secondaire", ""),
         "frequence_entrainement": frequence,
         "composition_corporelle": data.get("composition_corporelle", "Je ne sais pas"),
         "signature": signature,

@@ -15,7 +15,7 @@ from reportlab.platypus import (
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
-from . import cardio_zones
+from . import cardio_zones, objectifs_annexes
 from .recipes_db import MOMENT_LABELS
 from .supplements import recommend_supplements
 from .food_lists import get_food_recommendations
@@ -850,6 +850,26 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include
         story.append(PageBreak())
 
     # ================= 4. CONSEILS =================
+    # Objectif annexe (retour Samy : « propose un ou deux exercices en
+    # échauffement et/ou en étirement »). La question `objectif_secondaire`
+    # était collectée et reconnue par profile_normalizer, mais ne produisait
+    # RIEN dans le PDF — exactement le cas d'une question sans rapport avec le
+    # programme livré.
+    annexe = objectifs_annexes.protocole_pour(profile.get("objectif_secondaire"))
+    if annexe:
+        story.append(_p(annexe["titre"], h2_style))
+        story.append(_p(annexe["intro"], body_style))
+
+        story.append(_p("Avant la séance — échauffement", h3_style))
+        for nom, explication in annexe["echauffement"]:
+            story.append(_bullet(f"<b>{nom}</b> — {explication}"))
+
+        story.append(_p("Après la séance — étirements", h3_style))
+        for nom, explication in annexe["etirements"]:
+            story.append(_bullet(f"<b>{nom}</b> — {explication}"))
+
+        story.append(Spacer(1, 8))
+
     story.append(_p("4. CONSEILS GÉNÉRAUX", section_style))
 
     story.append(_p("Entraînement", h2_style))
