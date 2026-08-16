@@ -746,6 +746,35 @@ def generate_pdf(output, profile, nutrition, program, cardio, lifestyle, include
             story.append(_p(cardio["objectif_cardio_note"], note_style))
         if cardio.get("niveau_cardio_note"):
             story.append(_p(cardio["niveau_cardio_note"], note_style))
+
+        # Allures cibles calculées depuis les records déclarés (retour Samy).
+        # Sans ça, les séances renvoyaient à « ton allure 10 km » sans jamais
+        # dire laquelle — l'utilisateur devait la deviner alors qu'il avait
+        # fourni les chronos permettant de la calculer.
+        allures = cardio.get("allures_cibles") or {}
+        if allures:
+            libelles = [("5km", "5 km"), ("10km", "10 km"),
+                        ("semi", "semi-marathon"), ("marathon", "marathon")]
+            lignes = [[l, allures[c]] for c, l in libelles if allures.get(c)]
+            if lignes:
+                story.append(_p("Tes allures cibles", h3_style))
+                story.append(_p(
+                    "Calculées à partir des chronos que tu as déclarés. Ce sont ces allures "
+                    "que visent les séances « allure spécifique » ci-dessous.", note_style))
+                table_allures = Table([["Distance", "Allure visée"]] + lignes,
+                                       colWidths=[7 * cm, 8 * cm])
+                table_allures.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), BLUE),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9.5),
+                    ("TOPPADDING", (0, 0), (-1, -1), 5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LIGHT_BLUE]),
+                    ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#cccccc")),
+                ]))
+                story.append(table_allures)
+                story.append(Spacer(1, 8))
         # Prompt hors 24 phases (retour Samy : "questionnaire adapté par
         # discipline") : une phrase par discipline choisie, dans le même
         # ordre que `cardio_types` (déjà dédupliqué/ordonné en amont).

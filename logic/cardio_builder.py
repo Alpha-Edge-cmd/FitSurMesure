@@ -523,6 +523,116 @@ def _sortie_longue_pertinente(objectif_cardio, distance):
     return True
 
 
+# --- Records de course : du simple affichage au calibrage réel ----------------
+# Retour Samy : les records déclarés (5, 10, 20, 40 km) n'étaient jusqu'ici que
+# RECOPIÉS dans le PDF. Neuf champs remplis par l'utilisateur, aucune décision
+# derrière — alors qu'ils sont la donnée la plus fiable du questionnaire sur
+# son niveau réel : un chrono est un fait, une auto-évaluation est une opinion.
+#
+# Deux usages désormais :
+#   1. affiner le niveau cardio, comme le faisait déjà `temps_1km` seul ;
+#   2. calculer les ALLURES CIBLES affichées dans les séances à allure
+#      spécifique, au lieu de renvoyer l'utilisateur à « ton allure 10 km »
+#      sans lui dire laquelle.
+#
+# Distances réelles en km. "20km" est saisi au questionnaire comme le repère
+# du semi-marathon, "40km" comme celui du marathon.
+DISTANCES_RECORDS_KM = {
+    "5km": 5.0,
+    "10km": 10.0,
+    "20km": 21.1,
+    "40km": 42.2,
+}
+
+# Coefficient appliqué à l'allure d'un record pour estimer l'allure soutenable
+# sur une autre distance. Plus la distance est longue, plus l'allure ralentit :
+# c'est le principe des tables d'équivalence de performance en course à pied
+# (Riegel, Daniels). Valeurs exprimées par rapport à l'allure sur 10 km, prise
+# comme référence.
+COEFF_ALLURE_PAR_DISTANCE = {
+    "1km": 0.90,       # plus rapide que l'allure 10 km
+    "5km": 0.96,
+    "10km": 1.00,
+    "semi": 1.05,
+    "marathon": 1.11,
+    "trail_ultra": 1.20,
+}
+
+
+def _allure_reference_10km(records):
+    """Allure de référence en minutes par kilomètre, ramenée au 10 km, estimée
+    à partir du record disponible le plus fiable.
+
+    On privilégie le record sur la distance la plus proche de 10 km : c'est
+    celui dont la conversion introduit le moins d'erreur.
+    """
+    records = records or {}
+    candidats = []
+    for cle, distance_km in DISTANCES_RECORDS_KM.items():
+        minutes = records.get(cle)
+        if not minutes:
+            continue
+        allure = float(minutes) / distance_km  # min/km sur cette distance
+        # Ramenée à une allure 10 km via le coefficient de la distance source.
+        cle_coeff = {"5km": "5km", "10km": "10km", "20km": "semi", "40km": "marathon"}[cle]
+        allure_10km = allure / COEFF_ALLURE_PAR_DISTANCE[cle_coeff]
+        candidats.append((abs(distance_km - 10.0), allure_10km))
+
+    if not candidats:
+        return None
+    candidats.sort(key=lambda c: c[0])
+    return candidats[0][1]
+
+
+def _formater_allure(minutes_par_km):
+    """4.5 -> "4:30/km"."""
+    if not minutes_par_km or minutes_par_km <= 0:
+        return None
+    minutes = int(minutes_par_km)
+    secondes = int(round((minutes_par_km - minutes) * 60))
+    if secondes == 60:
+        minutes, secondes = minutes + 1, 0
+    return f"{minutes}:{secondes:02d}/km"
+
+
+def allures_cibles(records, temps_1km=None):
+    """Allures cibles par distance, déduites des records déclarés.
+
+    Retourne {"5km": "4:12/km", "10km": "4:22/km", ...} ou {} si aucune donnée.
+    """
+    reference = _allure_reference_10km(records)
+    if reference is None and temps_1km:
+        # Repli sur le temps au kilomètre, converti en allure 10 km.
+        reference = float(temps_1km) / COEFF_ALLURE_PAR_DISTANCE["1km"]
+    if not reference:
+        return {}
+
+    return {
+        distance: _formater_allure(reference * coeff)
+        for distance, coeff in COEFF_ALLURE_PAR_DISTANCE.items()
+        if distance != "1km"
+    }
+
+
+def _estimate_niveau_from_records(records, sexe):
+    """Niveau cardio estimé à partir des records, via l'allure ramenée au
+    10 km. Un chrono réel prime toujours sur une auto-évaluation."""
+    reference = _allure_reference_10km(records)
+    if reference is None:
+        return None
+    # Mêmes seuils d'esprit que `_estimate_niveau_from_1km`, transposés à une
+    # allure 10 km (plus lente qu'un temps sur 1 km isolé).
+    seuils = (
+        {"Confirmé": 4.5, "Intermédiaire": 6.0} if sexe == "Homme"
+        else {"Confirmé": 5.0, "Intermédiaire": 6.5}
+    )
+    if reference <= seuils["Confirmé"]:
+        return "Confirmé"
+    if reference <= seuils["Intermédiaire"]:
+        return "Intermédiaire"
+    return "Débutant"
+
+
 def _estimate_niveau_from_1km(temps_1km, sexe):
     """Affine le niveau cardio déclaré à partir d'un temps réel sur 1 km, bien plus
     fiable qu'une simple auto-évaluation. Seuils légèrement différenciés
@@ -618,6 +728,18 @@ def build_cardio_program(data):
         niveau_calcule = _estimate_niveau_from_1km(data["temps_1km"], data.get("sexe"))
         if niveau_calcule:
             niveau_cardio = niveau_calcule
+
+    # Retour Samy : les records declares servent desormais aussi a affiner le
+    # niveau. Ils priment sur le temps au kilometre quand ils existent : un
+    # chrono sur 10 km est plus representatif de la capacite d'endurance qu'un
+    # effort isole sur 1 km, ou beaucoup surestiment leur allure tenable.
+    if "Course" in cardio_types:
+        niveau_par_records = _estimate_niveau_from_records(
+            data.get("records_course"), data.get("sexe")
+        )
+        if niveau_par_records:
+            niveau_cardio = niveau_par_records
+            niveau_calcule = niveau_par_records
 
     # Distance visée en course ("5km" | "10km" | "semi" | "marathon" |
     # "trail_ultra" | ""), question ajoutée sous "Allure cible visée" (retour
@@ -765,6 +887,12 @@ def build_cardio_program(data):
         # n'affecte ni le mix de séances ni les protocoles ci-dessus (repris
         # tel quel de `_session_mix`/`PROTOCOLS`).
         "notes_par_discipline": _notes_par_discipline(data, cardio_types),
+        # Allures cibles calculees depuis les records (retour Samy) : le PDF
+        # peut enfin dire "ton allure 10 km = 4:22/km" au lieu de renvoyer
+        # l'utilisateur a une allure qu'il doit deviner lui-meme.
+        "allures_cibles": allures_cibles(
+            data.get("records_course"), data.get("temps_1km")
+        ) if "Course" in cardio_types else {},
     }
 
 
